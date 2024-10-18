@@ -268,7 +268,7 @@ section {
 
 .btn-color-2, 
 .btn-color-1 {
-  background: rgb(222, 217, 217);
+  background: rgb(253, 213, 213);
 }
 
 .btn-color-2:hover,
@@ -306,7 +306,7 @@ section {
 
 /* White text for the long paragraph */
 .white-text {
-  color: rgb(239, 231, 231); /* Set text color to white */
+  color: rgb(187, 183, 183); /* Set text color to white */
   font-size: 1rem; /* Optional: Adjust font size */
   line-height: 1.5; /* Optional: Add line height for better readability */
 }
@@ -382,7 +382,7 @@ section {
 
 /* Styling for the experience blocks */
 .resume-wrap {
-  background: #f8f9fa; /* Light background for white container */
+  background: #ebe4e4; /* Light background for white container */
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 2rem; /* Rounded corners */
@@ -515,9 +515,9 @@ article .icon {
 }
 
 .project-btn {
-  color: rgb(88, 87, 87);
-  border-color: rgb(240, 200, 215);
-  background-color: rgb(236, 192, 199);
+  color: rgb(53, 50, 50);
+  border-color: rgb(251, 190, 212);
+  background-color: rgb(249, 196, 205);
 }
 
 /* CONTACT */
