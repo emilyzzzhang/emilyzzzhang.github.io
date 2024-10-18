@@ -1,0 +1,589 @@
+/* GENERAL */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: rgb(0, 0, 0);
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+p {
+  color: rgb(251, 251, 251);
+}
+
+/* TRANSITION */
+
+a,
+.btn {
+  transition: all 300ms ease;
+}
+
+/* DESKTOP NAV */
+
+nav,
+.nav-links {
+  display: flex;
+}
+
+nav {
+  justify-content: space-around;
+  align-items: center;
+  height: 17vh;
+}
+
+.nav-links {
+  gap: 2rem;
+  list-style: none;
+  font-size: 1.5rem;
+}
+
+a {
+  color: rgb(255, 255, 255);
+  text-decoration: none;
+  text-decoration-color: white;
+}
+
+a:hover {
+  color: grey;
+  text-decoration: underline;
+  text-underline-offset: 1rem;
+  text-decoration-color: rgb(181, 181, 181);
+}
+
+.logo {
+  font-size: 2rem;
+  color: pink;
+}
+
+.logo:hover {
+  cursor: default;
+}
+
+/* HAMBURGER MENU */
+
+#hamburger-nav {
+  display: none;
+}
+
+.hamburger-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 24px;
+  width: 30px;
+  cursor: pointer;
+}
+
+.hamburger-icon span {
+  width: 100%;
+  height: 2px;
+  background-color: white;
+  transition: all 0.3 ease-in-out;
+}
+
+.menu-links {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  width: fit-content;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3 ease-in-out;
+}
+
+.menu-links a {
+  display: block;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.5rem;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3 ease-in-out;
+}
+
+.menu-links li {
+  list-style: none;
+}
+
+.menu-links.open {
+  max-height: 300px;
+}
+
+.hamburger-icon.open span:first-child {
+  transform: rotate(45deg) translate(10px, 5px);
+}
+
+.hamburger-icon.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-icon.open span:last-child {
+  transform: rotate(-45deg) translate(10px, -5px);
+}
+
+.hamburger-icon span:first-child {
+  transform: none;
+}
+
+.hamburger-icon span:first-child {
+  opacity: 1;
+}
+
+.hamburger-icon span:first-child {
+  transform: none;
+}
+
+/* SECTIONS */
+
+section {
+  padding-top: 4vh;
+  height: 96vh;
+  margin: 0 10rem;
+  box-sizing: border-box;
+  min-height: fit-content;
+}
+
+.section-container {
+  display: flex;
+}
+
+/* PROFILE SECTION */
+
+#profile {
+  display: flex;
+  justify-content: center; /* Align content to the left */
+  align-items: center; /* Vertically center the content */
+  gap: 15rem; /* Reduce the gap between the image and text */
+  height: 80vh;
+}
+
+
+.section__pic-container {
+  display: flex;
+  height: 400px;
+  width: auto;
+  margin-right: 1rem; /* Add a smaller margin to the right */
+}
+
+.section__text {
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack the text vertically */
+  justify-content: center; /* Center the text vertically */
+  align-items: center; /* Align the text to the left */
+  padding-right: 1rem; /* Reduce the right padding */
+  height: 100%; /* Take the full height of the section */
+}
+
+.section__text__p1 {
+  font-size: 1rem; /* Adjust font size for consistency */
+  margin-bottom: 0.5rem; /* Add some space below this line */
+}
+
+.section__text__p2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 3rem;
+  text-align: center; /* Ensure the text aligns properly */
+  color: pink;
+  margin-bottom: 0.5rem; /* Add some spacing below the name */
+}
+
+.btn-container {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+#socials-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+/* ICONS */
+
+.icon {
+  cursor: pointer;
+  height: 2rem;
+}
+
+/* BUTTONS */
+
+.btn-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn {
+  font-weight: 600;
+  transition: all 300ms ease;
+  padding: 1rem;
+  width: 8rem;
+  border-radius: 2rem;
+}
+
+.btn-color-1,
+.btn-color-2 {
+  border: rgb(53, 53, 53) 0.1rem solid;
+}
+
+.btn-color-1:hover,
+.btn-color-2:hover {
+  cursor: pointer;
+}
+
+.btn-color-1:hover,
+.btn-color-2:hover {
+  background: gray;
+  color: black;
+}
+
+.btn-color-1:hover, 
+.btn-color-2:hover {
+  background:gray;
+}
+
+.btn-color-2, 
+.btn-color-1 {
+  background: rgb(222, 217, 217);
+}
+
+.btn-color-2:hover,
+.btn-color-1:hover {
+  border: gray 0.1rem solid;
+}
+
+.btn-container {
+  gap: 1rem;
+}
+
+/* ABOUT SECTION */
+
+#about {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  text-align: center; /* Center text horizontally */
+  flex-direction: column; /* Stack elements vertically */
+  height: 80vh; /* Adjust the height to make it take the viewport height */
+}
+
+.about-containers {
+  gap: 2rem;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+}
+
+/* Black text for specific content */
+.black-text {
+  color: rgb(105, 98, 98); /* Set text color to black */
+  font-size: 1rem; /* Optional: Adjust font size */
+
+}
+
+/* White text for the long paragraph */
+.white-text {
+  color: rgb(239, 231, 231); /* Set text color to white */
+  font-size: 1rem; /* Optional: Adjust font size */
+  line-height: 1.5; /* Optional: Add line height for better readability */
+}
+
+.about-details-container {
+  justify-content: center;
+  flex-direction: column;
+}
+
+.about-containers,
+.about-details-container {
+  display: flex;
+}
+
+.about-pic {
+  border-radius: 2rem;
+}
+
+.profile-pic {
+  border-radius: 2rem;
+}
+
+.arrow {
+  position: absolute;
+  right: -5rem;
+  bottom: 2.5rem;
+}
+
+.details-container {
+  padding: 1.5rem;
+  flex: 1;
+  background: rgb(239, 235, 235);
+  border-radius: 2rem;
+  border: rgb(53, 53, 53) 0.1rem solid;
+  border-color: pink;
+  text-align: center;
+}
+
+.section-container {
+  gap: 4rem;
+  height: 80%;
+}
+
+.section__pic-container {
+  height: 400px;
+  width: 400px;
+  margin: auto 0;
+}
+
+/* EXPERIENCE SECTION */
+
+/* General styling for the section */
+.experience-section {
+  background-color: black;
+  padding: 4rem 0;
+  color: black;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.heading-section p {
+  color: white;
+}
+
+.heading-section h1 {
+  font-size: 3rem;
+  color: pink;
+  margin-bottom: 1rem;
+}
+
+/* Styling for the experience blocks */
+.resume-wrap {
+  background: #f8f9fa; /* Light background for white container */
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 2rem; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex; /* Use flexbox to align text and image side by side */
+  justify-content: space-between; /* Space between text and image */
+  align-items: center; /* Vertically center the text and image */
+  gap: 20px; /* Add space between text and image */
+}
+
+.experience-content {
+  flex-basis: 60%; /* Text takes up 60% of the container width */
+  text-align: left;
+  color: black;
+}
+
+.experience-img {
+  flex-basis: 35%; /* Image takes up 40% of the container width */
+}
+
+.experience-img img {
+  width: 100%; /* Image fills its container */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 20px; /* Rounded image corners */
+  object-fit: cover; /* Ensures the image covers its container */
+}
+
+/* Text styling */
+.resume-wrap .date {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-left: 10%;
+}
+
+.resume-wrap h2 {
+  font-size: 1.5rem;
+  margin-top: 10px;
+  margin-left: 10%;
+}
+
+.resume-wrap .position {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: rgb(221, 149, 161);
+  margin-left: 10%;
+}
+
+.resume-wrap p {
+  margin-top: 10px;
+  color: rgb(59, 58, 58);
+  margin-right: 20%;
+  margin-left: 10%
+}
+
+
+
+.text-center {
+  text-align: center;
+}
+
+
+
+#experience {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  text-align: center; /* Center text horizontally */
+  flex-direction: column; /* Stack elements vertically */
+  height: 80vh; /* Adjust the height to make it take the viewport height */
+}
+
+.experience-sub-title {
+  color: white;
+  font-weight: 600;
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+}
+
+.experience-details-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.article-container {
+  display: flex;
+  text-align: initial;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 2.5rem;
+  justify-content: space-around;
+}
+
+article {
+  display: flex;
+  width: 10rem;
+  justify-content: space-around;
+  gap: 0.5rem;
+}
+
+article .icon {
+  cursor: default;
+}
+
+/* PROJECTS SECTION */
+
+#projects {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  text-align: center; /* Center text horizontally */
+  flex-direction: column; /* Stack elements vertically */
+  height: 80vh; /* Adjust the height to make it take the viewport height */
+}
+
+.color-container {
+  border-color: rgb(254, 254, 254);
+  background: rgb(239, 234, 234);
+}
+
+.project-img {
+  border-radius: 2rem;
+  width: 90%;
+  height: 90%;
+}
+
+.project-title {
+  margin: 1rem;
+  color: black;
+}
+
+.project-btn {
+  color: rgb(88, 87, 87);
+  border-color: rgb(240, 200, 215);
+  background-color: rgb(236, 192, 199);
+}
+
+/* CONTACT */
+
+#contact {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  text-align: center; /* Center text horizontally */
+  flex-direction: column; /* Stack elements vertically */
+  height: 70vh; /* Adjust the height to make it take the viewport height */
+}
+
+.contact-info-upper-container {
+  display: flex;
+  justify-content: center;
+  border-radius: 2rem;
+  border: rgb(53, 53, 53) 0.1rem solid;
+  border-color: rgb(163, 163, 163);
+  background: (250, 250, 250);
+  margin: 2rem auto;
+  padding: 0.5rem;
+  background: rgb(241, 237, 237);
+}
+
+.contact-info-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem;
+}
+
+.contact-info-container p {
+  font-size: larger;
+}
+
+.contact-icon {
+  cursor: default;
+}
+.contact-info-container p, .contact-info-container a {
+  color: black; /* Ensure the text and links are black */
+  font-size: larger; /* Optional: Adjust the font size if needed */
+}
+
+.contact-info-container a {
+  text-decoration: none; /* Remove underline from links */
+  color: black; /* Ensure the link text is also black */
+}
+
+.contact-info-container a:hover {
+  text-decoration: underline; /* Optional: Add underline on hover */
+}
+
+
+.email-icon {
+  height: 2.5rem;
+}
+
+/* FOOTER SECTION */
+
+footer {
+  height: 26vh;
+  margin: 0 1rem;
+}
+
+footer p {
+  text-align: center;
+}
