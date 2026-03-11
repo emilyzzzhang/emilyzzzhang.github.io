@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emily Zhang | Portfolio</title>
+    <meta
+      name="description"
+      content="Portfolio website for Emily Zhang."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-gif" aria-hidden="true"></div>
+    <div class="bg-overlay" aria-hidden="true"></div>
+    <div class="bg-mesh" aria-hidden="true"></div>
+    <div class="cursor-glow" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <nav class="site-nav">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="btn btn-ghost" href="#contact">Contact</a>
+    </header>
+
+    <main id="top">
+      <section class="hero section">
+        <p class="tag reveal">Computer Science @ McGill</p>
+        <h1 class="reveal">
+          Hi there!<br />
+          I'm <span class="gradient-text">Emily Zhang</span>.
+        </h1>
+        <p class="hero-copy reveal">
+          I'm a Computer Science student at McGill University interested in developing software! This site is a
+          quick overview of my projects and experience.
+        </p>
+        <div class="hero-actions reveal">
+          <a class="btn btn-primary" href="#projects">View Projects</a>
+          <a class="btn btn-secondary" href="#contact">Get in Touch</a>
+        </div>
+        <div class="hero-metrics reveal">
+          <article class="metric-card">
+            <h2>10+</h2>
+            <p>Public repositories</p>
+          </article>
+          <article class="metric-card">
+            <h2>3</h2>
+            <p>Industry internships</p>
+          </article>
+          <article class="metric-card">
+            <h2>1</h2>
+            <p>Hackathon people's choice win</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="about" class="section reveal">
+        <div class="section-heading">
+          <p class="tag">About</p>
+          <h2>About me</h2>
+        </div>
+        <div class="grid-2">
+          <article class="glass card">
+            <h3>What I do</h3>
+            <p>
+              I study Computer Science at McGill. I like building software,
+              learning new tools, and working on practical projects with others.
+            </p>
+          </article>
+          <article class="glass card">
+            <h3>Core strengths</h3>
+            <ul class="pill-list">
+              <li>Python</li>
+              <li>C++</li>
+              <li>JavaScript</li>
+              <li>HTML/CSS</li>
+              <li>Android Development</li>
+              <li>SQL</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="projects" class="section reveal">
+        <div class="section-heading">
+          <p class="tag">Projects</p>
+          <h2>Some projects I've worked on</h2>
+        </div>
+        <div class="project-grid">
+          <article class="project-card glass">
+            <div class="project-badge">Awarded</div>
+            <h3>Paws in Peril</h3>
+            <p>
+              A pixel game project from COMP 303. It was recognized as one of
+              the best class projects.
+            </p>
+            <a
+              href="https://github.com/Negar-Badr/Paws-in-Peril-House"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View Paws in Peril project"
+              >View project</a
+            >
+          </article>
+          <article class="project-card glass">
+            <div class="project-badge">Hackathon</div>
+            <h3>Looksy</h3>
+            <p>
+              A virtual try-on clothing project built at McHacks 12. It won
+              People's Choice.
+            </p>
+            <a
+              href="https://github.com/pearjuicee/Looksy"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View Looksy project"
+              >View project</a
+            >
+          </article>
+          <article class="project-card glass">
+            <div class="project-badge">Open Source</div>
+            <h3>Drone 2024</h3>
+            <p>
+              Robotics work through McGill Robotics. I contributed to the code
+              and development process with the team.
+            </p>
+            <a
+              href="https://github.com/mcgill-robotics/drone-2024"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View Drone 2024 project"
+              >View project</a
+            >
+          </article>
+        </div>
+      </section>
+
+      <section id="experience" class="section reveal">
+        <div class="section-heading">
+          <p class="tag">Experience</p>
+          <h2>Experience</h2>
+        </div>
+        <div class="timeline">
+          <article class="timeline-item glass">
+            <p class="timeline-date">Summer 2025</p>
+            <h3>Software Developer Intern · Google (AR Team)</h3>
+            <p>
+              Worked on color calibration for AndroidXR smart glasses and
+              headsets using Python and Android development tools.
+            </p>
+          </article>
+          <article class="timeline-item glass">
+            <p class="timeline-date">Fall 2024</p>
+            <h3>Software Developer Intern · Autodesk (USD Team)</h3>
+            <p>
+              Built Maya and 3ds Max USD integrations, including light linking,
+              with C++, Python, and Qt.
+            </p>
+          </article>
+          <article class="timeline-item glass">
+            <p class="timeline-date">Summer 2024</p>
+            <h3>Undergraduate Research Assistant · McGill</h3>
+            <p>
+              Built rehabilitation software using motion capture (IMU) data.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" class="section reveal">
+        <div class="contact-box glass">
+          <p class="tag">Contact</p>
+          <h2>Contact</h2>
+          <p>
+            GitHub:
+            <a
+              href="https://github.com/emilyzzzhang"
+              target="_blank"
+              rel="noopener noreferrer"
+              >github.com/emilyzzzhang</a
+            >
+          </p>
+          <p>
+            LinkedIn:
+            <a
+              href="https://www.linkedin.com/in/emily-zhang-0ba28b275/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >in/emily-zhang-0ba28b275</a
+            >
+          </p>
+          <a class="btn btn-primary" href="https://github.com/emilyzzzhang">
+            View GitHub
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> Emily Zhang.</p>
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
