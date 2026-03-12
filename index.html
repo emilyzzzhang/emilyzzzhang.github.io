@@ -21,12 +21,27 @@
     <div class="bg-overlay" aria-hidden="true"></div>
     <div class="bg-mesh" aria-hidden="true"></div>
     <div class="cursor-glow" aria-hidden="true"></div>
+    <audio id="bg-music" loop preload="auto" aria-hidden="true">
+      <source
+        src="./assets/lofcosmos-night-sky-lofi-156772.mp3"
+        type="audio/mpeg"
+      />
+    </audio>
 
     <header class="site-header">
       <a class="banner-link banner-left" href="#top">Software Developer</a>
       <a class="banner-link banner-center" href="#top">Emily Zhang</a>
       <a class="banner-link banner-right" href="#about">About Me</a>
     </header>
+    <button
+      id="music-toggle"
+      class="music-toggle btn btn-secondary glass"
+      type="button"
+      aria-pressed="true"
+      aria-label="Turn music off"
+    >
+      Music: On
+    </button>
 
     <main id="top">
       <section class="hero section">
@@ -42,49 +57,40 @@
           <a class="btn btn-primary" href="#projects">View Projects</a>
           <a class="btn btn-secondary" href="#contact">Get in Touch</a>
         </div>
-        <div class="hero-metrics reveal">
-          <article class="metric-card">
-            <h2>10+</h2>
-            <p>Public repositories</p>
-          </article>
-          <article class="metric-card">
-            <h2>3</h2>
-            <p>Industry internships</p>
-          </article>
-          <article class="metric-card metric-card--award">
-            <img
-              class="award-sticker"
-              src="./assets/hackathon-sticker.png"
-              alt=""
-              aria-hidden="true"
-            />
-            <h2>1</h2>
-            <p>Hackathon people's choice win</p>
-          </article>
-        </div>
       </section>
 
       <section id="about" class="section reveal">
         <div class="section-heading">
-          <p class="tag">About</p>
           <h2>About me</h2>
         </div>
         <div class="grid-2">
           <article class="glass card">
             <h3>What I do</h3>
             <p>
-              I study Computer Science at McGill. I like building software,
-              learning new tools, and working on practical projects with others.
+              I'm a Computer Science student at McGill, and I love building
+              fun, cute projects! I love learning new tools and coding with my
+              friends. My favorite style is pixel art and drawings inspired by
+              Ghibli.
+              And when I'm not coding, I'm usually hanging out with my cat,
+              Mochi:)
             </p>
           </article>
-          <article class="glass card">
-            <h3>Core strengths</h3>
+          <article class="glass card card--sticker">
+            <img
+              class="award-sticker award-sticker--card"
+              src="./assets/hackathon-sticker.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <h3>Core strengths and interests</h3>
             <ul class="pill-list">
               <li>Python</li>
+              <li>Java</li>
+              <li>TypeScript</li>
               <li>C++</li>
               <li>JavaScript</li>
               <li>HTML/CSS</li>
-              <li>Android Development</li>
+              <li>Machine Learning</li>
               <li>SQL</li>
             </ul>
           </article>
@@ -93,7 +99,6 @@
 
       <section id="projects" class="section reveal">
         <div class="section-heading">
-          <p class="tag">Projects</p>
           <h2>Some projects I've worked on</h2>
         </div>
         <div class="project-grid">
@@ -147,7 +152,6 @@
 
       <section id="experience" class="section reveal">
         <div class="section-heading">
-          <p class="tag">Experience</p>
           <h2>Experience</h2>
         </div>
         <div class="timeline">
@@ -179,7 +183,6 @@
 
       <section id="contact" class="section reveal">
         <div class="contact-box glass">
-          <p class="tag">Contact</p>
           <h2>Contact</h2>
           <p>
             GitHub:

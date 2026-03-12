@@ -8,6 +8,14 @@
 
 @font-face {
   font-family: "UpheavalPro";
+  src: url("./assets/fonts/bedstead-condensed.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UpheavalProBanner";
   src: url("./assets/fonts/UpheavalPro.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
@@ -44,7 +52,7 @@ body {
   color: var(--text);
   font-family: "UpheavalPro", "Inter", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
-  font-weight: 200;
+  font-weight: 100;
   font-size: 1.08rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -119,7 +127,8 @@ body {
 .banner-link {
   color: #b4abc2;
   text-decoration: none;
-  font-size: 1.05rem;
+  font-family: "UpheavalProBanner", "UpheavalPro", "Inter", sans-serif;
+  font-size: 1.32rem;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -137,7 +146,6 @@ body {
 .banner-center {
   justify-self: center;
   color: #6f657f;
-  font-family: "04B30", "Inter", sans-serif;
 }
 
 .banner-right {
@@ -146,7 +154,6 @@ body {
 
 .banner-left,
 .banner-right {
-  font-size: 1.2rem;
   color: #6f657f;
 }
 
@@ -200,6 +207,7 @@ main {
   display: grid;
   align-content: center;
   gap: 1rem;
+  padding-bottom: clamp(1.2rem, 3vw, 2rem);
 }
 
 .tag {
@@ -300,24 +308,20 @@ h3 {
   border-color: rgba(229, 208, 239, 0.48);
 }
 
-.hero-metrics {
-  margin-top: 2rem;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+.music-toggle {
+  position: fixed;
+  right: clamp(0.85rem, 2vw, 1.3rem);
+  bottom: clamp(0.85rem, 2vw, 1.3rem);
+  z-index: 60;
+  padding: 0.25rem 0.55rem;
+  font-family: "UpheavalPro", "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.1;
 }
 
-.metric-card {
-  position: relative;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--glass);
-  box-shadow: var(--shadow);
-}
-
-.metric-card--award {
-  overflow: visible;
+.music-toggle:hover {
+  transform: none;
 }
 
 .award-sticker {
@@ -329,16 +333,6 @@ h3 {
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
-}
-
-.metric-card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.3rem;
-}
-
-.metric-card p {
-  margin: 0;
-  color: var(--muted);
 }
 
 .section-heading {
@@ -361,6 +355,17 @@ h3 {
 .card {
   border-radius: 18px;
   padding: 1.2rem;
+}
+
+.card--sticker {
+  position: relative;
+  overflow: visible;
+}
+
+.award-sticker--card {
+  width: 124px;
+  top: -99px;
+  right: 4px;
 }
 
 .card p {
@@ -491,7 +496,6 @@ h3 {
 }
 
 @media (max-width: 900px) {
-  .hero-metrics,
   .project-grid,
   .grid-2 {
     grid-template-columns: 1fr;
@@ -515,5 +519,18 @@ h3 {
     width: 118px;
     top: -66px;
     right: 8px;
+  }
+
+  .award-sticker--card {
+    width: 96px;
+    top: -30px;
+    right: 4px;
+  }
+
+  .music-toggle {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    padding: 0.22rem 0.5rem;
+    font-size: 0.72rem;
   }
 }
