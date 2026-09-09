@@ -16,6 +16,10 @@ if (bgMusic instanceof HTMLAudioElement) {
       "aria-label",
       isPlaying ? "Turn music off" : "Turn music on"
     );
+    musicToggle.setAttribute(
+      "title",
+      isPlaying ? "Music is on - turn off" : "Music is off - turn on"
+    );
   };
 
   const startMusic = () => {
@@ -83,16 +87,27 @@ if (cursorGlow && window.matchMedia("(pointer:fine)").matches) {
 }
 
 const bgLayer = document.querySelector(".bg-gif");
-if (bgLayer) {
+const scrollProgress = document.querySelector(".scroll-progress");
+if (bgLayer || scrollProgress) {
   let ticking = false;
 
-  const updateBgScrollJourney = () => {
+  const updateScrollJourney = () => {
     const maxScroll = Math.max(
       1,
       document.documentElement.scrollHeight - window.innerHeight
     );
     const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
-    bgLayer.style.setProperty("--bg-pos-y", `${progress * 100}%`);
+
+    document.documentElement.style.setProperty(
+      "--scroll-progress",
+      progress
+    );
+
+    if (bgLayer) {
+      bgLayer.style.setProperty("--bg-pos-y", `${progress * 100}%`);
+      bgLayer.style.setProperty("--bg-drift", `${progress * -24}px`);
+    }
+
     ticking = false;
   };
 
@@ -100,13 +115,13 @@ if (bgLayer) {
     "scroll",
     () => {
       if (!ticking) {
-        window.requestAnimationFrame(updateBgScrollJourney);
+        window.requestAnimationFrame(updateScrollJourney);
         ticking = true;
       }
     },
     { passive: true }
   );
 
-  window.addEventListener("resize", updateBgScrollJourney);
-  updateBgScrollJourney();
+  window.addEventListener("resize", updateScrollJourney);
+  updateScrollJourney();
 }

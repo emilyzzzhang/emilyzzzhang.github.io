@@ -68,6 +68,8 @@ body {
   background-position: center var(--bg-pos-y, 0%);
   background-repeat: no-repeat;
   will-change: background-position;
+  transform: translate3d(0, var(--bg-drift, 0px), 0) scale(1.04);
+  will-change: background-position, transform;
 }
 
 .bg-overlay {
@@ -106,6 +108,18 @@ body {
   opacity: 0.3;
   background: radial-gradient(circle, rgba(220, 236, 255, 0.52), transparent 68%);
   transform: translate(-50%, -50%);
+}
+
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 3px;
+  z-index: 100;
+  pointer-events: none;
+  background: linear-gradient(90deg, #8de0ff, #cbb6ec, #f4c9d8);
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: left center;
+  will-change: transform;
 }
 
 .site-header {
@@ -285,11 +299,26 @@ h3 {
   color: var(--text);
   font-weight: 300;
   font-size: 1.02rem;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease,
+    box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .btn:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 8px 22px rgba(141, 224, 255, 0.16);
   transform: translateY(-2px);
+}
+
+.btn:active {
+  filter: brightness(0.98);
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 3px 10px rgba(3, 10, 30, 0.4);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #8de0ff;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 5px rgba(141, 224, 255, 0.2);
 }
 
 .btn-primary {
@@ -317,10 +346,39 @@ h3 {
   font-size: 0.78rem;
   font-weight: 400;
   line-height: 1.1;
+  padding: 0.25rem 0.55rem;
+}
+
+.music-toggle {
+  font-size: 0;
+}
+
+.music-toggle::before {
+  content: "♪";
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: opacity 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.music-toggle[aria-pressed="true"]::before {
+  color: #8de0ff;
+  text-shadow: 0 0 10px rgba(141, 224, 255, 0.75);
+}
+
+.music-toggle[aria-pressed="false"]::before {
+  color: #71697d;
+  opacity: 0.3;
 }
 
 .music-toggle:hover {
-  transform: none;
+  border-color: rgba(141, 224, 255, 0.82);
+  box-shadow: 0 8px 24px rgba(3, 10, 30, 0.48),
+    0 0 20px rgba(141, 224, 255, 0.2);
+  transform: translateY(-3px) scale(1.04);
+}
+
+.music-toggle:active {
+  transform: translateY(1px) scale(0.94);
 }
 
 .award-sticker {
@@ -354,6 +412,114 @@ h3 {
 .card {
   border-radius: 18px;
   padding: 1.2rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .grid-2 > .card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s ease, border-color 0.22s ease,
+      box-shadow 0.22s ease, background 0.22s ease;
+  }
+
+  .grid-2 > .card::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 50% -20%,
+      rgba(141, 224, 255, 0.2),
+      transparent 54%
+    );
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+
+  .grid-2 > .card:hover {
+    border-color: rgba(141, 224, 255, 0.7);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 18px 44px rgba(3, 10, 30, 0.62),
+      0 0 28px rgba(141, 224, 255, 0.14);
+    transform: translateY(-6px);
+  }
+
+  .grid-2 > .card:hover::after {
+    opacity: 1;
+  }
+
+  .grid-2 > .card.card--sticker {
+    overflow: visible;
+  }
+
+  .timeline-item,
+  .contact-box {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s ease, border-color 0.22s ease,
+      box-shadow 0.22s ease, background 0.22s ease;
+  }
+
+  .timeline-item::after,
+  .contact-box::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 50% -20%,
+      rgba(141, 224, 255, 0.2),
+      transparent 54%
+    );
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+
+  .timeline-item:hover,
+  .contact-box:hover {
+    border-color: rgba(141, 224, 255, 0.7);
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 18px 44px rgba(3, 10, 30, 0.62),
+      0 0 28px rgba(141, 224, 255, 0.14);
+    transform: translateY(-6px);
+  }
+
+  .timeline-item:hover::after,
+  .contact-box:hover::after {
+    opacity: 1;
+  }
+
+  .hero-actions .btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s ease, border-color 0.22s ease,
+      box-shadow 0.22s ease, background 0.22s ease;
+  }
+
+  .hero-actions .btn::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 50% -30%,
+      rgba(141, 224, 255, 0.28),
+      transparent 62%
+    );
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+
+  .hero-actions .btn:hover {
+    border-color: rgba(141, 224, 255, 0.78);
+    box-shadow: 0 12px 28px rgba(3, 10, 30, 0.48),
+      0 0 22px rgba(141, 224, 255, 0.16);
+    transform: translateY(-4px);
+  }
+
+  .hero-actions .btn:hover::after {
+    opacity: 1;
+  }
 }
 
 .card--sticker {
@@ -571,5 +737,21 @@ h3 {
     bottom: 0.75rem;
     padding: 0.22rem 0.5rem;
     font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .bg-gif {
+    transform: none;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
