@@ -74,15 +74,15 @@ const observer = new IntersectionObserver(
 );
 
 revealEls.forEach((el, index) => {
-  el.style.transitionDelay = `${Math.min(index * 80, 500)}ms`;
+  el.style.transitionDelay = "0ms";
   observer.observe(el);
 });
 
 const cursorGlow = document.querySelector(".cursor-glow");
 if (cursorGlow && window.matchMedia("(pointer:fine)").matches) {
   window.addEventListener("pointermove", (event) => {
-    cursorGlow.style.left = `${event.clientX}px`;
-    cursorGlow.style.top = `${event.clientY}px`;
+    cursorGlow.style.setProperty("--cursor-x", `${event.clientX}px`);
+    cursorGlow.style.setProperty("--cursor-y", `${event.clientY}px`);
   });
 }
 
