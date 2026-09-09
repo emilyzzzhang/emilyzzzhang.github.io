@@ -538,6 +538,27 @@ h3 {
   color: var(--muted);
 }
 
+.about-highlight {
+  font-weight: 400;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.about-highlight--pink {
+  color: #f4c9d8;
+}
+
+.about-highlight--blue {
+  color: #8de0ff;
+}
+
+.about-highlight--purple {
+  color: #cbb6ec;
+}
+
+.about-highlight--gold {
+  color: #f6efd9;
+}
+
 .pill-list {
   list-style: none;
   padding: 0;
