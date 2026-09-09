@@ -106,7 +106,6 @@ body {
   opacity: 0.3;
   background: radial-gradient(circle, rgba(220, 236, 255, 0.52), transparent 68%);
   transform: translate(-50%, -50%);
-  transition: left 0.15s ease, top 0.15s ease;
 }
 
 .site-header {
