@@ -6,7 +6,12 @@ export interface CameraPreset {
   target: Vec3;
 }
 
-export const CAMERA = { fov: 32, near: 0.1, far: 120 } as const;
+/**
+ * `near` is as far out as the closest close-up allows (~1.3 from its target): depth precision
+ * scales with it, and phones pull the overview back to ~50 units, where a 0.1 near plane let the
+ * slab flicker through the floor.
+ */
+export const CAMERA = { fov: 32, near: 0.5, far: 120 } as const;
 
 /** Three-quarter, isometric-inspired overview, framing the whole diorama including its lawn. */
 export const HOME_VIEW: CameraPreset = {
