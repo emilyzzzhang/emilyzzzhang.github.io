@@ -257,10 +257,11 @@ function woodSurface(size: number): Surface {
   return bake({ size, tint, roughness, height, relief: 6 });
 }
 
-const FLOOR_TONES = ['#F1D9BA', '#EBD0AC', '#F4DEC1', '#EFD6B5', '#E8CDA8'].map((hex) => new Color(hex));
+// One tone for every board, so the floor reads as a single colour; only the grain varies.
+const FLOOR_TONES = ['#EFD6B5'].map((hex) => new Color(hex));
 
 /**
- * The whole floor as one non-repeating texture: staggered planks with restrained tone changes,
+ * The whole floor as one non-repeating texture: staggered planks in a single tone,
  * fine grain, softly bevelled edges and slightly rougher seams. Planks run along u.
  * `grainMean` (the wood surface's albedo mean) keeps grain from darkening the plank tones.
  */
@@ -458,7 +459,7 @@ const wood = woodSurface(512);
 export const surfaces = {
   wood,
   /** 8 × 8 units, one tile for the whole floor (4 wood tiles across so grain matches the furniture). */
-  floor: floorSurface(1024, 9, 4, wood.albedoMean),
+  floor: floorSurface(1024, 14, 4, wood.albedoMean),
   plaster: plasterSurface(256),
   boucle: boucleSurface(256),
   linen: linenSurface(256, 20),
