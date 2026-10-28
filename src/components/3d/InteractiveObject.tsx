@@ -1,10 +1,9 @@
 import { useRef, useState, type ReactNode } from 'react';
-import { useFrame, type ThreeEvent } from '@react-three/fiber';
+import type { ThreeEvent } from '@react-three/fiber';
 import { Html, useCursor } from '@react-three/drei';
-import type { Group, Mesh } from 'three';
+import type { Group } from 'three';
 import type { Vec3 } from '../../config/sceneLayout';
 import { CLICK_DRAG_TOLERANCE } from '../../config/layout';
-import { sceneColors } from '../../config/theme';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { SectionId } from '../../types/portfolio';
 import { Tooltip } from '../ui/Tooltip';
@@ -17,12 +16,10 @@ interface InteractiveObjectProps {
   section: SectionId;
   label: string;
   active: boolean;
-  /** Idle "clickable" hint; hidden while any section is open so close-ups stay clean. */
-  showMarker: boolean;
   onSelect: (section: SectionId) => void;
   position: Vec3;
   rotation?: Vec3;
-  /** Where the tooltip and the idle "clickable" marker float, relative to the object. */
+  /** Where the tooltip floats, relative to the object. */
   labelOffset: Vec3;
   /** How much bigger the object grows on hover (0.04 = 4%). Small, flat things need more to read. */
   hoverScale?: number;
@@ -36,7 +33,6 @@ export function InteractiveObject({
   section,
   label,
   active,
-  showMarker,
   onSelect,
   position,
   rotation,
@@ -46,18 +42,11 @@ export function InteractiveObject({
   children,
 }: InteractiveObjectProps) {
   const body = useRef<Group>(null);
-  const marker = useRef<Mesh>(null);
   const [hovered, setHovered] = useState(false);
   const reducedMotion = useReducedMotion();
   const highlighted = hovered && !active;
   useCursor(hovered);
   useHoverGlow(body, highlighted, { scale: hoverScale, lift: hoverLift, reducedMotion });
-
-  useFrame(({ clock }) => {
-    if (marker.current && !reducedMotion) {
-      marker.current.position.y = labelOffset[1] + Math.sin(clock.elapsedTime * 2 + labelOffset[0] * 5) * 0.05;
-    }
-  });
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -78,12 +67,6 @@ export function InteractiveObject({
       onPointerOut={() => setHovered(false)}
     >
       <group ref={body}>{children}</group>
-      {showMarker && !hovered && (
-        <mesh ref={marker} position={labelOffset} userData={{ noShadow: true }}>
-          <sphereGeometry args={[0.055, 16, 12]} />
-          <meshBasicMaterial color={sceneColors.roseDeep} toneMapped={false} />
-        </mesh>
-      )}
       {highlighted && (
         <Html position={labelOffset} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
           <Tooltip label={label} />

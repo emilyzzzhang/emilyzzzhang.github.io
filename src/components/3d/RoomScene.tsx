@@ -73,7 +73,6 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, onMi
     section,
     label: SECTIONS[section].hoverLabel,
     active: activeSection === section,
-    showMarker: activeSection === null && !mochiFocused,
     onSelect,
   });
 
