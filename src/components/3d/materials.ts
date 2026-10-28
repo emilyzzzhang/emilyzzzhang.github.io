@@ -113,7 +113,14 @@ export const materials = {
   /** Pale light oak with a finer, more delicate grain, for the small floating shelf. */
   lightOak: withSurface(matte('#E2C49E', 0.55), tiled(surfaces.wood, 1 / 0.9, 1 / 0.9), 0.16),
   // The floor map carries the plank colours themselves, so it is not normalised against a base colour.
-  floor: withSurface(matte('#FFFFFF', FINISH.floor.roughness), { ...surfaces.floor, albedoMean: [1, 1, 1] }, FINISH.floor.relief),
+  // The boards lie a hair above the slab's top; from the overview's distance that gap is too thin
+  // for the depth buffer, so the offset keeps the slab from flickering through. Contact shadows sit
+  // further forward still (-4 units), so they stay on top of the boards.
+  floor: Object.assign(withSurface(matte('#FFFFFF', FINISH.floor.roughness), { ...surfaces.floor, albedoMean: [1, 1, 1] }, FINISH.floor.relief), {
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -2,
+  }),
   wallUpper: plaster(c.wallUpper),
   wallLower: plaster(c.blush),
   cream: matte(c.cream, 0.7),
