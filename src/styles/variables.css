@@ -1,0 +1,112 @@
+:root {
+  /* Brand palette — mirrored in src/config/theme.ts for the 3D scene */
+  --cream: #f8f3ee;
+  --warm-white: #fffdfb;
+  --blush: #f4d7df;
+  --rose: #efb8c8;
+  --pink: #f7c7d7;
+  --peach: #f6e3d7;
+  --peach-deep: #edc6b0;
+  --wood: #b88a68;
+  --beige: #e9ddd2;
+  --charcoal: #3a3440;
+  --lavender: #c9b8e8;
+  --sage: #b8cbb8;
+
+  /* Derived tones (the *-ink variants meet WCAG AA on cream and their tints) */
+  --ink: var(--charcoal);
+  --ink-soft: #5f5866;
+  --ink-faint: #857d8c;
+  --rose-ink: #a23f66;
+  --peach-ink: #8e5434;
+  --lavender-ink: #6a54a0;
+  --rose-tint: #fbe8ee;
+  --peach-tint: #fbefe7;
+  --lavender-tint: #efe9f8;
+  --surface: rgba(255, 253, 251, 0.95);
+  --surface-solid: var(--warm-white);
+  --surface-glass: rgba(255, 251, 248, 0.74);
+  --line: rgba(58, 52, 64, 0.1);
+
+  /* Page backdrop behind the transparent 3D canvas */
+  /*
+   * Daytime backdrop: clear soft pink at the top, easing slowly through a pale blush into teal-green
+   * at the bottom, where the garden sits and melts into it. The midpoint keeps the blend from
+   * turning muddy grey between the pink and the teal.
+   */
+  --backdrop-day: #f2b6c6;
+  --backdrop-day-mid: #ecd2d2;
+  --backdrop-day-end: #a6c4b8;
+  --page-day: linear-gradient(172deg, var(--backdrop-day) 0%, var(--backdrop-day-mid) 45%, var(--backdrop-day-end) 100%);
+  --page-night: radial-gradient(120% 90% at 70% 40%, #5a4c78 0%, #3d3558 50%, #2a2540 100%);
+
+  /* Hero and footer text sit directly on the backdrop, so they switch with the mode */
+  --hero-ink: var(--ink);
+  /* Deeper than --ink-soft / --rose-ink so hero text keeps WCAG AA contrast on the backdrop. */
+  --hero-ink-soft: #433b49;
+  --hero-accent: #5e2140;
+  /* Soft neutral vignette that suits both ends of the backdrop. */
+  --vignette: rgba(70, 64, 62, 0.1);
+
+  /* Typography */
+  /*
+   * Nunito throughout: its rounded terminals suit the soft, cosy studio. Weights: 800 for the
+   * homepage title, 700 for headings, 600 for navigation, subtitles, buttons, labels and tooltips,
+   * 400 (or 500 for emphasis) for body text.
+   */
+  --font-heading: 'Nunito', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Shape & depth — shadows are warm-tinted, never pure black */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 2px 8px rgba(120, 70, 85, 0.07);
+  --shadow-md: 0 12px 30px -12px rgba(120, 70, 85, 0.25);
+  --shadow-lg: 0 30px 60px -22px rgba(110, 60, 80, 0.32), 0 8px 20px -10px rgba(110, 60, 80, 0.14);
+  --focus-ring: 0 0 0 3px var(--surface-solid), 0 0 0 5px var(--rose-ink);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --duration-fast: 160ms;
+  --duration-base: 320ms;
+  --duration-panel: 520ms;
+  --duration-mode: 1400ms;
+
+  /* Layout */
+  --gutter: 24px;
+  --navbar-height: 72px;
+
+  /* Layers */
+  --z-scene: 0;
+  --z-hero: 10;
+  --z-footer: 20;
+  --z-panel: 30;
+  --z-navbar: 40;
+  --z-loading: 50;
+}
+
+:root[data-mode='night'] {
+  --hero-ink: #fbf3f6;
+  --hero-ink-soft: #e2d8ea;
+  --hero-accent: #f7c7d7;
+  --vignette: rgba(20, 14, 35, 0.35);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --gutter: 16px;
+    --navbar-height: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0.01ms;
+    --duration-base: 0.01ms;
+    --duration-panel: 0.01ms;
+    --duration-mode: 0.01ms;
+  }
+}

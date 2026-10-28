@@ -1,0 +1,642 @@
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root,
+.app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--page-day);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--rose-ink);
+}
+
+[tabindex='-1']:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: calc(var(--z-loading) + 1);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--charcoal);
+  color: var(--cream);
+  text-decoration: none;
+  transform: translateY(-150%);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* ---------- Buttons ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--charcoal);
+  color: var(--cream);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    background var(--duration-fast),
+    box-shadow var(--duration-fast);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.button--ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.button--ghost:hover {
+  background: var(--surface-solid);
+}
+
+.button--small {
+  padding: 7px 14px;
+  font-size: 0.875rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---------- App shell ---------- */
+
+/* Night backdrop fades in over the day gradient (gradients can't transition directly). */
+.app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--page-night);
+  opacity: 0;
+  transition: opacity var(--duration-mode) ease;
+  pointer-events: none;
+}
+
+:root[data-mode='night'] .app::before {
+  opacity: 1;
+}
+
+/* Night starfield: sits on the night backdrop, behind the transparent 3D canvas. */
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--duration-mode) ease;
+  pointer-events: none;
+}
+
+:root[data-mode='night'] .stars {
+  opacity: 1;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  opacity: var(--star-opacity);
+}
+
+.star--bright {
+  box-shadow: 0 0 4px 1px rgba(255, 244, 222, 0.35);
+}
+
+/* Slow, gentle, out of step with each other (duration and phase are set per star). Paused by day. */
+.star--twinkle {
+  animation: star-twinkle 8s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+:root[data-mode='night'] .star--twinkle {
+  animation-play-state: running;
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: var(--star-opacity);
+  }
+  50% {
+    opacity: calc(var(--star-opacity) * 0.35);
+  }
+}
+
+/* Soft vignette to focus the room; a little stronger at night. */
+.stage::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 50%, transparent 55%, var(--vignette) 100%);
+  pointer-events: none;
+  transition: background var(--duration-mode) ease;
+}
+
+.stage {
+  /* Deliberately not a stacking context, so panels can layer above the footer. */
+  position: relative;
+  height: 100%;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-scene);
+}
+
+.scene canvas {
+  touch-action: none;
+}
+
+/* ---------- Navbar ---------- */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-navbar);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px var(--gutter);
+  pointer-events: none;
+}
+
+.navbar > * {
+  pointer-events: auto;
+}
+
+.navbar nav {
+  margin-left: auto;
+}
+
+.navbar__links {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar__link {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: 0.925rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast),
+    color var(--duration-fast);
+}
+
+.navbar__link:hover {
+  background: rgba(180, 165, 214, 0.25);
+}
+
+.navbar__link[aria-current='true'] {
+  background: var(--charcoal);
+  color: var(--cream);
+}
+
+.navbar__link:focus-visible {
+  border-radius: var(--radius-pill);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: absolute;
+  top: calc(var(--navbar-height) + 24px);
+  left: calc(var(--gutter) + 16px);
+  z-index: var(--z-hero);
+  /* Narrow enough that the welcome and intro wrap clear of the room's top-left corner. */
+  max-width: 350px;
+  pointer-events: none;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+
+.hero--dimmed {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.hero__eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--peach-tint);
+  color: var(--peach-ink);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hero__title {
+  color: var(--hero-ink);
+  transition: color var(--duration-mode) ease;
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.12;
+}
+
+.hero__role {
+  margin-top: 10px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  font-weight: 600;
+  color: var(--hero-accent);
+  transition: color var(--duration-mode) ease;
+}
+
+.hero__subtitle {
+  margin-top: 14px;
+  color: var(--hero-ink-soft);
+  transition: color var(--duration-mode) ease;
+  max-width: 34ch;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-footer);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px var(--gutter) calc(16px + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.footer > * {
+  pointer-events: auto;
+}
+
+.footer__credit {
+  position: absolute;
+  right: var(--gutter);
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  color: var(--hero-ink-soft);
+  font-size: 0.78rem;
+  pointer-events: none;
+}
+
+.footer {
+  transition: opacity var(--duration-base);
+}
+
+.app--panel-open .footer {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (max-width: 1199px) {
+  .footer__credit,
+  .hero__subtitle {
+    display: none;
+  }
+}
+
+/* ---------- Loading screen ---------- */
+
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loading);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  background: var(--cream);
+  color: var(--ink-soft);
+  font-family: var(--font-heading);
+  transition:
+    opacity 600ms var(--ease-out) 300ms,
+    visibility 0s linear 900ms;
+}
+
+.loading--done {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/*
+ * A rose comet spinning round a blush ring, with the studio's flower swaying in the middle. Only
+ * transforms animate, so the browser keeps the spin smooth even while the 3D scene is being built.
+ */
+.loading__spinner {
+  --ring: 7px;
+  --ring-pink: #f48ea3;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 var(--ring) var(--blush);
+}
+
+/* A conic tail fading in behind a round head at the top, cut down to a ring by a radial mask. */
+.loading__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, transparent 60deg, var(--ring-pink) 360deg);
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring)), #000 calc(100% - var(--ring) + 0.5px));
+  animation: spin 1.1s linear infinite;
+  will-change: transform;
+}
+
+.loading__ring::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(50% - var(--ring) / 2);
+  width: var(--ring);
+  height: var(--ring);
+  border-radius: 50%;
+  background: var(--ring-pink);
+}
+
+.loading__flower {
+  width: 50px;
+  height: 50px;
+  animation: bloom 3.2s ease-in-out infinite;
+}
+
+.loading__dots span {
+  display: inline-block;
+  animation: wave 1.8s ease-in-out infinite;
+}
+
+.loading__dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading__dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bloom {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg) scale(1);
+  }
+  25% {
+    transform: translateY(-3px) rotate(0deg) scale(1.04);
+  }
+  50% {
+    transform: translateY(-5px) rotate(6deg) scale(1.06);
+  }
+  75% {
+    transform: translateY(-2px) rotate(0deg) scale(1.03);
+  }
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+/* ---------- Day / night toggle ---------- */
+
+.mode-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 68px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #fde9d9, var(--pink));
+  box-shadow: var(--shadow-sm), inset 0 1px 3px rgba(120, 70, 85, 0.12);
+  cursor: pointer;
+  transition: background var(--duration-mode) ease;
+}
+
+.mode-toggle--night {
+  background: linear-gradient(135deg, #4b4171, #7a68a8);
+}
+
+.mode-toggle:focus-visible {
+  border-radius: var(--radius-pill);
+}
+
+.mode-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--warm-white);
+  box-shadow: 0 2px 6px rgba(120, 70, 85, 0.25);
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.mode-toggle--night .mode-toggle__thumb {
+  transform: translateX(28px);
+  background: #f3effb;
+}
+
+.mode-toggle__thumb svg {
+  position: absolute;
+  transition:
+    opacity var(--duration-base) ease,
+    transform var(--duration-base) var(--ease-out);
+}
+
+.mode-toggle__sun {
+  color: #e9a23b;
+}
+
+.mode-toggle__moon {
+  color: #7a68a8;
+  opacity: 0;
+  transform: rotate(-60deg) scale(0.6);
+}
+
+.mode-toggle--night .mode-toggle__sun {
+  opacity: 0;
+  transform: rotate(60deg) scale(0.6);
+}
+
+.mode-toggle--night .mode-toggle__moon {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 767px) {
+  .navbar {
+    gap: 8px;
+    padding-top: 12px;
+  }
+
+  .navbar nav {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 0 0 calc(var(--gutter) * -1);
+    padding: 2px 0 4px var(--gutter);
+  }
+
+  .navbar nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .navbar__links {
+    width: max-content;
+  }
+
+  .navbar__link {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  .hero {
+    top: calc(var(--navbar-height) + 12px);
+    left: var(--gutter);
+    right: var(--gutter);
+    max-width: none;
+  }
+
+  .hero__eyebrow {
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+  }
+
+  .hero__title {
+    font-size: 2rem;
+  }
+
+  .hero__role {
+    margin-top: 6px;
+  }
+
+  .hero__subtitle {
+    display: none;
+  }
+
+  .footer__credit {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading__flower,
+  .loading__dots span,
+  .star--twinkle {
+    animation: none;
+  }
+}
