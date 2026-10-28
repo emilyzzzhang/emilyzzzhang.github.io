@@ -17,10 +17,10 @@ import { DayNightProvider } from './dayNight';
 import { BookStack, FloorPlant, Pouf, WallDecor } from './Decorations';
 import { Desk } from './Desk';
 import { DeskLamp, Envelope, Mug, PencilCup, Succulent } from './DeskItems';
-import { Guitar } from './Guitar';
 import { InteractiveObject } from './InteractiveObject';
 import { Lighting } from './Lighting';
 import { Mochi } from './Mochi';
+import { PlayableGuitar } from './PlayableGuitar';
 import { PauseWhenHidden, useAdaptivePixelRatio, ZoomWatcher } from './renderQuality';
 import { ReplaceableModel } from './ReplaceableModel';
 import { RoomEnvironment } from './RoomEnvironment';
@@ -116,7 +116,7 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, time
 
           <DeskLamp position={ANCHORS.lamp} />
           <group position={ANCHORS.guitar} rotation-y={GUITAR_TURN}>
-            <Guitar />
+            <PlayableGuitar />
           </group>
           <CozyCorner position={ANCHORS.cozyCorner} />
           <PencilCup position={ANCHORS.pencilCup} />

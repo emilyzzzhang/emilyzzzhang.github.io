@@ -707,3 +707,118 @@ a.contact-link:hover {
     padding-top: calc(var(--navbar-height) + 140px);
   }
 }
+
+/* ---------- Music control (floating player for the guitar's tune) ---------- */
+
+.music-control {
+  position: fixed;
+  left: var(--gutter);
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: calc(var(--z-panel) + 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 5px 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-sm);
+  color: var(--ink-soft);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  animation: music-in var(--duration-base) var(--ease-out);
+}
+
+.music-control__label {
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.music-control__button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--duration-base);
+}
+
+/* Hover only where there's a real pointer: on touch screens it would stick after a tap. */
+@media (hover: hover) {
+  .music-control__button:hover {
+    background: var(--pink);
+  }
+}
+
+.music-control__button[aria-pressed='true'] {
+  background: var(--blush);
+}
+
+/* Three little equaliser bars: still while paused or muted, gently bouncing while the tune plays. */
+.music-control__bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.music-control__bars span {
+  width: 3px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rose);
+}
+
+.music-control--playing .music-control__bars span {
+  animation: music-bar 0.9s ease-in-out infinite alternate;
+}
+
+.music-control--playing .music-control__bars span:nth-child(2) {
+  animation-delay: -0.3s;
+}
+
+.music-control--playing .music-control__bars span:nth-child(3) {
+  animation-delay: -0.6s;
+}
+
+@keyframes music-bar {
+  to {
+    height: 12px;
+  }
+}
+
+@keyframes music-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (max-width: 767px) {
+  .music-control__label {
+    display: none;
+  }
+
+  /* The bottom sheet covers the lower screen, so the player moves up beside the room. */
+  .app--panel-open .music-control {
+    top: calc(var(--navbar-height) + 8px);
+    right: var(--gutter);
+    bottom: auto;
+    left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-control,
+  .music-control--playing .music-control__bars span {
+    animation: none;
+  }
+}

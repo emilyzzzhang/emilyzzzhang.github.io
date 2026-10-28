@@ -7,8 +7,10 @@ import { SceneErrorBoundary, SceneFallback } from './components/layout/SceneFall
 import { DriftingClouds } from './components/layout/DriftingClouds';
 import { StarrySky } from './components/layout/StarrySky';
 import { InfoPanel } from './components/ui/InfoPanel';
+import { MusicControl } from './components/ui/MusicControl';
 import { MOBILE_BREAKPOINT } from './config/layout';
 import { useMediaQuery } from './hooks/useMediaQuery';
+import { MusicProvider } from './hooks/useMusic';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { useResumeAvailable } from './hooks/useResumeAvailable';
 import { useTimeOfDay } from './hooks/useTimeOfDay';
@@ -75,52 +77,55 @@ export default function App() {
   };
 
   return (
-    <div className={`app${section ? ' app--panel-open' : ''}`}>
-      <DriftingClouds />
-      <StarrySky />
-      <a className="skip-link" href="#main">
-        Skip to content
-      </a>
-      <Navbar activeSection={section} onOpen={openSection} timeOfDay={timeOfDay} onToggleTime={toggleTimeOfDay} />
+    <MusicProvider>
+      <div className={`app${section ? ' app--panel-open' : ''}`}>
+        <DriftingClouds />
+        <StarrySky />
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
+        <Navbar activeSection={section} onOpen={openSection} timeOfDay={timeOfDay} onToggleTime={toggleTimeOfDay} />
 
-      <main id="main" className="stage">
-        <div className="scene">
-          {sceneFailed ? (
-            <SceneFallback onOpen={openSection} />
-          ) : (
-            <SceneErrorBoundary onError={handleSceneError}>
-              <Suspense fallback={null}>
-                <RoomScene
-                  activeSection={section}
-                  panelExpanded={panelExpanded}
-                  onSelect={openSection}
-                  timeOfDay={timeOfDay}
-                  reducedMotion={reducedMotion}
-                  lowPower={isMobile}
-                  onReady={handleSceneReady}
-                />
-              </Suspense>
-            </SceneErrorBoundary>
-          )}
-          <p className="visually-hidden">
-            An illustrated 3D studio: a desk with a computer, a coffee mug and an envelope, a bookshelf, framed pictures, a
-            résumé poster, and Mochi the cat asleep on her cushion. Every object opens a section that is also available
-            from the navigation above.
-          </p>
-        </div>
+        <main id="main" className="stage">
+          <div className="scene">
+            {sceneFailed ? (
+              <SceneFallback onOpen={openSection} />
+            ) : (
+              <SceneErrorBoundary onError={handleSceneError}>
+                <Suspense fallback={null}>
+                  <RoomScene
+                    activeSection={section}
+                    panelExpanded={panelExpanded}
+                    onSelect={openSection}
+                    timeOfDay={timeOfDay}
+                    reducedMotion={reducedMotion}
+                    lowPower={isMobile}
+                    onReady={handleSceneReady}
+                  />
+                </Suspense>
+              </SceneErrorBoundary>
+            )}
+            <p className="visually-hidden">
+              An illustrated 3D studio: a desk with a computer, a coffee mug and an envelope, a bookshelf, framed pictures, a
+              résumé poster, a guitar that plays a little tune, and Mochi the cat asleep on her cushion. Every object opens
+              a section that is also available from the navigation above.
+            </p>
+          </div>
 
-        <Hero dimmed={section !== null} />
-        <InfoPanel
-          section={section}
-          expanded={panelExpanded}
-          onToggleExpanded={togglePanelExpanded}
-          onClose={closeSection}
-          renderContent={renderSection}
-        />
-      </main>
+          <Hero dimmed={section !== null} />
+          <InfoPanel
+            section={section}
+            expanded={panelExpanded}
+            onToggleExpanded={togglePanelExpanded}
+            onClose={closeSection}
+            renderContent={renderSection}
+          />
+        </main>
 
-      <Footer />
-      {!sceneFailed && <LoadingScreen done={sceneReady} />}
-    </div>
+        <Footer />
+        <MusicControl />
+        {!sceneFailed && <LoadingScreen done={sceneReady} />}
+      </div>
+    </MusicProvider>
   );
 }
