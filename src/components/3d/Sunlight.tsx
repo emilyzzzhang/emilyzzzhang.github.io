@@ -158,7 +158,8 @@ function PlatformShadow() {
           void main() {
             vec2 p = (vUv - 0.5) * extent;
             float d = length(max(abs(p) - halfSize + corner, 0.0)) - corner;
-            float a = pow(1.0 - clamp(d / spread, 0.0, 1.0), 2.0) * strength;
+            float f = 1.0 - clamp(d / spread, 0.0, 1.0);
+            float a = f * f * strength;
             gl_FragColor = vec4(color, a);
           }
         `,

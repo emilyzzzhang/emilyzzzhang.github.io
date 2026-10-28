@@ -25,7 +25,8 @@ const vertexShader = /* glsl */ `
 `;
 
 // Distance from the footprint's edge (rounded rectangle, or ellipse when round) drives an
-// eased falloff; the result multiplies the colour already on screen.
+// eased falloff; the result multiplies the colour already on screen. The base is kept above
+// zero: some phone GPUs return NaN for pow(0.0, y), which multiplies the quad's corners to black.
 const fragmentShader = /* glsl */ `
   uniform vec2 halfSize;
   uniform vec2 extent;
@@ -40,7 +41,7 @@ const fragmentShader = /* glsl */ `
     float box = length(max(abs(p) - halfSize + corner, 0.0)) - corner;
     float ellipse = (length(p / halfSize) - 1.0) * min(halfSize.x, halfSize.y);
     float d = mix(box, ellipse, round);
-    float a = pow(1.0 - clamp(d / spread, 0.0, 1.0), 2.2) * strength;
+    float a = pow(clamp(1.0 - d / spread, 1e-4, 1.0), 2.2) * strength;
     gl_FragColor = vec4(mix(vec3(1.0), tint, a), 1.0);
   }
 `;
