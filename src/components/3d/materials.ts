@@ -108,6 +108,10 @@ export const materials = {
   /** Warm honey oak for the bookshelf, with a deeper, rosier tone for its plank back. */
   oak: wood('#C99263', 0.6),
   oakBack: wood('#B27E57', 0.7),
+  /** The corkboard's frame: the room's warm light oak with a finer, more delicate grain. */
+  frameOak: withSurface(matte(c.woodLight, 0.55), tiled(surfaces.wood, 1 / 0.7, 1 / 0.7), 0.22),
+  /** Pale light oak with a finer, more delicate grain, for the small floating shelf. */
+  lightOak: withSurface(matte('#E2C49E', 0.55), tiled(surfaces.wood, 1 / 0.9, 1 / 0.9), 0.16),
   // The floor map carries the plank colours themselves, so it is not normalised against a base colour.
   floor: withSurface(matte('#FFFFFF', FINISH.floor.roughness), { ...surfaces.floor, albedoMean: [1, 1, 1] }, FINISH.floor.relief),
   wallUpper: plaster(c.wallUpper),
@@ -159,6 +163,7 @@ export const materials = {
   ceramicPeach: ceramic(c.peachDeep),
   ceramicRose: ceramic(c.rose),
   ceramicLavender: ceramic(c.lavender),
+  ceramicCream: ceramic('#F3E7D6'),
 };
 
 /**

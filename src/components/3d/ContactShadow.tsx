@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { CustomBlending, PlaneGeometry, ShaderMaterial, SrcColorFactor, Vector2, Vector3, ZeroFactor } from 'three';
+import { CustomBlending, PlaneGeometry, ShaderMaterial, SrcColorFactor, Vector2, Vector3, ZeroFactor, type Texture } from 'three';
 
 /**
  * Tuning for every contact shadow. `tint` is the multiply colour at full strength (display
@@ -104,4 +104,35 @@ export function ContactShadow({ position: [x, y, z], size: [w, d], spread, stren
       userData={{ noShadow: true }}
     />
   );
+}
+
+const mapFragmentShader = /* glsl */ `
+  uniform sampler2D map;
+  uniform float strength;
+  uniform vec3 tint;
+  varying vec2 vUv;
+  void main() {
+    float a = texture2D(map, vUv).a * strength;
+    gl_FragColor = vec4(mix(vec3(1.0), tint, a), 1.0);
+  }
+`;
+
+/**
+ * A multiply decal whose darkness is painted: `map`'s alpha (0–1, times `strength`) tints the
+ * surface underneath like a contact shadow. For soft shadows too detailed for a footprint.
+ */
+export function shadowDecalMaterial(map: Texture, strength: number) {
+  return new ShaderMaterial({
+    uniforms: { map: { value: map }, strength: { value: strength }, tint: { value: tint } },
+    vertexShader,
+    fragmentShader: mapFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    blending: CustomBlending,
+    blendSrc: ZeroFactor,
+    blendDst: SrcColorFactor,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -4,
+  });
 }

@@ -4,7 +4,7 @@ import { RoundedBox } from '@react-three/drei';
 import { SRGBColorSpace, TextureLoader, type Texture } from 'three';
 import { sceneColors } from '../../config/theme';
 import { materials, paperFinish } from './materials';
-import { drawArt, drawCorkboard, useCanvasTexture } from './textures';
+import { drawArt, useCanvasTexture } from './textures';
 
 interface FrameProps {
   position: [number, number, number];
@@ -73,21 +73,6 @@ export function GalleryFrames() {
       <Frame position={[-0.98, 0.02, 0]} size={[0.72, 0.9]} artIndex={0} image="images/art/mountain-lake.jpg" frameMaterial="wood" />
       <Frame position={[0, 0.14, 0]} size={[0.8, 1.0]} artIndex={1} image="images/art/campus-gates.jpg" frameMaterial="white" />
       <Frame position={[0.98, -0.06, 0]} size={[0.72, 0.9]} artIndex={2} image="images/art/city-street.jpg" frameMaterial="woodLight" />
-    </group>
-  );
-}
-
-export function Corkboard({ position }: { position: [number, number, number] }) {
-  const cork = useCanvasTexture(drawCorkboard, 512, 384);
-  const w = 1.25;
-  const h = 0.94;
-  return (
-    <group position={position}>
-      <RoundedBox args={[w + 0.1, h + 0.1, 0.05]} radius={0.02} position-z={0.025} material={materials.woodLight} />
-      <mesh position-z={0.052}>
-        <planeGeometry args={[w, h]} />
-        <meshStandardMaterial map={cork} roughness={1} />
-      </mesh>
     </group>
   );
 }

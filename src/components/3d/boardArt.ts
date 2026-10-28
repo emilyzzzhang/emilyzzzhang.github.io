@@ -3,6 +3,7 @@ import { sceneColors as c } from '../../config/theme';
 import { experience } from '../../data/experience';
 import { education, profile } from '../../data/profile';
 import { projects } from '../../data/projects';
+import { scrawl } from './corkboardArt';
 import { seededRandom } from './textures';
 
 /** Canvas painters for the pinned items on the inspiration board. */
@@ -12,15 +13,6 @@ const HAND = '"Caveat", "Bradley Hand", "Segoe Print", cursive';
 const SANS = '"Nunito", "Helvetica Neue", Arial, sans-serif';
 const HEADING = '"Nunito", "Helvetica Neue", Arial, sans-serif';
 const INK = '#3A3440';
-
-function speckle(ctx: CanvasRenderingContext2D, w: number, h: number, seed: number, count: number, colors: string[], size = 2) {
-  const rand = seededRandom(seed);
-  for (let i = 0; i < count; i++) {
-    ctx.fillStyle = colors[Math.floor(rand() * colors.length)];
-    const s = size * (0.5 + rand());
-    ctx.fillRect(rand() * w, rand() * h, s, s);
-  }
-}
 
 function heart(ctx: CanvasRenderingContext2D, x: number, y: number, s: number) {
   ctx.beginPath();
@@ -38,14 +30,6 @@ function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
   }
   ctx.closePath();
 }
-
-/** Natural cork: warm beige with dark and light granules. */
-export const drawCork: Draw = (ctx, w, h) => {
-  ctx.fillStyle = '#D9B48E';
-  ctx.fillRect(0, 0, w, h);
-  speckle(ctx, w, h, 11, 2600, ['rgba(140, 96, 62, 0.28)', 'rgba(120, 82, 52, 0.2)', 'rgba(255, 238, 214, 0.32)'], 2.4);
-  speckle(ctx, w, h, 12, 260, ['rgba(105, 70, 44, 0.3)'], 4);
-};
 
 /** A miniature résumé built from the portfolio's own data. */
 export const drawMiniResume: Draw = (ctx, w, h) => {
@@ -298,11 +282,17 @@ export function drawNote(color: string, lines: string[], doodle: 'star' | 'heart
     // the sticky strip along the top is a touch darker
     ctx.fillStyle = 'rgba(120, 90, 60, 0.07)';
     ctx.fillRect(0, 0, w, h * 0.16);
-    ctx.fillStyle = '#4A4250';
-    ctx.font = `600 ${Math.round(h * 0.17)}px ${HAND}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    lines.forEach((line, i) => ctx.fillText(line, w / 2, h * (0.36 + i * 0.2)));
+    // Handwritten, each letter a little different, centred by eye.
+    const rand = seededRandom(lines.join('').length * 7 + 3);
+    // As large as the longest line allows.
+    ctx.font = `600 100px ${HAND}`;
+    const widest = Math.max(...lines.map((line) => ctx.measureText(line).width));
+    const size = Math.min(h * 0.2, (100 * w * 0.82) / widest);
+    ctx.font = `600 ${Math.round(size)}px ${HAND}`;
+    lines.forEach((line, i) => {
+      const width = ctx.measureText(line).width;
+      scrawl(ctx, line, w / 2 - width / 2 + (rand() - 0.5) * w * 0.03, h * (0.4 + i * 0.21), size, '#4A4250', rand, 600);
+    });
     const x = w * 0.5;
     const y = h * 0.82;
     ctx.lineWidth = w * 0.022;

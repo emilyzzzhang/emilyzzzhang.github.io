@@ -10,6 +10,8 @@ import { Sunlight } from './Sunlight';
 const { day: D, night: N } = LIGHTING;
 /** Height of the fairy-light strand's warm wash. */
 const ROOM_TOP = 4.4;
+/** Where the sun/moon key light shines from (it points at the origin). */
+export const KEY_LIGHT: [number, number, number] = [7, 11, 6];
 
 /**
  * Sun/moon key light with soft shadows, a sky fill, window light, and a warm wash from the
@@ -69,7 +71,7 @@ export function Lighting({ lowPower }: { lowPower: boolean }) {
       <directionalLight
         ref={key}
         castShadow
-        position={[7, 11, 6]}
+        position={KEY_LIGHT}
         shadow-mapSize={[shadowSize, shadowSize]}
         // Fitted to the whole diorama (lawn to wall caps) as seen from the light, so no texels are
         // wasted and near/far stay tight for depth precision.

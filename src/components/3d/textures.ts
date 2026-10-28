@@ -4,13 +4,16 @@ import { sceneColors as c } from '../../config/theme';
 
 type Draw = (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
 
+const NO_FONTS: readonly string[] = [];
+
 const HEADING_FONT = '"Nunito", "Helvetica Neue", Arial, sans-serif';
 
 /**
  * Paints a texture procedurally so the room needs no image assets. Repaints once web fonts
- * are ready, since canvas text drawn earlier falls back to a system font.
+ * are ready, since canvas text drawn earlier falls back to a system font. `fonts` (CSS font
+ * shorthands) are loaded first: a face nothing on the page uses yet isn't fetched by itself.
  */
-export function useCanvasTexture(draw: Draw, width: number, height: number): CanvasTexture {
+export function useCanvasTexture(draw: Draw, width: number, height: number, fonts: readonly string[] = NO_FONTS): CanvasTexture {
   const texture = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -24,7 +27,8 @@ export function useCanvasTexture(draw: Draw, width: number, height: number): Can
 
   useEffect(() => {
     let alive = true;
-    document.fonts?.ready.then(() => {
+    const loads = document.fonts ? fonts.map((font) => document.fonts.load(font).catch(() => [])) : [];
+    Promise.all([...loads, document.fonts?.ready]).then(() => {
       if (!alive) return;
       paint(texture, draw);
       texture.needsUpdate = true;
@@ -33,7 +37,7 @@ export function useCanvasTexture(draw: Draw, width: number, height: number): Can
       alive = false;
       texture.dispose();
     };
-  }, [texture, draw]);
+  }, [texture, draw, fonts]);
 
   return texture;
 }
@@ -311,40 +315,6 @@ export const drawArt: Draw[] = [
     ctx.fill();
   },
 ];
-
-export const drawCorkboard: Draw = (ctx, w, h) => {
-  ctx.fillStyle = '#E3C3A6';
-  ctx.fillRect(0, 0, w, h);
-  const rand = seededRandom(11);
-  for (let i = 0; i < 900; i++) {
-    ctx.fillStyle = rand() > 0.5 ? 'rgba(150, 105, 72, 0.2)' : 'rgba(255, 245, 232, 0.25)';
-    ctx.fillRect(rand() * w, rand() * h, 3, 3);
-  }
-  const notes: [number, number, number, string][] = [
-    [0.08, 0.12, -0.08, '#FFF1C9'],
-    [0.4, 0.2, 0.06, c.lavenderLight],
-    [0.68, 0.1, -0.04, c.pink],
-    [0.2, 0.55, 0.05, '#FFFDFB'],
-    [0.56, 0.55, -0.07, c.peach],
-  ];
-  for (const [nx, ny, rot, color] of notes) {
-    const s = w * 0.24;
-    ctx.save();
-    ctx.translate(nx * w + s / 2, ny * h + s / 2);
-    ctx.rotate(rot);
-    ctx.fillStyle = 'rgba(90, 60, 45, 0.15)';
-    ctx.fillRect(-s / 2 + 5, -s / 2 + 6, s, s);
-    ctx.fillStyle = color;
-    ctx.fillRect(-s / 2, -s / 2, s, s);
-    ctx.fillStyle = 'rgba(58, 52, 64, 0.3)';
-    for (let l = 0; l < 3; l++) ctx.fillRect(-s / 2 + 14, -s / 2 + 26 + l * 20, s * (0.7 - l * 0.12), 6);
-    ctx.fillStyle = c.roseDeep;
-    ctx.beginPath();
-    ctx.arc(0, -s / 2 + 10, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-};
 
 export const drawEnvelope: Draw = (ctx, w, h) => {
   ctx.fillStyle = '#FFFBF7';

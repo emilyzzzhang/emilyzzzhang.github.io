@@ -61,19 +61,23 @@ export function InteractiveObject({
   // Give this object private copies of its shared materials so the hover glow stays local.
   useLayoutEffect(() => {
     const clones = new Map<Material, MeshStandardMaterial>();
-    body.current?.traverse((obj) => {
-      const mesh = obj as Mesh;
-      const material = mesh.material;
-      if (!mesh.isMesh || !(material instanceof MeshStandardMaterial)) return;
-      if (material.emissive.getHex() !== 0) return; // already glowing (bulbs, lights)
+    const privateCopy = (mesh: Mesh, material: Material) => {
+      if (!(material instanceof MeshStandardMaterial)) return material;
+      if (material.emissive.getHex() !== 0) return material; // already glowing (bulbs, lights)
       // Colour carried per instance or per vertex: the material's own colour is only white, so glowing it would wash them out.
-      if ((mesh as InstancedMesh).instanceColor || material.vertexColors) return;
+      if ((mesh as InstancedMesh).instanceColor || material.vertexColors) return material;
       let clone = clones.get(material);
       if (!clone) {
         clone = material.clone();
         clones.set(material, clone);
       }
-      mesh.material = clone;
+      return clone;
+    };
+    body.current?.traverse((obj) => {
+      const mesh = obj as Mesh;
+      if (!mesh.isMesh) return;
+      // Multi-material meshes (e.g. a paper's printed face, back and edges) glow part by part.
+      mesh.material = Array.isArray(mesh.material) ? mesh.material.map((m) => privateCopy(mesh, m)) : privateCopy(mesh, mesh.material);
     });
     glowMaterials.current = [...clones.values()].map((material) => ({ material, color: material.color.clone() }));
     return () => clones.forEach((m) => m.dispose());

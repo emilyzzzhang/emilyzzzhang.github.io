@@ -1,6 +1,6 @@
-import { useLayoutEffect, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { NeutralToneMapping, PCFShadowMap, type Group, type Object3D } from 'three';
+import { NeutralToneMapping, PCFShadowMap, type Group, type Light, type Object3D } from 'three';
 import { CAMERA, HOME_VIEW } from '../../config/camera';
 import type { ReplaceableId } from '../../config/models';
 import { ANCHORS, GUITAR_TURN, PLACEMENTS, type Placement, type Vec3 } from '../../config/sceneLayout';
@@ -21,6 +21,7 @@ import { Guitar } from './Guitar';
 import { InteractiveObject } from './InteractiveObject';
 import { Lighting } from './Lighting';
 import { Mochi } from './Mochi';
+import { PauseWhenHidden, useAdaptivePixelRatio, ZoomWatcher } from './renderQuality';
 import { ReplaceableModel } from './ReplaceableModel';
 import { RoomEnvironment } from './RoomEnvironment';
 import { SkyParallax } from './SkyParallax';
@@ -69,10 +70,14 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, time
     onSelect,
   });
 
+  const [zoomedIn, setZoomedIn] = useState(false);
+  const dpr = useAdaptivePixelRatio(activeSection !== null || zoomedIn, lowPower, reducedMotion);
+
   return (
     <Canvas
       shadows={{ enabled: true, type: PCFShadowMap }}
-      dpr={lowPower ? [1, 1.5] : [1, 2]}
+      // 1.5 for the overview, 2 in close-ups so small text stays crisp (see renderQuality).
+      dpr={dpr}
       camera={{ fov: CAMERA.fov, near: CAMERA.near, far: CAMERA.far, position: HOME_VIEW.position }}
       // Neutral tone mapping keeps the pastel palette true to its hex values.
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', toneMapping: NeutralToneMapping }}
@@ -82,6 +87,8 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, time
         <Lighting lowPower={lowPower} />
         <SkyParallax />
         <CameraController focus={activeSection} panelExpanded={panelExpanded} reducedMotion={reducedMotion} />
+        <ZoomWatcher onChange={setZoomedIn} />
+        <PauseWhenHidden />
 
         <ShadowSetup>
           <RoomEnvironment />
@@ -157,15 +164,22 @@ function Placed({ id, children }: { id: Exclude<ReplaceableId, 'mochiBed'>; chil
   );
 }
 
-/** Enables shadows on every mesh once, instead of repeating castShadow/receiveShadow props. */
+/**
+ * Enables shadows on every mesh once, instead of repeating castShadow/receiveShadow props.
+ * Lights are left as their components set them: a shadow-casting light renders the whole scene
+ * again into its shadow map (six times for a point light), so only the key light and the
+ * sunbeam opt in.
+ */
 function ShadowSetup({ children }: { children: ReactNode }) {
   const root = useRef<Group>(null);
 
   useLayoutEffect(() => {
     const visit = (obj: Object3D) => {
       if (obj.userData.noShadow) return;
-      obj.castShadow = true;
-      obj.receiveShadow = true;
+      if (!(obj as Light).isLight) {
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      }
       obj.children.forEach(visit);
     };
     if (root.current) visit(root.current);

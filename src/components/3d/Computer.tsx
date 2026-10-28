@@ -58,12 +58,13 @@ export function Computer() {
       <RoundedBox args={[SCREEN_W, SCREEN_H, 0.07]} radius={0.05} position-y={SCREEN_Y} material={materials.white} />
       <mesh position={[0, SCREEN_Y, 0.037]}>
         <planeGeometry args={[SCREEN_W - 0.1, SCREEN_H - 0.1]} />
-        <meshBasicMaterial ref={screenMat} map={screen} toneMapped={false} />
+        <meshBasicMaterial ref={screenMat} map={screen} toneMapped={false} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-4} />
       </mesh>
+      {/* Screen and glass sit just proud of the bezel; polygon offsets keep them from z-fighting it at grazing angles. */}
       {/* glass: adds only a faint reflection of the room on top of the screen */}
       <mesh position={[0, SCREEN_Y, 0.039]} userData={{ noShadow: true }}>
         <planeGeometry args={[SCREEN_W - 0.1, SCREEN_H - 0.1]} />
-        <meshBasicMaterial ref={glass} color="#000000" envMap={reflection} combine={AddOperation} transparent opacity={GLASS.day} blending={AdditiveBlending} depthWrite={false} />
+        <meshBasicMaterial ref={glass} color="#000000" envMap={reflection} combine={AddOperation} transparent opacity={GLASS.day} blending={AdditiveBlending} depthWrite={false} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-8} />
       </mesh>
       {/* soft bias-light glow on the wall behind the monitor */}
       <mesh position={[0, SCREEN_Y, -0.5]} userData={{ noShadow: true }} raycast={ignoreRaycast}>

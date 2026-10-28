@@ -1,16 +1,16 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { RoundedBox } from '@react-three/drei';
 import { CatmullRomCurve3, Euler, ExtrudeGeometry, Float32BufferAttribute, LatheGeometry, MeshStandardMaterial, Shape, SphereGeometry, TubeGeometry, Vector2, Vector3, type Group } from 'three';
 import { ANCHORS, ROOM } from '../../config/sceneLayout';
 import { sceneColors } from '../../config/theme';
 import { BAND_COLORS, BOOK_COLORS, BookPieces, type Piece } from './Bookshelf';
 import { ContactShadow } from './ContactShadow';
+import { Corkboard } from './Corkboard';
 import { weldNormals } from './geometry';
 import { Monstera } from './Monstera';
 import { boucle, materials } from './materials';
 import { useCanvasTexture } from './textures';
-import { Corkboard } from './WallArt';
+import { WallShelf } from './WallShelf';
 
 /** Wall-mounted decor. Free-standing pieces are exported below and placed by RoomScene. */
 export function WallDecor() {
@@ -378,49 +378,6 @@ function WallClock({ position }: { position: [number, number, number] }) {
       <mesh position-z={0.05} scale={[1, 1, 0.55]} material={materials.brass}>
         <sphereGeometry args={[0.022, 20, 14]} />
       </mesh>
-    </group>
-  );
-}
-
-const VINES = [
-  { x: -0.18, length: 6 },
-  { x: 0.02, length: 9 },
-  { x: 0.2, length: 5 },
-];
-
-/** Floating shelf with a trailing pothos and a candle. Faces local +z. */
-function WallShelf({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      <RoundedBox args={[1.0, 0.06, 0.32]} radius={0.025} position-z={0.16} material={materials.white} />
-      <ContactShadow position={[-0.15, 0.03, 0.17]} size={[0.18, 0.18]} spread={0.07} strength={0.45} shape="round" />
-      <ContactShadow position={[0.28, 0.03, 0.16]} size={[0.14, 0.14]} spread={0.06} strength={0.45} shape="round" />
-      <group position={[-0.15, 0.03, 0.17]}>
-        <mesh position-y={0.11} material={materials.ceramicPink}>
-          <cylinderGeometry args={[0.12, 0.09, 0.22, 20]} />
-        </mesh>
-        {VINES.map(({ x, length }) =>
-          Array.from({ length }, (_, i) => (
-            <mesh
-              key={`${x}-${i}`}
-              position={[x + Math.sin(i * 1.3) * 0.04, 0.2 - i * 0.11, 0.06 + (i % 2) * 0.03]}
-              rotation={[0.3, i, 0.6 * (i % 2 ? 1 : -1)]}
-              scale={[0.055, 0.02, 0.04]}
-              material={i % 3 ? materials.leaf : materials.sageDeep}
-            >
-              <sphereGeometry args={[1, 10, 8]} />
-            </mesh>
-          )),
-        )}
-      </group>
-      <group position={[0.28, 0.03, 0.16]}>
-        <mesh position-y={0.09} material={materials.lavenderLight}>
-          <cylinderGeometry args={[0.07, 0.07, 0.18, 18]} />
-        </mesh>
-        <mesh position-y={0.2} material={materials.charcoal}>
-          <cylinderGeometry args={[0.004, 0.004, 0.04, 4]} />
-        </mesh>
-      </group>
     </group>
   );
 }
