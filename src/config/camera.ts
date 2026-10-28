@@ -1,5 +1,6 @@
+import { PerspectiveCamera, Vector3 } from 'three';
 import type { SectionId } from '../types/portfolio';
-import { ANCHORS, DESK, PLACEMENTS, type Vec3 } from './sceneLayout';
+import { ANCHORS, DESK, DIORAMA, LAWN_SPAN, PLACEMENTS, ROOM, type Vec3 } from './sceneLayout';
 
 export interface CameraPreset {
   position: Vec3;
@@ -88,6 +89,59 @@ export const MOBILE_FOCUS_SCALE = 1.35;
  * within the room rather than filling the frame beside the panel.
  */
 export const DESKTOP_FOCUS_SCALE = 1.9;
+
+/**
+ * The diorama's highest and lowest points from the overview: the entablature's top corners (its
+ * top is 0.48 above the wall, and it reaches 0.31 past each face; see RoomEnvironment), and the
+ * soil under the front of the lawn's rounded outline (a superellipse, exponent 2 / 0.45).
+ */
+const FRAME_TOP: Vec3[] = (() => {
+  const y = ROOM.wallHeight + 0.48;
+  const back = -(ROOM.half + ROOM.wallThickness + 0.31);
+  const end = ROOM.half + 0.1 + 0.31;
+  return [[back, y, back], [end, y, back], [back, y, end]];
+})();
+const FRAME_BOTTOM: Vec3[] = (() => {
+  const [min, max] = LAWN_SPAN;
+  const front = (min + max) / 2 + ((max - min) / 2) * Math.SQRT1_2 ** 0.45;
+  return [[front, DIORAMA.lawn.top - DIORAMA.lawn.thickness - DIORAMA.lawn.soil, front]];
+})();
+/** The gap left above and below the diorama, as a fraction of the viewport height. */
+const FRAME_MARGIN = 0.03;
+
+/**
+ * Fits the desktop overview into the space below the navigation tabs: how much further back the
+ * camera sits (on top of `overviewDistanceScale`) and how far down the view shifts (a fraction of
+ * the viewport height, for setViewOffset), so the gap under the tabs matches the gap at the bottom.
+ */
+export function overviewFit(width: number, height: number, clearTop: number) {
+  const aspect = width / height;
+  const base = overviewDistanceScale(aspect);
+  const camera = new PerspectiveCamera(CAMERA.fov, aspect, CAMERA.near, CAMERA.far);
+  const project = (scale: number) => {
+    const { position, target } = scalePreset(HOME_VIEW, base * scale);
+    camera.position.set(...position);
+    camera.lookAt(...target);
+    camera.updateMatrixWorld();
+    const y = (p: Vec3) => new Vector3(...p).project(camera).y;
+    return { top: Math.max(...FRAME_TOP.map(y)), bottom: Math.min(...FRAME_BOTTOM.map(y)) };
+  };
+  // The free band in normalised device coordinates, from the tabs' bottom edge down to the screen's.
+  const bandTop = 1 - (2 * clearTop) / height;
+  const want = bandTop + 1 - 4 * FRAME_MARGIN;
+  // The diorama's height on screen goes roughly as 1 / distance, so a few rounds settle it.
+  let scale = 1;
+  for (let i = 0; i < 4; i++) {
+    const { top, bottom } = project(scale);
+    scale *= (top - bottom) / want;
+  }
+  // Narrower screens already sit further back so the diorama fits across; never come closer
+  // than that, or its sides would run off. It is still centred in the band, with the gaps larger.
+  if (base > 1) scale = Math.max(scale, 1);
+  const { top, bottom } = project(scale);
+  const centre = (bandTop - 1) / 2;
+  return { scale, shiftY: (centre - (top + bottom) / 2) / 2 };
+}
 
 /** Moves the camera along its view ray, keeping the target fixed. */
 export function scalePreset(preset: CameraPreset, scale: number): CameraPreset {

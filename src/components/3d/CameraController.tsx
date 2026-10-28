@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { MathUtils, Vector3, type PerspectiveCamera } from 'three';
@@ -13,6 +13,7 @@ import {
   INTRO_VIEW,
   MOBILE_FOCUS_SCALE,
   overviewDistanceScale,
+  overviewFit,
   scalePreset,
   type CameraFocus,
   type CameraPreset,
@@ -49,12 +50,14 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
 
   const isMobile = size.width < MOBILE_BREAKPOINT;
   const overviewScale = overviewDistanceScale(size.width / size.height);
-  const home = scalePreset(HOME_VIEW, overviewScale);
+  // On desktop the overview is fitted into the space under the tabs, with equal gaps above and below.
+  const fit = useMemo(() => (isMobile ? null : overviewFit(size.width, size.height, navbarHeight())), [isMobile, size.width, size.height]);
+  const home = scalePreset(HOME_VIEW, overviewScale * (fit?.scale ?? 1));
   const homeDistance = new Vector3(...home.position).distanceTo(new Vector3(...home.target));
 
   // Latest values for callbacks that must not re-run effects on every resize.
-  const latest = useRef({ size, isMobile, home, reducedMotion });
-  latest.current = { size, isMobile, home, reducedMotion };
+  const latest = useRef({ size, isMobile, home, fit, reducedMotion });
+  latest.current = { size, isMobile, home, fit, reducedMotion };
 
   const applyShift = useCallback(() => {
     const { x, y } = shift.current;
@@ -107,7 +110,7 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
   useEffect(() => {
     const orbit = controls.current;
     if (!orbit) return;
-    const { home: overview, isMobile: mobile, size: viewport } = latest.current;
+    const { home: overview, isMobile: mobile, size: viewport, fit: frame } = latest.current;
     const enableOrbit = () => {
       orbit.enabled = true;
       orbit.update();
@@ -126,10 +129,10 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
       camera.position.set(...intro.position);
       orbit.target.set(...intro.target);
       camera.lookAt(orbit.target);
-      flyTo(overview, overviewShift(mobile), CAMERA_ANIMATION.introDuration, enableOrbit);
+      flyTo(overview, overviewShift(mobile, frame?.shiftY), CAMERA_ANIMATION.introDuration, enableOrbit);
     } else {
       orbit.enabled = false;
-      flyTo(overview, overviewShift(mobile), CAMERA_ANIMATION.returnDuration, enableOrbit);
+      flyTo(overview, overviewShift(mobile, frame?.shiftY), CAMERA_ANIMATION.returnDuration, enableOrbit);
     }
     firstRun.current = false;
     // overviewScale is read only for the intro; re-running on every resize would yank the camera.
@@ -162,9 +165,17 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
   );
 }
 
-/** Nudges the overview right of the hero text on desktop, or below it on phones. */
-function overviewShift(mobile: boolean): ViewShift {
-  return mobile ? { x: 0, y: -CAMERA_ANIMATION.heroShift.mobile } : { x: -CAMERA_ANIMATION.heroShift.desktop, y: 0 };
+/**
+ * Nudges the overview right of the hero text on desktop (and by `fitY`, from overviewFit, down into
+ * the space under the tabs), or below the hero text on phones.
+ */
+function overviewShift(mobile: boolean, fitY = 0): ViewShift {
+  return mobile ? { x: 0, y: -CAMERA_ANIMATION.heroShift.mobile } : { x: -CAMERA_ANIMATION.heroShift.desktop, y: fitY };
+}
+
+/** The navigation bar's height in pixels, from the stylesheet (--navbar-height). */
+function navbarHeight() {
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height')) || 72;
 }
 
 function panelShift(viewportWidth: number, mobile: boolean, expanded: boolean): ViewShift {
