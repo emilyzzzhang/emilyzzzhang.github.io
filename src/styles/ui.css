@@ -220,6 +220,52 @@
   font-size: 1.08rem;
 }
 
+/* Typing out a section's text (see TypedSection): the rest is laid out but invisible, so nothing jumps. */
+.typewriter__rest {
+  visibility: hidden;
+}
+
+/* Zero-width, so it never changes where the text wraps. */
+.typewriter__caret {
+  position: relative;
+  display: inline-block;
+  width: 0;
+}
+
+.typewriter__caret::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  bottom: -0.15em;
+  width: 2px;
+  height: 1.1em;
+  border-radius: 1px;
+  background: var(--rose-ink);
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* The interests come in once the typing has finished. */
+.section__after-typing {
+  display: grid;
+  gap: 16px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.section--typed .section__after-typing {
+  opacity: 1;
+  transform: none;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;

@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
 import { Placeholder } from '../components/ui/Placeholder';
+import { TypedSection } from '../components/ui/TypedSection';
 import { contactLinks } from '../data/profile';
 import type { ContactLink } from '../types/portfolio';
 
@@ -22,12 +23,11 @@ const ICONS: Record<ContactLink['id'], JSX.Element> = {
   ),
 };
 
+const INTRO = ['Feel free to reach out about any opportunities, collaborations, or just to say hi. My inbox is always open!'];
+
 export function ContactSection() {
   return (
-    <div className="section">
-      <p className="section__intro">
-        Feel free to reach out about any opportunities, collaborations, or just to say hi. My inbox is always open!
-      </p>
+    <TypedSection paragraphs={INTRO} paragraphClassName="section__intro">
       <ul className="contact-list">
         {contactLinks.map(({ id, label, href, display }) => (
           <li key={id}>
@@ -55,6 +55,6 @@ export function ContactSection() {
           </li>
         ))}
       </ul>
-    </div>
+    </TypedSection>
   );
 }
