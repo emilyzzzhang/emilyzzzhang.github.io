@@ -52,8 +52,9 @@ export interface Education {
   institution: string;
   degree: string;
   period?: string;
+  /** Crest shown beside the institution, under public/. */
+  logo?: { src: string; alt: string };
   coursework: string[];
-  interests: string[];
 }
 
 export interface ContactLink {

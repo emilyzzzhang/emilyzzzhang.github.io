@@ -2,14 +2,17 @@ import { Placeholder } from '../components/ui/Placeholder';
 import { education } from '../data/profile';
 
 export function EducationSection() {
-  const { institution, degree, period, coursework, interests } = education;
+  const { institution, degree, period, logo, coursework } = education;
 
   return (
     <div className="section">
       <article className="card education-card accent-peach">
-        <h3>{institution}</h3>
-        <p className="education-card__degree">{degree}</p>
-        <p className="education-card__meta">{period ?? <Placeholder>Years attended</Placeholder>}</p>
+        {logo && <img className="education-card__logo" src={logo.src} alt={logo.alt} />}
+        <div className="education-card__body">
+          <h3>{institution}</h3>
+          <p className="education-card__degree">{degree}</p>
+          <p className="education-card__meta">{period ?? <Placeholder>Years attended</Placeholder>}</p>
+        </div>
       </article>
 
       <h3 className="section__subheading">Relevant coursework</h3>
@@ -26,15 +29,6 @@ export function EducationSection() {
           <Placeholder>Add courses in src/data/profile.ts</Placeholder>
         </p>
       )}
-
-      <h3 className="section__subheading">Academic interests</h3>
-      <ul className="tags">
-        {interests.map((interest) => (
-          <li key={interest} className="tag tag--large">
-            {interest}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

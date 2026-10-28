@@ -482,10 +482,22 @@
 /* ---------- Education ---------- */
 
 .education-card {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
   padding: 20px;
   background: linear-gradient(135deg, var(--surface-solid) 40%, var(--peach-tint));
+}
+
+.education-card__logo {
+  flex: none;
+  width: 56px;
+  height: auto;
+}
+
+.education-card__body {
+  display: grid;
+  gap: 4px;
 }
 
 .education-card h3 {

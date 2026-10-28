@@ -8,18 +8,24 @@ export const profile: Profile = {
   heroIntro: 'Welcome to my little studio!',
   about: [
     "Hi! I'm Emily, a software developer studying Computer Science at McGill University.",
-    "I've had the chance to work on a lot of different things through my internships at Google, Autodesk, and CIBC, along with doing research at McGill. I've really enjoyed getting to explore different areas of tech along the way!",
-    "I love working on projects that are both technically challenging and creative, which is part of why I decided to build this little 3D studio using React and Three.js.",
-    "I'm also involved with McWICS as a Hackathon Director and volunteer with Girls Who Code, where I help students learn Python.",
-    'Outside of tech, I love exploring new places, finding cute cafés, and spending time with my cat, Mochi. You might even spot Mochi sleeping somewhere in the studio!',
+    "I've always loved working on things that are both technical and creative, so I thought it'd be fun to build my own little 3D studio using React and Three.js! Feel free to look around, check out my résumé, and explore some of the things I've worked on.",
+    'Outside of coding, I love exploring new places, finding cute cafés, and spending time with my cat, Mochi. You might even spot her sleeping somewhere in the studio :))',
   ],
-  interests: ['Software engineering', '3D graphics', 'Creative technology'],
+  interests: [
+    '3D Graphics & Interactive Experiences',
+    'Software Engineering',
+    'Full-Stack Development',
+    'Computer Vision',
+    'Machine Learning & AI',
+    'Developer Tools',
+  ],
 };
 
 export const education: Education = {
   institution: 'McGill University',
   degree: 'BSc in Computer Science and Artificial Intelligence',
   period: 'Expected 2027',
+  logo: { src: `${import.meta.env.BASE_URL}images/logos/mcgill.png`, alt: 'McGill University crest' },
   coursework: [
     'Data Structures & Algorithms',
     'Operating Systems',
@@ -32,7 +38,6 @@ export const education: Education = {
     'Statistics',
     'Probability',
   ],
-  interests: ['Software engineering', '3D graphics', 'Creative technology', 'Artificial intelligence'],
 };
 
 export const contactLinks: ContactLink[] = [
