@@ -1,8 +1,8 @@
 /**
  * Mochi's look, in one place.
  *
- * PLACEHOLDER APPEARANCE — these defaults describe a generic cream-and-peach cat. To match
- * the real Mochi, open a reference photo next to the running site and adjust:
+ * Mochi is a soft white cat with pale grey patches and blue eyes. To fine-tune her against a
+ * reference photo, open it next to the running site and adjust:
  *
  *   1. `colors.furBase`      — the main body colour (sample the cat's flank or chest).
  *   2. `colors.furSecondary` — patches/saddle/cap colour; then toggle the `markings` that
@@ -60,14 +60,14 @@ export interface MochiAppearance {
 
 export const MOCHI: MochiAppearance = {
   colors: {
-    furBase: '#FBF5EE',
-    furSecondary: '#EDC3A2',
+    furBase: '#FBF9F7',
+    furSecondary: '#BDBAC3',
     earInner: '#F4C3CF',
     faceMarking: '#FFFDFB',
-    tail: '#EDC3A2',
-    tailTip: '#FBF5EE',
+    tail: '#BDBAC3',
+    tailTip: '#FBF9F7',
     paws: '#FFFDFB',
-    eyes: '#9CC7A4',
+    eyes: '#8DC2EC',
     pupils: '#2E2A33',
     nose: '#EE9FB4',
     cheeks: '#F6B8C8',
