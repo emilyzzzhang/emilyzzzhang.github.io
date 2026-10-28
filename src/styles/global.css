@@ -152,6 +152,71 @@ a {
   opacity: 1;
 }
 
+/* Daytime clouds: drifting layers over the painted sky, behind the canvas; faded out at night. */
+.clouds {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity var(--duration-mode) ease;
+}
+
+:root[data-mode='night'] .clouds {
+  opacity: 0;
+}
+
+/*
+ * Parallax with the camera: --sky-yaw / --sky-pitch are the camera's turn away from the overview,
+ * in radians. Larger than the viewport on every side, so sliding never reveals an edge.
+ */
+.clouds__pan {
+  position: absolute;
+  inset: -22vh -26vw;
+  --sky-shift-x: 140px;
+  --sky-shift-y: 90px;
+  transform: translate3d(calc(var(--sky-yaw, 0) * var(--sky-shift-x)), calc(var(--sky-pitch, 0) * var(--sky-shift-y)), 0);
+  will-change: transform;
+}
+
+.clouds__pan--near {
+  --sky-shift-x: 300px;
+  --sky-shift-y: 200px;
+}
+
+/* Twice the pan's width (two copies of the same clouds); sliding by half loops seamlessly. */
+.clouds__layer {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 200%;
+  animation: cloud-drift linear infinite;
+  will-change: transform;
+}
+
+.clouds__layer--far {
+  opacity: 0.45;
+  filter: blur(5px);
+  animation-duration: 420s;
+}
+
+.clouds__layer--near {
+  opacity: 0.6;
+  filter: blur(2px);
+  animation-duration: 240s;
+}
+
+.cloud {
+  position: absolute;
+  aspect-ratio: 2.4;
+  transform: translateY(-50%);
+}
+
+@keyframes cloud-drift {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* Night starfield: sits on the night backdrop, behind the transparent 3D canvas. */
 .stars {
   position: fixed;
@@ -160,6 +225,14 @@ a {
   opacity: 0;
   transition: opacity var(--duration-mode) ease;
   pointer-events: none;
+}
+
+/* Oversized by the same margin as StarrySky's MARGIN, and turned with the camera like a distant sky. */
+.stars__pan {
+  position: absolute;
+  inset: -22vh -26vw;
+  transform: translate3d(calc(var(--sky-yaw, 0) * 160px), calc(var(--sky-pitch, 0) * 110px), 0);
+  will-change: transform;
 }
 
 :root[data-mode='night'] .stars {
@@ -636,6 +709,7 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .clouds__layer,
   .loading__flower,
   .loading__dots span,
   .star--twinkle {

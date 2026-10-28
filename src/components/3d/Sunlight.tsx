@@ -68,7 +68,8 @@ function Sunbeam({ lowPower }: { lowPower: boolean }) {
         color={SUNLIGHT.color}
         intensity={0}
         angle={SUN_ANGLE}
-        penumbra={0.4}
+        // A firmer edge and tighter shadow filtering, so the window's patch and its bars read clearly.
+        penumbra={0.22}
         decay={0}
         map={cookie}
         castShadow
@@ -77,7 +78,7 @@ function Sunbeam({ lowPower }: { lowPower: boolean }) {
         shadow-camera-far={7}
         shadow-bias={-0.0006}
         shadow-normalBias={0.02}
-        shadow-radius={4}
+        shadow-radius={2}
       />
     </>
   );
@@ -103,7 +104,7 @@ function SunShaft() {
 
   return (
     <mesh position={position} quaternion={quaternion} raycast={ignoreRaycast}>
-      <planeGeometry args={[1.7, length]} />
+      <planeGeometry args={[1.9, length]} />
       <meshBasicMaterial ref={material} map={texture} color={SUNLIGHT.color} transparent opacity={0} depthWrite={false} blending={AdditiveBlending} toneMapped={false} />
     </mesh>
   );

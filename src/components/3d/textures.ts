@@ -190,7 +190,7 @@ export const drawZ: Draw = (ctx, w, h) => {
 export const drawSunCookie: Draw = (ctx, w, h) => {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
-  ctx.filter = `blur(${Math.round(w * 0.012)}px)`;
+  ctx.filter = `blur(${Math.round(w * 0.006)}px)`;
   ctx.fillStyle = '#fff';
   const pw = w * 0.66;
   const ph = h * 0.6;
@@ -199,7 +199,7 @@ export const drawSunCookie: Draw = (ctx, w, h) => {
   ctx.fillRect(x0, y0, pw, ph);
   // Glazing bars: a centre upright and a transom just above the middle, as on the window.
   ctx.fillStyle = '#000';
-  const bar = w * 0.022;
+  const bar = w * 0.03;
   ctx.fillRect(w / 2 - bar / 2, y0, bar, ph);
   ctx.fillRect(x0, y0 + ph * 0.41 - bar / 2, pw, bar);
   ctx.filter = 'none';

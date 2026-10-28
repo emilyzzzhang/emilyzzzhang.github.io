@@ -1,16 +1,16 @@
 import { useMemo, useRef } from 'react';
-import { AdditiveBlending, BufferGeometry, CatmullRomCurve3, DoubleSide, Float32BufferAttribute, MathUtils, MeshStandardMaterial, Vector3, type MeshBasicMaterial, type PointsMaterial } from 'three';
-import { Instance, Instances, RoundedBox } from '@react-three/drei';
+import { BufferGeometry, DoubleSide, Float32BufferAttribute, MathUtils, Vector3, type MeshBasicMaterial } from 'three';
+import { RoundedBox } from '@react-three/drei';
 import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { ANCHORS, DIORAMA, ROOM, RUG_FUR } from '../../config/sceneLayout';
-import { LIGHTING, sceneColors } from '../../config/theme';
 import { useDayNight } from './dayNight';
 import { ContactShadow } from './ContactShadow';
 import { Garden } from './Garden';
 import { FurRug } from './FurRug';
 import { linen, materials } from './materials';
+import { StringLights } from './StringLights';
 import { worldBoxUVs } from './surfaces';
-import { drawDaySky, drawGlow, drawNightSky, seededRandom, useCanvasTexture } from './textures';
+import { drawDaySky, drawNightSky, seededRandom, useCanvasTexture } from './textures';
 
 const { half, wallHeight, wallThickness: t, wainscotHeight } = ROOM;
 const SLAB = DIORAMA.slab;
@@ -380,45 +380,13 @@ function Rug() {
 
 const BULB_COUNT = 26;
 
-/** String lights: emissive bulbs plus one Points cloud of additive halos that bloom at night. */
+/** The string lights swagged along the back wall, above the window and the desk. */
+const WALL_LIGHTS = Array.from({ length: BULB_COUNT }, (_, i) => {
+  const u = i / (BULB_COUNT - 1);
+  const sag = Math.abs(Math.sin(u * Math.PI * 3)) * 0.28;
+  return new Vector3(-half + 0.2 + u * (half * 2 - 0.5), wallHeight - 0.35 - sag, -half + 0.08);
+});
+
 function FairyLights() {
-  const glowMap = useCanvasTexture(drawGlow, 64, 64);
-  const bulbMat = useRef<MeshStandardMaterial>(null);
-  const haloMat = useRef<PointsMaterial>(null);
-
-  const { bulbs, wire, haloGeometry } = useMemo(() => {
-    const points: Vector3[] = [];
-    for (let i = 0; i < BULB_COUNT; i++) {
-      const u = i / (BULB_COUNT - 1);
-      const sag = Math.abs(Math.sin(u * Math.PI * 3)) * 0.28;
-      points.push(new Vector3(-half + 0.2 + u * (half * 2 - 0.5), wallHeight - 0.35 - sag, -half + 0.08));
-    }
-    const halo = new BufferGeometry();
-    halo.setAttribute('position', new Float32BufferAttribute(points.flatMap((p) => [p.x, p.y - 0.05, p.z + 0.02]), 3));
-    return { bulbs: points, wire: new CatmullRomCurve3(points), haloGeometry: halo };
-  }, []);
-
-  useDayNight((blend) => {
-    const glow = MathUtils.lerp(LIGHTING.day.fairyGlow, LIGHTING.night.fairyGlow, blend);
-    if (bulbMat.current) bulbMat.current.emissiveIntensity = 0.4 + glow * 1.8;
-    if (haloMat.current) haloMat.current.opacity = glow * 0.75;
-  });
-
-  return (
-    <group userData={{ noShadow: true }}>
-      <mesh material={materials.woodDark}>
-        <tubeGeometry args={[wire, 120, 0.008, 4, false]} />
-      </mesh>
-      <Instances limit={bulbs.length}>
-        <sphereGeometry args={[0.045, 10, 8]} />
-        <meshStandardMaterial ref={bulbMat} color={sceneColors.bulb} emissive={sceneColors.bulb} toneMapped={false} />
-        {bulbs.map((p, i) => (
-          <Instance key={i} position={[p.x, p.y - 0.05, p.z]} />
-        ))}
-      </Instances>
-      <points geometry={haloGeometry}>
-        <pointsMaterial ref={haloMat} map={glowMap} color={sceneColors.lampGlow} size={0.42} transparent opacity={0} depthWrite={false} blending={AdditiveBlending} toneMapped={false} />
-      </points>
-    </group>
-  );
+  return <StringLights path={WALL_LIGHTS} bulbs={BULB_COUNT} />;
 }

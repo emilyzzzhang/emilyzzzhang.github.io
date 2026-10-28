@@ -30,21 +30,12 @@
 
   /* Page backdrop behind the transparent 3D canvas */
   /*
-   * Daytime backdrop: clear soft pink at the top, easing through a pale blush and a creamy meadow
-   * tint into a soft version of the garden's grass green at the bottom, where the lawn sits and
-   * melts into it. The cream-sage stop keeps pink from turning muddy grey on its way to green.
+   * Daytime backdrop: a painted sunrise sky (warm sun from the upper left, soft clouds, misty
+   * green hills) that suits the garden. The gradient behind it shows while the image loads.
    */
-  --backdrop-day: #f4bccb;
-  --backdrop-day-mid: #f4dad9;
-  --backdrop-day-meadow: #e4ead0;
-  --backdrop-day-end: #bed7a8;
-  --page-day: linear-gradient(
-    172deg,
-    var(--backdrop-day) 0%,
-    var(--backdrop-day-mid) 40%,
-    var(--backdrop-day-meadow) 70%,
-    var(--backdrop-day-end) 100%
-  );
+  --backdrop-day: #f6c9c4;
+  --backdrop-day-end: #c9d7ad;
+  --page-day: url('../assets/sky-day.jpg') center / cover no-repeat, linear-gradient(172deg, var(--backdrop-day), var(--backdrop-day-end));
   --page-night: radial-gradient(120% 90% at 70% 40%, #5a4c78 0%, #3d3558 50%, #2a2540 100%);
 
   /* Hero and footer text sit directly on the backdrop, so they switch with the mode */

@@ -4,6 +4,7 @@ import { Hero } from './components/layout/Hero';
 import { LoadingScreen } from './components/layout/LoadingScreen';
 import { Navbar } from './components/layout/Navbar';
 import { SceneErrorBoundary, SceneFallback } from './components/layout/SceneFallback';
+import { DriftingClouds } from './components/layout/DriftingClouds';
 import { StarrySky } from './components/layout/StarrySky';
 import { InfoPanel } from './components/ui/InfoPanel';
 import { MOBILE_BREAKPOINT } from './config/layout';
@@ -75,6 +76,7 @@ export default function App() {
 
   return (
     <div className={`app${section ? ' app--panel-open' : ''}`}>
+      <DriftingClouds />
       <StarrySky />
       <a className="skip-link" href="#main">
         Skip to content

@@ -78,7 +78,8 @@ export const PLACEMENTS = {
   desk: { position: [0.6, 0, -3.25] },
   chair: { position: [0.45, 0, -1.85], rotationY: 0.06 },
   floorPlant: { position: [3.3, 0, -3.3] },
-  pouf: { position: [2.75, 0, 0.75] },
+  /** The bean bag; turned so its seat faces into the room, towards the overview camera. */
+  pouf: { position: [2.75, 0, 0.75], rotationY: Math.PI / 4 },
   bookStack: { position: [1.9, 0, 1.75] },
   mochiBed: { position: [2.85, 0, -1.7], rotationY: 0.55 },
 } satisfies Record<string, Placement>;

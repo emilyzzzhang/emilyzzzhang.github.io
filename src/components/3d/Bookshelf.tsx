@@ -19,6 +19,7 @@ import {
 } from 'three';
 import { sceneColors as c } from '../../config/theme';
 import { ContactShadow, type ContactShadowProps } from './ContactShadow';
+import { StringLights } from './StringLights';
 import { materials, paperFinish } from './materials';
 import { seededRandom, useCanvasTexture } from './textures';
 
@@ -48,10 +49,10 @@ const CLEAR = SHELVES[1] - SHELVES[0] - BOARD;
 // ---------------------------------------------------------------------------------------------
 // Books
 
-const BOOK_COLORS = ['#F2B8C6', '#E9A5B8', '#F6C5CF', '#CDB8E6', '#BBA8DD', '#B9CDB0', '#A3BF9A', '#B4CBD2', '#F3E6D3', '#F4C9AE', '#F7D9C4', '#E7C9D9', '#C8E0D0'];
-const BAND_COLORS = ['#FBF3E6', '#E8CF9A', '#FFFFFF'];
+export const BOOK_COLORS = ['#F2B8C6', '#E9A5B8', '#F6C5CF', '#CDB8E6', '#BBA8DD', '#B9CDB0', '#A3BF9A', '#B4CBD2', '#F3E6D3', '#F4C9AE', '#F7D9C4', '#E7C9D9', '#C8E0D0'];
+export const BAND_COLORS = ['#FBF3E6', '#E8CF9A', '#FFFFFF'];
 
-interface Piece {
+export interface Piece {
   position: Vector3;
   rotation: Euler;
   scale: Vector3;
@@ -150,26 +151,33 @@ function layoutBooks(): Layout {
 const STACK_TOPS = { bottom: 0, vase: 0, candle: 0 };
 const LAYOUT = layoutBooks();
 
-function Books() {
+/** Draws books and their spine bands in the bookshelf's style; also used for the stack on the floor. */
+export function BookPieces({ books, bands }: { books: Piece[]; bands: Piece[] }) {
   return (
     <>
       {/* Unit box scaled per book, so the rounding scales too: soft spines and slightly rounder page edges. */}
-      <Instances limit={LAYOUT.books.length}>
+      <Instances limit={books.length}>
         <RoundedBoxGeometry args={[1, 1, 1]} radius={0.08} smoothness={2} bevelSegments={2} />
         <meshStandardMaterial {...paperFinish(0.8)} />
-        {LAYOUT.books.map((b, i) => (
+        {books.map((b, i) => (
           <Instance key={i} position={b.position} rotation={b.rotation} scale={b.scale} color={b.color} />
         ))}
       </Instances>
-      <Instances limit={LAYOUT.bands.length}>
-        <boxGeometry />
-        <meshStandardMaterial roughness={0.55} />
-        {LAYOUT.bands.map((b, i) => (
-          <Instance key={i} position={b.position} rotation={b.rotation} scale={b.scale} color={b.color} />
-        ))}
-      </Instances>
+      {bands.length > 0 && (
+        <Instances limit={bands.length}>
+          <boxGeometry />
+          <meshStandardMaterial roughness={0.55} />
+          {bands.map((b, i) => (
+            <Instance key={i} position={b.position} rotation={b.rotation} scale={b.scale} color={b.color} />
+          ))}
+        </Instances>
+      )}
     </>
   );
+}
+
+function Books() {
+  return <BookPieces books={LAYOUT.books} bands={LAYOUT.bands} />;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -589,6 +597,36 @@ function GraduationCap() {
   );
 }
 
+/**
+ * Fairy lights draped round the shelf's front: up the left post with a gentle wave, swagged along
+ * the top edge between little clip points, then down the right post. They glow at night like the
+ * wall lights.
+ */
+const SHELF_LIGHTS = (() => {
+  const z = DEPTH / 2 + 0.05;
+  const post = WIDTH / 2 - SIDE / 2;
+  const top = HEIGHT + 0.02;
+  const points: Vector3[] = [];
+  // Up the left post, weaving a little either side of it.
+  for (let i = 0; i <= 8; i++) {
+    const t = i / 8;
+    points.push(new Vector3(-post + 0.035 * Math.sin(t * Math.PI * 5), 0.25 + t * (top - 0.3), z));
+  }
+  // Along the top's front edge, sagging between clips.
+  const swags = 4;
+  for (let i = 1; i < swags * 4; i++) {
+    const t = i / (swags * 4);
+    const sag = Math.abs(Math.sin(t * Math.PI * swags)) * 0.11;
+    points.push(new Vector3(-post + t * post * 2, top - sag, z + 0.02));
+  }
+  // Down the right post.
+  for (let i = 0; i <= 8; i++) {
+    const t = i / 8;
+    points.push(new Vector3(post + 0.035 * Math.sin(t * Math.PI * 5 + 1), top - 0.05 - t * (top - 0.3), z));
+  }
+  return points;
+})();
+
 // Decor sits angled a little towards the overview camera, which looks in from the shelf's front-left.
 const TURN = -0.35;
 
@@ -621,6 +659,7 @@ export function Bookshelf() {
 
       <GraduationCap />
       <Pothos />
+      <StringLights path={SHELF_LIGHTS} bulbs={44} bulbRadius={0.032} haloSize={0.3} drop={0.025} />
     </group>
   );
 }

@@ -71,7 +71,7 @@ export const LIGHTING: Record<'day' | 'night', LightingState> = {
     hemiSky: '#FFFAF6',
     hemiGround: '#EBCFC8',
     // A little less flat fill than before, so the sunbeam and soft corners read; the sun makes up the difference.
-    hemiIntensity: 1.15,
+    hemiIntensity: 1.08,
     ambientIntensity: 0.32,
     keyColor: '#FFEEDB',
     keyIntensity: 2.4,
@@ -104,11 +104,11 @@ export const LIGHTING: Record<'day' | 'night', LightingState> = {
 
 /** Afternoon sunlight through the window (scaled by LightingState.sun). */
 export const SUNLIGHT = {
-  color: '#FFD9A8',
+  color: '#FFD49C',
   /** Spot intensity; decay is off, so this behaves like sunlight rather than a bulb. */
-  intensity: 3.2,
+  intensity: 4.6,
   /** Opacity of the faint light shaft between the window and the floor. */
-  rays: 0.16,
+  rays: 0.26,
   /** Darkness and colour of the soft shadow the diorama casts on the backdrop (a deep teal-green, to suit it). */
   platformShadow: 0.3,
   platformShadowColor: '#34503f',

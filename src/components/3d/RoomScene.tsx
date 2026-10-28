@@ -23,6 +23,7 @@ import { Lighting } from './Lighting';
 import { Mochi } from './Mochi';
 import { ReplaceableModel } from './ReplaceableModel';
 import { RoomEnvironment } from './RoomEnvironment';
+import { SkyParallax } from './SkyParallax';
 import { InspirationBoard, MiniResume, RESUME_SPOT } from './InspirationBoard';
 import { GalleryFrames } from './WallArt';
 
@@ -79,6 +80,7 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, time
     >
       <DayNightProvider mode={timeOfDay} reducedMotion={reducedMotion}>
         <Lighting lowPower={lowPower} />
+        <SkyParallax />
         <CameraController focus={activeSection} panelExpanded={panelExpanded} reducedMotion={reducedMotion} />
 
         <ShadowSetup>
