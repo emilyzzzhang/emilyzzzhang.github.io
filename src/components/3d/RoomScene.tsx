@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { NeutralToneMapping, PCFShadowMap, type Group, type Light, type Object3D } from 'three';
+import { NeutralToneMapping, PCFShadowMap, type Group, type Light, type Object3D, type Points } from 'three';
 import { CAMERA, HOME_VIEW } from '../../config/camera';
 import type { ReplaceableId } from '../../config/models';
 import { ANCHORS, GUITAR_TURN, PLACEMENTS, type Placement, type Vec3 } from '../../config/sceneLayout';
@@ -175,7 +175,8 @@ function Placed({ id, children }: { id: Exclude<ReplaceableId, 'mochiBed'>; chil
  * Enables shadows on every mesh once, instead of repeating castShadow/receiveShadow props.
  * Lights are left as their components set them: a shadow-casting light renders the whole scene
  * again into its shadow map (six times for a point light), so only the key light and the
- * sunbeam opt in.
+ * sunbeam opt in. Points never cast: the depth shader doesn't set gl_PointSize, so some phone GPUs
+ * draw each point into the shadow map as a huge square (the cactus spines threw hard black wedges).
  */
 function ShadowSetup({ children }: { children: ReactNode }) {
   const root = useRef<Group>(null);
@@ -183,7 +184,7 @@ function ShadowSetup({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
     const visit = (obj: Object3D) => {
       if (obj.userData.noShadow) return;
-      if (!(obj as Light).isLight) {
+      if (!(obj as Light).isLight && !(obj as Points).isPoints) {
         obj.castShadow = true;
         obj.receiveShadow = true;
       }
