@@ -6,7 +6,7 @@
   justify-items: center;
   padding: 8px 14px;
   border-radius: 12px;
-  background: var(--charcoal);
+  background: var(--plum-ink);
   color: var(--cream);
   font-family: var(--font-heading);
   font-weight: 600;
@@ -185,15 +185,25 @@
 }
 
 .panel__body {
+  /* Section content keeps the professional face and ink; the panel's title and buttons stay cute. */
+  --font-heading: var(--font-professional);
+  --font-body: var(--font-professional);
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 20px 28px 24px;
+  color: var(--ink);
+  font-family: var(--font-body);
 }
 
 .panel__footer {
   padding: 12px 24px 16px 28px;
   border-top: 1px solid var(--line);
+}
+
+/* "Back to the room" belongs to the panel's chrome, so it takes the plum ink too. */
+.panel__footer .button--ghost {
+  color: var(--plum-ink);
 }
 
 /* ---------- Section content ---------- */
@@ -796,7 +806,7 @@ a.contact-link:hover {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: var(--shadow-sm);
-  color: var(--ink-soft);
+  color: var(--plum-soft);
   font-family: var(--font-heading);
   font-size: 0.8rem;
   font-weight: 700;
@@ -817,7 +827,7 @@ a.contact-link:hover {
   border: 0;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.75);
-  color: var(--ink);
+  color: var(--plum-ink);
   cursor: pointer;
   transition: background var(--duration-base);
 }

@@ -38,22 +38,32 @@
   --page-day: url('../assets/sky-day.jpg') center / cover no-repeat, linear-gradient(172deg, var(--backdrop-day), var(--backdrop-day-end));
   --page-night: radial-gradient(120% 90% at 70% 40%, #5a4c78 0%, #3d3558 50%, #2a2540 100%);
 
+  /*
+   * The site's chrome (navigation, hero, panel titles, buttons, tooltips, footer) speaks in one plum
+   * family that suits the pink sky: deep plum for headings and labels, a softer plum for secondary
+   * lines, and --rose-ink for small accents. Section content keeps --ink.
+   */
+  --plum-ink: #4f1c38;
+  --plum-soft: #7c2d55;
+
   /* Hero and footer text sit directly on the backdrop, so they switch with the mode */
-  --hero-ink: var(--ink);
+  --hero-ink: var(--plum-ink);
   /* Deeper than --ink-soft / --rose-ink so hero text keeps WCAG AA contrast on the backdrop. */
-  --hero-ink-soft: #433b49;
-  --hero-accent: #5e2140;
+  --hero-ink-soft: #6b2a4b;
+  --hero-accent: var(--plum-soft);
   /* Soft neutral vignette that suits both ends of the backdrop. */
   --vignette: rgba(70, 64, 62, 0.1);
 
   /* Typography */
   /*
-   * Nunito throughout: its rounded terminals suit the soft, cosy studio. Weights: 800 for the
-   * homepage title, 700 for headings, 600 for navigation, subtitles, buttons, labels and tooltips,
-   * 400 (or 500 for emphasis) for body text.
+   * The site's chrome (navigation, hero lines, panel titles and buttons, tooltips, footer) is in the
+   * playful Super Frosting. Section content stays in Nunito for a more professional read:
+   * .panel__body points both tokens back at --font-professional.
    */
-  --font-heading: 'Nunito', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-professional: 'Nunito', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  --font-cute: 'Super Frosting', var(--font-professional);
+  --font-heading: var(--font-cute);
+  --font-body: var(--font-cute);
 
   /* Shape & depth — shadows are warm-tinted, never pure black */
   --radius-sm: 10px;

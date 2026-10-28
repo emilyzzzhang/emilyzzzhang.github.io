@@ -26,7 +26,8 @@ import type { SectionId } from './types/portfolio';
 import { isWebGL2Available } from './utils/webgl';
 
 // three.js is only downloaded when the device can actually render the room.
-const RoomScene = lazy(() => import('./components/3d/RoomScene'));
+const loadRoomScene = () => import('./components/3d/RoomScene');
+const RoomScene = lazy(loadRoomScene);
 const LOADING_TIMEOUT_MS = 10_000;
 
 export default function App() {
@@ -35,6 +36,7 @@ export default function App() {
   const [panelExpanded, setPanelExpanded] = useState(false);
   const [sceneFailed, setSceneFailed] = useState(() => !isWebGL2Available());
   const [sceneReady, setSceneReady] = useState(false);
+  const [sceneCodeLoaded, setSceneCodeLoaded] = useState(false);
   const reducedMotion = useReducedMotion();
   const isMobile = useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
   const resumeAvailable = useResumeAvailable();
@@ -78,6 +80,20 @@ export default function App() {
     const timer = window.setTimeout(handleSceneReady, LOADING_TIMEOUT_MS);
     return () => window.clearTimeout(timer);
   }, [handleSceneReady]);
+
+  // The loading bar's middle milestone: the three.js chunk has arrived and the room is being built.
+  // The browser shares this download with the lazy() import above.
+  useEffect(() => {
+    if (sceneFailed) return;
+    let live = true;
+    loadRoomScene().then(
+      () => live && setSceneCodeLoaded(true),
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [sceneFailed]);
 
   const handleSceneError = useCallback(() => setSceneFailed(true), []);
 
@@ -149,7 +165,7 @@ export default function App() {
 
         <Footer />
         <MusicControl />
-        {!sceneFailed && <LoadingScreen done={sceneReady} />}
+        {!sceneFailed && <LoadingScreen done={sceneReady} stage={sceneCodeLoaded ? 'building' : 'fetching'} />}
       </div>
     </MusicProvider>
   );
