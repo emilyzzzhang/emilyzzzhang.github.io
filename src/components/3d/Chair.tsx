@@ -158,16 +158,14 @@ const tub = tubGeometry();
 const seat = seatGeometry();
 const seatFabric = boucle(c.pink, [Math.PI * 2 * SEAT_R, SEAT_R * 2 + SEAT_H], true);
 const WHEEL_R = 0.058;
-/** Where the base rests: on top of the fur rug's pile, pressed in slightly, so wheels and legs stay visible. */
-const BASE_Y = RUG_TOP + 0.05;
-/** Where the five wheels sit (distance from the gas lift); the fur rug presses down under them. */
-export const CHAIR_WHEELS = { count: LEGS, reach: 0.44 };
+/** Where the base rests: on the rug. */
+const BASE_Y = RUG_TOP;
 
 /** Cosy bouclé tub chair on a pale swivel base. Origin: floor under the gas lift; faces local −z. */
 export function Chair() {
   return (
     <group>
-      {/* swivel base: five sturdy legs on chunky wheels resting on top of the rug's pile */}
+      {/* swivel base: five sturdy legs on chunky wheels resting on the rug */}
       {Array.from({ length: LEGS }, (_, i) => (
         <group key={i} rotation-y={(i / LEGS) * Math.PI * 2}>
           <RoundedBox args={[0.11, 0.075, 0.46]} radius={0.032} smoothness={3} position={[0, BASE_Y + WHEEL_R * 2 + 0.05, 0.24]} rotation-x={0.06} material={materials.white} />

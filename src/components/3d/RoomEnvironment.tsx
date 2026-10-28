@@ -2,11 +2,11 @@ import { useMemo, useRef } from 'react';
 import { BufferGeometry, DoubleSide, Float32BufferAttribute, MathUtils, Vector3, type MeshBasicMaterial } from 'three';
 import { RoundedBox } from '@react-three/drei';
 import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { ANCHORS, DIORAMA, ROOM, RUG_FUR } from '../../config/sceneLayout';
+import { ANCHORS, DIORAMA, ROOM, RUG } from '../../config/sceneLayout';
 import { useDayNight } from './dayNight';
 import { ContactShadow } from './ContactShadow';
 import { Garden } from './Garden';
-import { FurRug } from './FurRug';
+import { BraidedRug } from './BraidedRug';
 import { linen, materials } from './materials';
 import { StringLights } from './StringLights';
 import { worldBoxUVs } from './surfaces';
@@ -368,12 +368,12 @@ function Window() {
   );
 }
 
-/** The plush rug, with a soft shadow where its fluffy edge meets the boards. */
+/** The braided rug, with a soft shadow where its rolled edge meets the boards. */
 function Rug() {
   return (
     <group position={ANCHORS.rug}>
-      <ContactShadow position={[0, 0, 0]} size={[RUG_FUR.radius * 2, RUG_FUR.radius * 2]} spread={0.14} strength={0.3} shape="round" />
-      <FurRug />
+      <ContactShadow position={[0, 0, 0]} size={[RUG.radius * 2, RUG.radius * 2]} spread={0.1} strength={0.3} shape="round" />
+      <BraidedRug />
     </group>
   );
 }

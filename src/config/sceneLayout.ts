@@ -43,21 +43,16 @@ export const GARDEN_SIGN = {
 };
 
 /**
- * The round faux-sheepskin rug under the chair (centred on ANCHORS.rug, clear of the desk and
- * Mochi's bed): a soft cushion (`base` thick) covered in `length`-long silky fur, as `layers` shells.
+ * The round braided rug under the chair (centred on ANCHORS.rug, clear of the desk and Mochi's
+ * bed): a low padded disc `thickness` thick.
  */
-export const RUG_FUR = {
+export const RUG = {
   radius: 1.25,
-  base: 0.04,
-  length: 0.12,
-  layers: 18,
-  color: '#F5E9E5',
-  /** Undertone a scattering of strands lean towards. */
-  blush: '#F0D3D7',
+  thickness: 0.035,
 };
 
-/** Where things standing on the rug rest: on the cushion, sunk a little into the pile. */
-export const RUG_TOP = RUG_FUR.base + 0.04;
+/** Where things standing on the rug rest: its top, pressed in a hair. */
+export const RUG_TOP = RUG.thickness - 0.002;
 
 /** The guitar is turned this far (radians about y) from facing +z, towards the overview camera. */
 export const GUITAR_TURN = 0.65;
