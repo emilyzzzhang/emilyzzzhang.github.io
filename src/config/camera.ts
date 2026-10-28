@@ -1,5 +1,5 @@
 import type { SectionId } from '../types/portfolio';
-import { ANCHORS, DESK, type Vec3 } from './sceneLayout';
+import { ANCHORS, DESK, PLACEMENTS, type Vec3 } from './sceneLayout';
 
 export interface CameraPreset {
   position: Vec3;
@@ -27,8 +27,15 @@ const [bx, , bz] = ANCHORS.bookshelf;
 const [gx, gy, gz] = ANCHORS.gallery;
 const [, ry, rz] = ANCHORS.resumePoster;
 
-/** Close-up framing for each section's object. */
-export const FOCUS_VIEWS: Record<SectionId, CameraPreset> = {
+/** What the camera can close in on: a section's object, or Mochi (no panel) after she wakes. */
+export type CameraFocus = SectionId | 'mochi';
+
+const [kx, , kz] = PLACEMENTS.mochiBed.position;
+
+/** Close-up framing for each focusable object. */
+export const FOCUS_VIEWS: Record<CameraFocus, CameraPreset> = {
+  // Aimed a little above her so the speech bubble over her ears is in frame too.
+  mochi: { position: [kx + 1.0, 1.35, kz + 1.7], target: [kx + 0.1, 0.55, kz + 0.1] },
   projects: { position: [cx + 0.8, 3.5, 0.75], target: [cx, DESK.height + 0.7, cz] },
   about: { position: [mx + 1.9, 3.0, mz + 2.6], target: [mx, DESK.height + 0.2, mz] },
   contact: { position: [ex + 0.9, 3.25, ez + 2.6], target: [ex, DESK.height + 0.1, ez] },

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { SECTIONS } from '../../data/sections';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import type { SectionId } from '../../types/portfolio';
 
 interface InfoPanelProps {
@@ -13,7 +14,7 @@ interface InfoPanelProps {
 
 /**
  * Floating panel (bottom sheet on mobile) that hosts a section. Keeps the last section
- * mounted while its exit animation plays, closes on Escape, and returns focus to whatever
+ * mounted while its exit animation plays, closes on Escape or a click outside, and returns focus to whatever
  * opened it.
  */
 export function InfoPanel({ section, expanded, onToggleExpanded, onClose, renderContent }: InfoPanelProps) {
@@ -40,6 +41,9 @@ export function InfoPanel({ section, expanded, onToggleExpanded, onClose, render
     return () => window.removeEventListener('keydown', onKey);
   }, [section, onClose]);
 
+  const panel = useRef<HTMLElement>(null);
+  useOutsideClick(section !== null, onClose, panel);
+
   if (!shown) return null;
   const meta = SECTIONS[shown];
 
@@ -52,6 +56,7 @@ export function InfoPanel({ section, expanded, onToggleExpanded, onClose, render
 
   return (
     <aside
+      ref={panel}
       className={`panel${expanded ? ' panel--expanded' : ''}${leaving ? ' panel--leaving' : ''}`}
       role="dialog"
       aria-labelledby="panel-title"

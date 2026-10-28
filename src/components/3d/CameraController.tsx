@@ -14,10 +14,10 @@ import {
   MOBILE_FOCUS_SCALE,
   overviewDistanceScale,
   scalePreset,
+  type CameraFocus,
   type CameraPreset,
 } from '../../config/camera';
 import { MOBILE_BREAKPOINT, PANEL_GUTTER, panelWidth } from '../../config/layout';
-import type { SectionId } from '../../types/portfolio';
 
 interface ViewShift {
   x: number;
@@ -27,7 +27,7 @@ interface ViewShift {
 const NO_SHIFT: ViewShift = { x: 0, y: 0 };
 
 interface CameraControllerProps {
-  focus: SectionId | null;
+  focus: CameraFocus | null;
   panelExpanded: boolean;
   reducedMotion: boolean;
 }
@@ -116,7 +116,9 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
     if (focus) {
       orbit.enabled = false;
       const preset = scalePreset(FOCUS_VIEWS[focus], mobile ? MOBILE_FOCUS_SCALE : DESKTOP_FOCUS_SCALE);
-      flyTo(preset, panelShift(viewport.width, mobile, panelExpanded), CAMERA_ANIMATION.focusDuration);
+      // Mochi has no panel beside her, so she stays centred.
+      const toShift = focus === 'mochi' ? NO_SHIFT : panelShift(viewport.width, mobile, panelExpanded);
+      flyTo(preset, toShift, CAMERA_ANIMATION.focusDuration);
     } else if (firstRun.current) {
       // Glide in from further out on first load.
       orbit.enabled = false;

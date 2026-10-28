@@ -5,6 +5,7 @@ import { CAMERA, HOME_VIEW } from '../../config/camera';
 import type { ReplaceableId } from '../../config/models';
 import { ANCHORS, GUITAR_TURN, PLACEMENTS, type Placement, type Vec3 } from '../../config/sceneLayout';
 import { SECTIONS } from '../../data/sections';
+import type { MochiVisit } from '../../hooks/useMochiVisit';
 import type { TimeOfDay } from '../../hooks/useTimeOfDay';
 import type { SectionId } from '../../types/portfolio';
 import { Bookshelf } from './Bookshelf';
@@ -33,6 +34,11 @@ export interface RoomSceneProps {
   /** The open panel is widened to three quarters of the screen. */
   panelExpanded: boolean;
   onSelect: (section: SectionId) => void;
+  /** A click in the room that hit no clickable object. */
+  onMiss: () => void;
+  /** Mochi's close-up, if one is under way (no section is open then). */
+  mochiVisit: MochiVisit | null;
+  onMochiClick: () => void;
   timeOfDay: TimeOfDay;
   reducedMotion: boolean;
   lowPower: boolean;
@@ -61,17 +67,18 @@ const GROUNDING: ContactShadowProps[] = [
 ];
 const mochiBed: Placement = PLACEMENTS.mochiBed;
 
-export default function RoomScene({ activeSection, panelExpanded, onSelect, timeOfDay, reducedMotion, lowPower, onReady }: RoomSceneProps) {
+export default function RoomScene({ activeSection, panelExpanded, onSelect, onMiss, mochiVisit, onMochiClick, timeOfDay, reducedMotion, lowPower, onReady }: RoomSceneProps) {
+  const mochiFocused = mochiVisit !== null;
   const interactive = (section: SectionId) => ({
     section,
     label: SECTIONS[section].hoverLabel,
     active: activeSection === section,
-    showMarker: activeSection === null,
+    showMarker: activeSection === null && !mochiFocused,
     onSelect,
   });
 
   const [zoomedIn, setZoomedIn] = useState(false);
-  const dpr = useAdaptivePixelRatio(activeSection !== null || zoomedIn, lowPower, reducedMotion);
+  const dpr = useAdaptivePixelRatio(activeSection !== null || mochiFocused || zoomedIn, lowPower, reducedMotion);
 
   return (
     <Canvas
@@ -82,11 +89,12 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, time
       // Neutral tone mapping keeps the pastel palette true to its hex values.
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', toneMapping: NeutralToneMapping }}
       onCreated={onReady}
+      onPointerMissed={(e) => e.type === 'click' && onMiss()}
     >
       <DayNightProvider mode={timeOfDay} reducedMotion={reducedMotion}>
         <Lighting lowPower={lowPower} />
         <SkyParallax />
-        <CameraController focus={activeSection} panelExpanded={panelExpanded} reducedMotion={reducedMotion} />
+        <CameraController focus={activeSection ?? (mochiFocused ? 'mochi' : null)} panelExpanded={panelExpanded} reducedMotion={reducedMotion} />
         <ZoomWatcher onChange={setZoomedIn} />
         <PauseWhenHidden />
 
@@ -122,7 +130,7 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, time
           <PencilCup position={ANCHORS.pencilCup} />
           <Succulent position={ANCHORS.succulent} />
 
-          <Mochi position={mochiBed.position} rotationY={mochiBed.rotationY} reducedMotion={reducedMotion} idle={activeSection === null} />
+          <Mochi position={mochiBed.position} rotationY={mochiBed.rotationY} reducedMotion={reducedMotion} idle={activeSection === null} visit={mochiVisit} onClick={onMochiClick} />
 
           <InteractiveObject {...interactive('projects')} position={ANCHORS.computer} labelOffset={[0, 1.5, 0]}>
             <Computer />

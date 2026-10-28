@@ -10,6 +10,8 @@ import { InfoPanel } from './components/ui/InfoPanel';
 import { MusicControl } from './components/ui/MusicControl';
 import { MOBILE_BREAKPOINT } from './config/layout';
 import { useMediaQuery } from './hooks/useMediaQuery';
+import { useMochiVisit } from './hooks/useMochiVisit';
+import { useOutsideClick } from './hooks/useOutsideClick';
 import { MusicProvider } from './hooks/useMusic';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { useResumeAvailable } from './hooks/useResumeAvailable';
@@ -37,16 +39,36 @@ export default function App() {
   const isMobile = useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
   const resumeAvailable = useResumeAvailable();
   const [timeOfDay, toggleTimeOfDay] = useTimeOfDay();
+  const mochi = useMochiVisit(reducedMotion);
+  const endMochiVisit = mochi.end;
+  const startMochiVisit = mochi.start;
 
   const openSection = useCallback((id: SectionId) => {
     setSection(id);
     setPanelExpanded(false);
-  }, []);
+    endMochiVisit();
+  }, [endMochiVisit]);
 
   const closeSection = useCallback(() => {
     setSection(null);
     setPanelExpanded(false);
-  }, []);
+    endMochiVisit();
+  }, [endMochiVisit]);
+  const visitMochi = useCallback(() => {
+    if (!startMochiVisit()) return;
+    setSection(null);
+    setPanelExpanded(false);
+  }, [startMochiVisit]);
+
+  // Clicking elsewhere or Escape zooms out early.
+  const mochiFocused = mochi.phase !== null;
+  useOutsideClick(mochiFocused, closeSection);
+  useEffect(() => {
+    if (!mochiFocused) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeSection();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mochiFocused, closeSection]);
   const togglePanelExpanded = useCallback(() => setPanelExpanded((e) => !e), []);
 
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
@@ -97,6 +119,9 @@ export default function App() {
                     activeSection={section}
                     panelExpanded={panelExpanded}
                     onSelect={openSection}
+                    onMiss={closeSection}
+                    mochiVisit={mochi.phase}
+                    onMochiClick={visitMochi}
                     timeOfDay={timeOfDay}
                     reducedMotion={reducedMotion}
                     lowPower={isMobile}
@@ -112,7 +137,7 @@ export default function App() {
             </p>
           </div>
 
-          <Hero dimmed={section !== null} />
+          <Hero dimmed={section !== null || mochiFocused} />
           <InfoPanel
             section={section}
             expanded={panelExpanded}

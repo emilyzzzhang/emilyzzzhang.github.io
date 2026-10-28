@@ -89,6 +89,12 @@ export const MOCHI: MochiAppearance = {
   },
 };
 
+/** A click on her: how long she meows once the camera has zoomed in, and how long after it zooms out before she can be clicked again. */
+export const MOCHI_VISIT = {
+  meowSeconds: 2.4,
+  cooldownSeconds: 2,
+};
+
 export const MOCHI_COPY = {
   sleepingTooltip: 'Shhh... Mochi is sleeping',
   awakeTooltip: 'Meow',

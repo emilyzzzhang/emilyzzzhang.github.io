@@ -5,6 +5,7 @@ import { CatmullRomCurve3, Color, MathUtils, MeshPhysicalMaterial, MeshStandardM
 import gsap from 'gsap';
 import { CLICK_DRAG_TOLERANCE } from '../../config/layout';
 import { MOCHI, MOCHI_COPY } from '../../config/mochi';
+import type { MochiVisit } from '../../hooks/useMochiVisit';
 import type { Vec3 } from '../../config/sceneLayout';
 import { sceneColors } from '../../config/theme';
 import { Tooltip } from '../ui/Tooltip';
@@ -24,6 +25,8 @@ const CAT_HEIGHT = 0.16; // top of the cushion
 /** Base size relative to the cushion; MOCHI.shape.bodyScale multiplies this. */
 const CAT_SCALE = 1.2;
 const ZZZ_ORIGIN = new Vector3(0.32, 0.72, 0.14);
+/** After a "Meow", hovering stays quiet this long before "Shhh... Mochi is sleeping" can show again. */
+const HUSH_MS = 3000;
 
 interface MochiProps {
   position: Vec3;
@@ -31,14 +34,18 @@ interface MochiProps {
   reducedMotion: boolean;
   /** False while a portfolio section is open: hides the floating "z" so close-ups stay clean. */
   idle: boolean;
+  /** Her close-up: quiet while the camera zooms in, then she wakes and says a big "Meow" until it zooms back out. */
+  visit: MochiVisit | null;
+  /** Clicking her asks the camera to zoom in; she wakes once it arrives. */
+  onClick: () => void;
 }
 
 /**
- * Mochi, curled up asleep on a cushion. Clicking wakes her for a moment — she lifts her
- * head, opens her eyes, wiggles her ears, blinks, and drifts back to sleep. Decorative
- * only: it never opens a section. Appearance lives in config/mochi.ts.
+ * Mochi, curled up asleep on a cushion. Clicking zooms the camera in on her; once it arrives
+ * she wakes for a moment — lifts her head, opens her eyes, wiggles her ears, blinks, says
+ * "Meow" — and drifts back to sleep. She never opens a section. Appearance lives in config/mochi.ts.
  */
-export function Mochi({ position, rotationY = 0, reducedMotion, idle }: MochiProps) {
+export function Mochi({ position, rotationY = 0, reducedMotion, idle, visit, onClick }: MochiProps) {
   const root = useRef<Group>(null);
   const torso = useRef<Group>(null);
   const head = useRef<Group>(null);
@@ -53,6 +60,18 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle }: MochiPro
   const zSprites = useRef<(Sprite | null)[]>([]);
   const zTexture = useCanvasTexture(drawZ, 64, 64);
   const showZzz = idle && !awake && !hovered;
+  const meowing = visit === 'meowing';
+  // True for the whole close-up and HUSH_MS after, so the sleeping line doesn't follow the meow straight away.
+  const visiting = visit !== null;
+  const [hushed, setHushed] = useState(false);
+  useEffect(() => {
+    if (visiting) {
+      setHushed(true);
+      return;
+    }
+    const timer = window.setTimeout(() => setHushed(false), HUSH_MS);
+    return () => window.clearTimeout(timer);
+  }, [visiting]);
   useCursor(hovered);
 
   const mats = useMemo(() => {
@@ -153,10 +172,15 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle }: MochiPro
       .to(h.rotation, { x: HEAD_REST.rotation.x, duration: 0.6, ease: 'power2.inOut' }, 2.2);
   };
 
+  // She wakes once the camera has zoomed in on her, not on the click itself.
+  useEffect(() => {
+    if (meowing) wake();
+  }, [meowing]);
+
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     if (e.delta > CLICK_DRAG_TOLERANCE) return;
-    wake();
+    onClick();
   };
 
   const outerEar = markings.headCap ? mats.secondary : mats.base;
@@ -256,9 +280,15 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle }: MochiPro
           </sprite>
         ))}
       </group>
-      {hovered && (
-        <Html position={[0.2, 1.15, 0.1]} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
-          <Tooltip speech label={awake ? MOCHI_COPY.awakeTooltip : MOCHI_COPY.sleepingTooltip} hint={null} />
+      {(meowing || (hovered && !hushed)) && (
+        // In the close-up the bubble sits just above her ears, so it stays clear of the navbar.
+        <Html position={meowing ? [0.2, 0.82, 0.1] : [0.2, 1.15, 0.1]} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>
+          <Tooltip
+            speech
+            large={meowing}
+            label={meowing ? MOCHI_COPY.awakeTooltip : MOCHI_COPY.sleepingTooltip}
+            hint={null}
+          />
         </Html>
       )}
     </group>
