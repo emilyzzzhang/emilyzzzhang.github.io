@@ -75,12 +75,12 @@ export function Lighting({ lowPower }: { lowPower: boolean }) {
         shadow-mapSize={[shadowSize, shadowSize]}
         // Fitted to the whole diorama (lawn to wall caps) as seen from the light, so no texels are
         // wasted and near/far stay tight for depth precision.
-        shadow-camera-left={-7.9}
-        shadow-camera-right={7.9}
-        shadow-camera-top={9.6}
-        shadow-camera-bottom={-6.9}
-        shadow-camera-near={4.5}
-        shadow-camera-far={20.5}
+        shadow-camera-left={-8.15}
+        shadow-camera-right={8.15}
+        shadow-camera-top={10.25}
+        shadow-camera-bottom={-7.15}
+        shadow-camera-near={4.25}
+        shadow-camera-far={20.75}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
         shadow-radius={5}

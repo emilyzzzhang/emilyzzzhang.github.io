@@ -49,7 +49,7 @@ const CLEAR = SHELVES[1] - SHELVES[0] - BOARD;
 // ---------------------------------------------------------------------------------------------
 // Books
 
-export const BOOK_COLORS = ['#F2B8C6', '#E9A5B8', '#F6C5CF', '#CDB8E6', '#BBA8DD', '#B9CDB0', '#A3BF9A', '#B4CBD2', '#F3E6D3', '#F4C9AE', '#F7D9C4', '#E7C9D9', '#C8E0D0'];
+export const BOOK_COLORS = ['#FBD6E7', '#E8A9C1', '#FBD6E7', '#CDB8E6', '#BBA8DD', '#B9CDB0', '#A3BF9A', '#B4CBD2', '#F3E6D3', '#F4C9AE', '#F7D9C4', '#DE96B2', '#C8E0D0'];
 export const BAND_COLORS = ['#FBF3E6', '#E8CF9A', '#FFFFFF'];
 
 export interface Piece {
@@ -436,7 +436,7 @@ function Succulent({ position }: { position: [number, number, number] }) {
   );
 }
 
-const catBlush = new MeshStandardMaterial({ color: '#F4A9B9', roughness: 0.6 });
+const catBlush = new MeshStandardMaterial({ color: '#E8A9C1', roughness: 0.6 });
 
 /** A cream glazed ceramic cat, sitting loaf-like with its tail curled round: closed happy eyes and pink cheeks. */
 function CatFigurine({ position, rotationY = 0 }: { position: [number, number, number]; rotationY?: number }) {

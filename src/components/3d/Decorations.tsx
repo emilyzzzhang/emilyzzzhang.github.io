@@ -139,8 +139,8 @@ const FLOWER_CUSHION = (() => {
 /** Sphere UVs: once around the bag's equator, and pole to pole over its height. */
 const bagFabric = boucle(sceneColors.peach, [Math.PI * 2 * BAG.radius, 1.6], true);
 bagFabric.vertexColors = true;
-const piping = new MeshStandardMaterial({ color: '#F2A2B4', roughness: 0.6 });
-const cushionFabric = boucle('#F4A8B8', [Math.PI * 2 * 0.25, 0.4], true);
+const piping = new MeshStandardMaterial({ color: '#E8A9C1', roughness: 0.6 });
+const cushionFabric = boucle('#E8A9C1', [Math.PI * 2 * 0.25, 0.4], true);
 const buttonFabric = boucle('#FFF6EE');
 
 export function Pouf() {
@@ -311,7 +311,8 @@ function clockHand(length: number, base: number, tip: number, tail: number) {
 const HOUR_HAND = clockHand(0.13, 0.03, 0.022, 0.022);
 const MINUTE_HAND = clockHand(0.205, 0.016, 0.01, 0.028);
 
-const clockPink = new MeshStandardMaterial({ color: '#F29AAB', roughness: 0.5 });
+// The same soft pink as the desk chair and Mochi's bed.
+const clockPink = new MeshStandardMaterial({ color: sceneColors.upholstery, roughness: 0.5 });
 const hourBrown = new MeshStandardMaterial({ color: '#6E4A3C', roughness: 0.55 });
 const minuteRoseGold = new MeshStandardMaterial({ color: '#E8A07F', roughness: 0.4, metalness: 0.3 });
 
@@ -330,7 +331,7 @@ function drawClockFace(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.shadowColor = 'rgba(176, 96, 104, 0.35)';
   ctx.shadowBlur = w * 0.008;
   ctx.shadowOffsetY = w * 0.006;
-  ctx.fillStyle = '#EE8A99';
+  ctx.fillStyle = '#DE96B2';
   ctx.font = `800 ${Math.round(w * 0.16)}px "Nunito", "Helvetica Neue", Arial, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';

@@ -6,7 +6,7 @@ import { seededRandom, useCanvasTexture } from './textures';
 
 /*
  * A round braided rug: a low padded disc with a softly rolled rim, coiled from rings of braid in
- * cream, oat and blush, finished with a pink border. The braid is painted top-down and reused as
+ * cream, oat and pink, finished with a pink border. The braid is painted top-down and reused as
  * the bump map, so each strand catches the light. One mesh and one cheap material, where the old
  * sheepskin drew nineteen layers of fur.
  */
@@ -18,8 +18,8 @@ const wobble = (theta: number) => 1 + 0.01 * Math.sin(3 * theta + 0.6) + 0.006 *
 
 /** Ring colours from the centre outwards; each ring is one turn of braid. */
 const RINGS = [
-  '#F6EDE6', '#F6EDE6', '#EFE2D6', '#F6EDE6', '#F6EDE6', '#F3D7DC', '#F6EDE6', '#F6EDE6',
-  '#EADBCB', '#F6EDE6', '#F6EDE6', '#F3D7DC', '#F6EDE6', '#F6EDE6', '#EDB4C1', '#E496A9',
+  '#F6EDE6', '#F6EDE6', '#EFE2D6', '#F6EDE6', '#F6EDE6', '#FBD6E7', '#F6EDE6', '#F6EDE6',
+  '#EADBCB', '#F6EDE6', '#F6EDE6', '#FBD6E7', '#F6EDE6', '#F6EDE6', '#FBD6E7', '#E8A9C1',
 ];
 
 /** The braid, top-down: canvas centre is the rug's centre, its edge the rug's rim. */

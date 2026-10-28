@@ -27,7 +27,7 @@ const LIFT = 0.12;
 /** Where the stand's neck yoke holds the neck (guitar-local height). */
 const NECK_REST = 1.25;
 
-const PINK_RIBBON = '#F28CA2';
+const PINK_RIBBON = '#DE96B2';
 const SOUND_HOLE = '#2A1E19';
 
 /**

@@ -13,9 +13,12 @@ export interface CameraPreset {
  */
 export const CAMERA = { fov: 32, near: 0.5, far: 120 } as const;
 
-/** Three-quarter, isometric-inspired overview, framing the whole diorama including its lawn. */
+/**
+ * Three-quarter, isometric-inspired overview, framing the whole diorama including its lawn, with a
+ * little room above the entablature's top corner.
+ */
 export const HOME_VIEW: CameraPreset = {
-  position: [14.83, 10.69, 14.97],
+  position: [15.42, 11.07, 15.56],
   target: [0.2, 1.25, 0.1],
 };
 

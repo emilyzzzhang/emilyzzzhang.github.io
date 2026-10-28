@@ -156,7 +156,9 @@ function seatGeometry() {
 // Built once and shared; the chair is static for the life of the page.
 const tub = tubGeometry();
 const seat = seatGeometry();
-const seatFabric = boucle(c.pink, [Math.PI * 2 * SEAT_R, SEAT_R * 2 + SEAT_H], true);
+// Upholstered in the same soft pink as Mochi's bed.
+const seatFabric = boucle(c.upholstery, [Math.PI * 2 * SEAT_R, SEAT_R * 2 + SEAT_H], true);
+const shellFabric = boucle(c.upholstery);
 const WHEEL_R = 0.058;
 /** Where the base rests: on the rug. */
 const BASE_Y = RUG_TOP;
@@ -191,7 +193,7 @@ export function Chair() {
 
       {/* upholstery: the tub body (world-unit UVs, like RoundedBox, so the chair's bouclé fits) and the seat */}
       <group position-y={TUB_BASE} rotation-x={TUB.lean}>
-        <mesh geometry={tub} material={materials.fabric} />
+        <mesh geometry={tub} material={shellFabric} />
       </group>
       <mesh geometry={seat} position-y={SEAT_Y} material={seatFabric} />
     </group>

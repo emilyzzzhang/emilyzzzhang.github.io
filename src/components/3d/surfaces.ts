@@ -257,7 +257,7 @@ function woodSurface(size: number): Surface {
   return bake({ size, tint, roughness, height, relief: 6 });
 }
 
-const FLOOR_TONES = ['#DDBE9F', '#D6B594', '#E2C5A8', '#D9B998', '#D2AF8D'].map((hex) => new Color(hex));
+const FLOOR_TONES = ['#F1D9BA', '#EBD0AC', '#F4DEC1', '#EFD6B5', '#E8CDA8'].map((hex) => new Color(hex));
 
 /**
  * The whole floor as one non-repeating texture: staggered planks with restrained tone changes,
@@ -489,10 +489,10 @@ export function tiled(surface: Surface, repeatU: number, repeatV: number): Surfa
 function roomReflection(): DataTexture {
   const width = 128;
   const height = 64;
-  const ceiling = new Color('#FFFBF8');
-  const wallHigh = new Color('#F8F3EE');
-  const wallLow = new Color('#FFDCE4');
-  const floor = new Color('#D9B998');
+  const ceiling = new Color('#FFFDF8');
+  const wallHigh = new Color('#FFFDF8');
+  const wallLow = new Color('#F8F3EE');
+  const floor = new Color('#EFD6B5');
   const panel = new Color('#FFF6EA');
   const softBox = (u: number, v: number, cu: number, cv: number, hu: number, hv: number) =>
     (1 - smoothstep(hu * 0.6, hu, Math.abs(u - cu))) * (1 - smoothstep(hv * 0.6, hv, Math.abs(v - cv)));

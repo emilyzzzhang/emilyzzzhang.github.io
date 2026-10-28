@@ -16,16 +16,23 @@ export const palette = {
 /** Extended tints used only inside the 3D room. */
 export const sceneColors = {
   ...palette,
-  // Clear, warm blush pinks for the furniture, in the family of the loading spinner's pink
-  // (#F48EA3), rather than the UI palette's dustier, mauve-leaning ones.
-  pink: '#FCBAC7',
-  rose: '#F7A3B5',
-  // A clear, pale blush for the lower walls, rather than the UI palette's greyer, dustier one.
-  blush: '#FFDCE4',
-  wallUpper: '#FFFBF8',
-  woodDark: '#9C7254',
-  woodLight: '#D3B08F',
-  roseDeep: '#F28CA2',
+  // The room's pinks, on cream walls and cream Roman molding. pink is the furniture's accent pink,
+  // trim the pale pink of the soft furnishings, and roseDeep a touch deeper, for small details on
+  // pink. Gold is only ever a thin line.
+  pink: '#E8A9C1',
+  rose: '#E8A9C1',
+  blush: '#F8F3EE',
+  trim: '#FBD6E7',
+  /** Soft pink for the desk chair, Mochi's bed and the clock: a shade warmer and fuller than trim. */
+  upholstery: '#FFBBD8',
+  molding: '#F8F3EE',
+  gold: '#D8C29A',
+  wallUpper: '#FFFDF8',
+  // Soft, pale honey wood: light enough to keep the room bright, warm enough to sit with the pinks.
+  wood: '#EBD1AD',
+  woodDark: '#D2B289',
+  woodLight: '#F0DCBF',
+  roseDeep: '#DE96B2',
   peachDeep: '#EDC6B0',
   lavenderLight: '#E3D9F4',
   lavenderDeep: '#AE9AD9',
@@ -35,8 +42,8 @@ export const sceneColors = {
   terracotta: '#E6AE96',
   metal: '#E6DED8',
   brass: '#DDBB86',
-  grass: '#A3C287',
-  earth: '#A98468',
+  grass: '#A7C98B',
+  earth: '#C9A887',
   bulb: '#FFF3DF',
   lampGlow: '#FFCDA0',
 } as const;

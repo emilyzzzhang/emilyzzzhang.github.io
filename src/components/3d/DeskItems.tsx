@@ -223,7 +223,7 @@ const MUG_PARTS = {
   bear: new MeshStandardMaterial({ color: '#FFF3E2', roughness: 0.45 }),
   muzzle: new MeshStandardMaterial({ color: '#FFF9F0', roughness: 0.45 }),
   eye: new MeshStandardMaterial({ color: '#3A2A26', roughness: 0.3 }),
-  cheek: new MeshStandardMaterial({ color: '#F7B3BE', roughness: 0.6 }),
+  cheek: new MeshStandardMaterial({ color: '#E8A9C1', roughness: 0.6 }),
   coaster: boucle('#F1E4D2', [1.2, 1.2], true),
 };
 
@@ -277,8 +277,11 @@ function Coaster() {
   );
 }
 
-/** Wisps of steam: each rises, swells, curls and thins out, out of step with the others. */
-const STEAM = { wisps: 8, cycle: 3.6, rise: 0.55, opacity: 0.32 };
+/**
+ * Wisps of steam: each rises, swells, curls and thins out, out of step with the others. Bright
+ * white and fairly dense, so it still reads against the cream walls behind the desk.
+ */
+const STEAM = { wisps: 10, cycle: 3.6, rise: 0.6, opacity: 0.55 };
 
 function Steam({ y }: { y: number }) {
   const glow = useCanvasTexture(drawGlow, 64, 64);
@@ -304,7 +307,7 @@ function Steam({ y }: { y: number }) {
         y + 0.02 + height,
         Math.cos(t * 0.7 * sway + turn) * drift * 0.6,
       );
-      const size = 0.07 + k * 0.2;
+      const size = 0.08 + k * 0.23;
       wisp.scale.set(size, size * 1.5, 1);
       const material = wisp.material as SpriteMaterial;
       material.rotation = turn + Math.sin(t * 0.5 + turn) * 0.6;
@@ -315,7 +318,7 @@ function Steam({ y }: { y: number }) {
 
   return seeds.map((_, i) => (
     <sprite key={i} ref={(s) => void (wisps.current[i] = s)} userData={{ noShadow: true }}>
-      <spriteMaterial map={glow} color="#FFFBF5" transparent opacity={0} depthWrite={false} />
+      <spriteMaterial map={glow} color="#FFFFFF" transparent opacity={0} depthWrite={false} toneMapped={false} />
     </sprite>
   ));
 }

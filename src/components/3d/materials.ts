@@ -105,13 +105,13 @@ export const materials = {
   wood: wood(c.wood, 0.6),
   woodDark: wood(c.woodDark, 0.65),
   woodLight: wood(c.woodLight, 0.6),
-  /** Warm honey oak for the bookshelf, with a deeper, rosier tone for its plank back. */
-  oak: wood('#C99263', 0.6),
-  oakBack: wood('#B27E57', 0.7),
+  /** Pale honey wood for the bookshelf, with a slightly deeper tone for its plank back. */
+  oak: wood('#E8CBA4', 0.6),
+  oakBack: wood('#D9B78F', 0.7),
   /** The corkboard's frame: the room's warm light oak with a finer, more delicate grain. */
   frameOak: withSurface(matte(c.woodLight, 0.55), tiled(surfaces.wood, 1 / 0.7, 1 / 0.7), 0.22),
-  /** Pale light oak with a finer, more delicate grain, for the small floating shelf. */
-  lightOak: withSurface(matte('#E2C49E', 0.55), tiled(surfaces.wood, 1 / 0.9, 1 / 0.9), 0.16),
+  /** Very pale honey wood with a finer, more delicate grain, for the small floating shelf. */
+  lightOak: withSurface(matte('#F0DCBF', 0.55), tiled(surfaces.wood, 1 / 0.9, 1 / 0.9), 0.16),
   // The floor map carries the plank colours themselves, so it is not normalised against a base colour.
   // The boards lie a hair above the slab's top; from the overview's distance that gap is too thin
   // for the depth buffer, so the offset keeps the slab from flickering through. Contact shadows sit
@@ -144,10 +144,12 @@ export const materials = {
   soil: matte('#7A5A48', 1),
   metal: matte(c.metal, 0.35, 0.5),
   brass: matte(c.brass, 0.35, 0.7),
-  /** Pale wooden slab under the floor, framing the room's edge; a shade deeper than the trim so the two read apart. */
-  slab: wood('#DDBA94', 0.65),
-  /** Pale honey wall cornice and posts, with bolder, larger grain than the furniture. */
-  trim: withSurface(matte('#EACDA9', 0.6), tiled(surfaces.wood, 1 / 3, 1 / 3), 0.35),
+  /** Pale wooden slab under the floor, framing the room's edge; a shade deeper than the boards so the two read apart. */
+  slab: wood('#E0C29A', 0.65),
+  /** The wall's cream European molding (border, columns, panel frames, chair rail): smooth and softly glossy. */
+  molding: matte(c.molding, 0.45),
+  /** Thin gilded lines on the molding: a soft, satin gold, never shiny. */
+  gold: matte(c.gold, 0.4, 0.35),
   /** Guitar woods: honey maple body, dark walnut neck, fretboard and stand. */
   maple: wood('#E3B47C', 0.5),
   walnut: wood('#5A3D2E', 0.55),
@@ -161,8 +163,6 @@ export const materials = {
   plant: new MeshStandardMaterial({ color: '#FFFFFF', roughness: 0.55, vertexColors: true }),
   /** Soil band under the lawn's turf. */
   earth: plaster(c.earth),
-  /** Desk chair upholstery (RoundedBox, world-unit UVs). */
-  fabric: boucle(c.pink),
   /** Matte cream ceramic (no clear coat) with a faint glaze mottle, for the floor plant's pot. */
   potMatte: withSurface(matte(c.warmWhite, 0.78), glazeSurface, 0.05),
   ceramicPink: ceramic(c.pink),

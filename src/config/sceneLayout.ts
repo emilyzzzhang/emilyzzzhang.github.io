@@ -9,7 +9,7 @@ export const ROOM = {
   half: 4,
   wallHeight: 5.2,
   /** Walls grow outward from their inner faces (z = −4, x = −4), so thickness never eats into the room. */
-  wallThickness: 0.46,
+  wallThickness: 0.7,
   wainscotHeight: 1.7,
 } as const;
 

@@ -191,10 +191,10 @@ function drawPlaid(ctx: CanvasRenderingContext2D, w: number, h: number) {
     else ctx.fillRect(at, 0, width, h);
   };
   for (const horizontal of [true, false]) {
-    band(horizontal, 18, 54, '#F5C3CD', 0.55);
-    band(horizontal, 92, 6, '#EEA5B5', 0.6);
-    band(horizontal, 160, 30, '#F7D2D9', 0.5);
-    band(horizontal, 214, 4, '#EEA5B5', 0.5);
+    band(horizontal, 18, 54, '#FBD6E7', 0.55);
+    band(horizontal, 92, 6, '#E8A9C1', 0.6);
+    band(horizontal, 160, 30, '#FBD6E7', 0.5);
+    band(horizontal, 214, 4, '#E8A9C1', 0.5);
   }
   ctx.globalAlpha = 1;
 }
@@ -385,7 +385,7 @@ const STRAWBERRY = (() => {
   return { body, seeds, calyx, stem, crown, rest };
 })();
 
-const berryFabric = boucle('#EE8E9A', [TAU * BERRY.radius, 0.8], true);
+const berryFabric = boucle('#DE96B2', [TAU * BERRY.radius, 0.8], true);
 const leafFelt = boucle('#9DB07F');
 const seedThread = new MeshStandardMaterial({ color: '#FFF3E4', roughness: 0.75 });
 const SEED = new SphereGeometry(1, 10, 8);
@@ -411,7 +411,7 @@ function Strawberry() {
 const SLIPPER = { half: [0.12, 0.095, 0.26] as [number, number, number] };
 const FUR = { layers: 18, length: 0.026 };
 const CREAM = new Color('#FFF8F0');
-const LINING = new Color('#F7C3CE');
+const LINING = new Color('#FBD6E7');
 const SOLE = new Color('#EAD3C8');
 
 /** The base surface, toe towards +z: rest positions, normals, colours and how long the fur grows at each point. */
@@ -565,7 +565,7 @@ const BOW_YARN = (() => {
   const knot = new SphereGeometry(0.009, 12, 10).scale(1, 0.8, 1).translate(0, 0.004, 0.002);
   return mergeGeometries([...parts, knot]);
 })();
-const bowYarn = boucle('#EE9DB1');
+const bowYarn = boucle('#E8A9C1');
 
 function Slipper({ position, rotationY }: { position: [number, number, number]; rotationY: number }) {
   return (

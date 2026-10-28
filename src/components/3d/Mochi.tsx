@@ -298,8 +298,9 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle, visit, onC
 /** Bouclé for the bed, tiled to each primitive's UV span (circumferences, and the cushion's diameter). */
 const bedFabric = {
   base: boucle(sceneColors.warmWhite, [Math.PI * 2 * 0.61, 0.12], true),
-  rim: boucle(sceneColors.rose, [Math.PI * 2 * 0.5, Math.PI * 2 * 0.13], true),
-  cushion: boucle(sceneColors.pink, [0.88, 0.88], true),
+  // The same soft pink as the desk chair.
+  rim: boucle(sceneColors.upholstery, [Math.PI * 2 * 0.5, Math.PI * 2 * 0.13], true),
+  cushion: boucle(sceneColors.upholstery, [0.88, 0.88], true),
 };
 
 /** Round, puffy pink cushion. Origin: floor under its centre. */

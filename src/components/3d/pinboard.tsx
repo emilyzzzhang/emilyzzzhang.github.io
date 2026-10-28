@@ -179,7 +179,7 @@ export interface PinLook {
 export const ballPin = (color: string): PinLook => ({ geometry: BALL_GEO, material: [steel, plastic(color)] });
 export const PIN_LOOKS = {
   brass: { geometry: TACK_GEO, material: metal('#D9B26A') } as PinLook,
-  pink: ballPin('#EE9AAF'),
+  pink: ballPin('#E8A9C1'),
   pearl: ballPin('#F7F1EA'),
 };
 

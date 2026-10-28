@@ -35,12 +35,12 @@ describe('procedural surfaces', () => {
     expect(grass.roughnessMean).toBeGreaterThan(0.85);
   });
 
-  it('keeps the floor in its original plank palette', () => {
+  it('keeps the floor in its pale honey plank palette', () => {
     const [r, g, b] = floor.albedoMean;
     expect(r).toBeGreaterThan(g);
     expect(g).toBeGreaterThan(b);
     expect(r).toBeGreaterThan(0.6);
-    expect(r).toBeLessThan(0.8);
+    expect(r).toBeLessThan(0.9);
   });
 });
 
