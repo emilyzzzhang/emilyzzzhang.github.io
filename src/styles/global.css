@@ -467,7 +467,7 @@ a {
   border: 0;
   border-radius: var(--radius-pill);
   background: transparent;
-  font-size: 0.925rem;
+  font-size: 1.05rem;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
@@ -497,7 +497,7 @@ a {
   left: calc(var(--gutter) + 16px);
   z-index: var(--z-hero);
   /* Narrow enough that the welcome and intro wrap clear of the room's top-left corner. */
-  max-width: 350px;
+  max-width: 400px;
   pointer-events: none;
   transition:
     opacity var(--duration-base) var(--ease-out),
@@ -516,7 +516,7 @@ a {
   border-radius: var(--radius-pill);
   background: var(--rose-tint);
   color: var(--rose-ink);
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -528,7 +528,7 @@ a {
   /* Always one line; sized so that line still clears the room's top-left corner at every width. */
   white-space: nowrap;
   font-family: var(--font-cute);
-  font-size: clamp(1.9rem, 2.85vw, 3.3rem);
+  font-size: clamp(2.2rem, 3.3vw, 3.8rem);
   font-weight: 400;
   line-height: 1.12;
 }
@@ -536,7 +536,7 @@ a {
 .hero__role {
   margin-top: 10px;
   font-family: var(--font-heading);
-  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  font-size: clamp(1.2rem, 1.85vw, 1.5rem);
   font-weight: 600;
   color: var(--hero-accent);
   transition: color var(--duration-mode) ease;
@@ -574,7 +574,7 @@ a {
   right: var(--gutter);
   bottom: calc(22px + env(safe-area-inset-bottom));
   color: var(--hero-ink-soft);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   pointer-events: none;
 }
 
@@ -796,7 +796,7 @@ a {
   .navbar__link {
     min-height: 40px;
     padding: 8px 14px;
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   .hero {
@@ -808,11 +808,13 @@ a {
 
   .hero__eyebrow {
     margin-bottom: 8px;
-    font-size: 0.7rem;
+    font-size: 0.82rem;
   }
 
   .hero__title {
-    font-size: 2.35rem;
+    font-size: 2.7rem;
+    /* Wraps rather than running off a narrow phone, now that it's larger. */
+    white-space: normal;
   }
 
   .hero__role {
