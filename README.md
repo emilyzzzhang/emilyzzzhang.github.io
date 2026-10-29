@@ -1,46 +1,17 @@
 # Emily's Studio
 
-An interactive 3D portfolio: a bright pink-and-white miniature studio, modelled entirely in
-code with React Three Fiber, where each object opens a part of the portfolio — and Mochi the
-cat naps on her cushion by the desk.
+Welcome to my little studio! Come visit at **[emilyzzzhang.github.io](https://emilyzzzhang.github.io)**.
 
-| Object in the studio | Section |
-| --- | --- |
-| Computer monitor | Projects |
-| Coffee mug | About |
-| Bookshelf | Education |
-| Picture frames | Experience |
-| Envelope | Contact |
-| Résumé poster | Résumé (embedded PDF + open/download links) |
-| Mochi | Wakes up, blinks, wiggles her ears, and goes back to sleep |
+I've always loved working on things that are both technical and creative, so I built my
+portfolio as a tiny 3D room using React and Three.js. Everything in it is made in code, from the
+furniture to the flowers in the garden outside.
 
-Every section is also reachable from the navigation bar, so the 3D scene is never required.
-The sun/moon toggle in the top-right switches between day and night lighting and is remembered
-per visitor.
+Feel free to look around and click on things! The computer has my projects, the coffee mug is
+a bit about me, the bookshelf has my education, the picture frames are my experience, my
+résumé is pinned on the cork board, and the envelope is how to reach me. You can also play the
+guitar in the corner.
 
-## Commands
+My cat Mochi is in there too, usually sleeping in her bed. You can try waking her up :))
 
-```bash
-npm install
-npm run dev        # http://localhost:5173
-npm run build      # typecheck + production build into dist/
-npm run preview    # serve the production build
-npm test           # vitest
-```
-
-## Customising
-
-- **Content**: `src/data/profile.ts`, `src/data/projects.ts`, `src/data/experience.ts`.
-- **Project screenshots**: put images in `public/images/projects/` and add
-  `image: { src: 'images/projects/<name>.png', alt: '…' }` to a project. Missing or broken
-  images fall back to an illustrated placeholder.
-- **Résumé**: `public/resume.pdf`.
-- **Mochi's look**: `src/config/mochi.ts` — fur/eye/nose colours, ear and tail shape, and
-  which markings to show. The comments there explain what to match from a reference photo.
-- **Colours & lighting**: `src/config/theme.ts` (3D, including the day/night lighting targets)
-  and `src/styles/variables.css` (UI).
-- **Layout**: furniture and object positions in `src/config/sceneLayout.ts`; camera presets in
-  `src/config/camera.ts`.
-- **Blender models**: add an entry to `src/config/models.ts` (e.g.
-  `chair: { url: 'models/chair.glb' }`) and put the file in `public/models/`. The code-built
-  version is used until the file loads, and if it fails to.
+If you switch to night mode, the sky fills up with stars, and if you wait a little you might
+catch a shooting star.
