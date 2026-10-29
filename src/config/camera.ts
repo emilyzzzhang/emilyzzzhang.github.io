@@ -65,16 +65,8 @@ export const CONTROLS = {
   zoomSpeed: 0.7,
 } as const;
 
-export const CAMERA_ANIMATION = {
-  focusDuration: 1.4,
-  returnDuration: 1.2,
-  introDuration: 2.4,
-  ease: 'power3.inOut',
-  /** Fraction of the viewport the overview shifts to clear the hero text (right on desktop, down on phones). */
-  heroShift: { desktop: 0.12, mobile: 0.08 },
-  /** Fraction of the viewport height the scene shifts up while a mobile bottom sheet is open. */
-  mobileSheetShift: 0.24,
-} as const;
+// Kept free of three.js so the eagerly-loaded app shell can read it (see cameraAnimation.ts).
+export { CAMERA_ANIMATION } from './cameraAnimation';
 
 /** How much further back the overview sits on narrow/portrait screens. */
 export function overviewDistanceScale(aspect: number): number {

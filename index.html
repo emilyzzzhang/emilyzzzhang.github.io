@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="/favicon-16.png?v=3" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
     <!-- The display font (loading screen, hero title, site chrome), fetched up front so text first appears in it. -->
-    <link rel="preload" href="/font/SuperFrosting-R9z4o.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/font/SuperFrosting-R9z4o.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -21,7 +21,24 @@
     <title>Emily's Studio</title>
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      A static copy of <LoadingScreen> at 0%, styled by the stylesheet in <head>, so the loading screen
+      shows before any JavaScript has downloaded. React replaces it with the live, identical version.
+    -->
+    <div id="root">
+      <div class="loading" role="status" aria-live="polite">
+        <p class="loading__title">
+          <span>Preparing Emily's Studio</span>
+          <span class="loading__dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+        </p>
+        <div class="loading__bar" role="progressbar" aria-label="Loading the 3D studio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="loading__track"><span class="loading__fill"></span></span>
+          <span class="loading__runner" aria-hidden="true">
+            <img class="loading__bloom" src="/emily-studio-bloom.png" alt="" />
+          </span>
+        </div>
+      </div>
+    </div>
     <noscript>This portfolio needs JavaScript to run. Please enable it to explore the room.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

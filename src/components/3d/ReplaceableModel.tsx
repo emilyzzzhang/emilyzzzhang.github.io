@@ -1,7 +1,8 @@
-import { Component, Suspense, useMemo, type ReactNode } from 'react';
-import { useGLTF } from '@react-three/drei';
-import type { Mesh } from 'three';
-import { MODEL_OVERRIDES, type ModelOverride, type ReplaceableId } from '../../config/models';
+import { Component, lazy, Suspense, type ReactNode } from 'react';
+import { MODEL_OVERRIDES, type ReplaceableId } from '../../config/models';
+
+// The GLTF loader is only downloaded when a model override is actually configured.
+const GltfModel = lazy(() => import('./GltfModel'));
 
 interface ReplaceableModelProps {
   id: ReplaceableId;
@@ -20,19 +21,6 @@ export function ReplaceableModel({ id, children }: ReplaceableModelProps) {
       </Suspense>
     </ModelErrorBoundary>
   );
-}
-
-function GltfModel({ override }: { override: ModelOverride }) {
-  const { scene } = useGLTF(`${import.meta.env.BASE_URL}${override.url}`);
-  const model = useMemo(() => {
-    const copy = scene.clone(true);
-    copy.traverse((obj) => {
-      if ((obj as Mesh).isMesh) obj.castShadow = obj.receiveShadow = true;
-    });
-    return copy;
-  }, [scene]);
-
-  return <primitive object={model} scale={override.scale ?? 1} rotation-y={override.rotationY ?? 0} />;
 }
 
 class ModelErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {

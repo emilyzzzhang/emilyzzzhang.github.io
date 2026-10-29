@@ -23,10 +23,12 @@ import { ExperienceSection } from './sections/ExperienceSection';
 import { ProjectsSection } from './sections/ProjectsSection';
 import { ResumeSection } from './sections/ResumeSection';
 import type { SectionId } from './types/portfolio';
+import { roomDownloaded } from './utils/roomDownload';
 import { isWebGL2Available } from './utils/webgl';
 
-// three.js is only downloaded when the device can actually render the room.
-const loadRoomScene = () => import('./components/3d/RoomScene');
+// three.js is only downloaded when the device can actually render the room. The page's own
+// script may already be fetching it for the loading bar; the import waits and reads it from cache.
+const loadRoomScene = () => roomDownloaded().then(() => import('./components/3d/RoomScene'));
 const RoomScene = lazy(loadRoomScene);
 const LOADING_TIMEOUT_MS = 10_000;
 

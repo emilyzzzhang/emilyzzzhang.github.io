@@ -3,7 +3,7 @@
 /* Super Frosting: the site's chrome, the hero title and the loading line; preloaded from index.html. */
 @font-face {
   font-family: 'Super Frosting';
-  src: url('/font/SuperFrosting-R9z4o.ttf') format('truetype');
+  src: url('/font/SuperFrosting-R9z4o.woff2') format('woff2'), url('/font/SuperFrosting-R9z4o.ttf') format('truetype');
   font-display: swap;
 }
 

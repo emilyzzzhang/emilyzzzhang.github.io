@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CAMERA_ANIMATION } from '../config/camera';
+import { CAMERA_ANIMATION } from '../config/cameraAnimation';
 import { MOCHI_VISIT } from '../config/mochi';
 
 /** The camera is flying in to Mochi, or has arrived and she is meowing. */
