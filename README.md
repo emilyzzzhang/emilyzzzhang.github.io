@@ -27,3 +27,13 @@ Feel free to click on things! Each one opens a different part of the portfolio:
 - **Mochi**: my cat, usually sleeping in her bed. You can try waking her up :))
 - **Guitar**: click it to play a little tune
 - **Night mode**: the sky fills up with stars, and if you wait a little you might catch a shooting star
+
+## Built with
+
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-000000?logo=threedotjs&logoColor=white)
+![React Three Fiber](https://img.shields.io/badge/React_Three_Fiber-000000?logo=react&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP-0AE448?logo=greensock&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white)
