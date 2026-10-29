@@ -480,6 +480,7 @@ a {
   border: 0;
   border-radius: var(--radius-pill);
   background: transparent;
+  color: var(--nav-ink);
   font-size: 1.05rem;
   font-weight: 600;
   white-space: nowrap;
@@ -494,7 +495,7 @@ a {
 }
 
 .navbar__link[aria-current='true'] {
-  background: var(--plum-ink);
+  background: var(--nav-current);
   color: var(--cream);
 }
 

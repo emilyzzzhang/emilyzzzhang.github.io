@@ -40,17 +40,25 @@
 
   /*
    * The site's chrome (navigation, hero, panel titles, buttons, tooltips, footer) speaks in one plum
-   * family that suits the pink sky: deep plum for headings and labels, a softer plum for secondary
-   * lines, and --rose-ink for small accents. Section content keeps --ink.
+   * family that suits the pink sky: a raspberry plum for headings and labels, a paler one for
+   * secondary lines, and --rose-ink for small accents. Section content keeps --ink. Tooltips are
+   * filled with a deep plum in both modes, with cream text.
    */
-  --plum-ink: #4f1c38;
-  --plum-soft: #7c2d55;
+  --plum-ink: #9a2f68;
+  --plum-soft: #a8386f;
+  --plum-deep: #4f1c38;
 
-  /* Hero and footer text sit directly on the backdrop, so they switch with the mode */
-  --hero-ink: var(--plum-ink);
-  /* Deeper than --ink-soft / --rose-ink so hero text keeps WCAG AA contrast on the backdrop. */
-  --hero-ink-soft: #6b2a4b;
-  --hero-accent: var(--plum-soft);
+  /*
+   * Hero and footer text sit directly on the backdrop, so they switch with the mode. By day they
+   * are three shades of the sky's pink: deepest for the title, brightest for the welcome line, each
+   * keeping WCAG AA on the sky (large text for the title and role, normal for the subtitle and footer).
+   */
+  --hero-ink: #7d1f4a;
+  --hero-ink-soft: #9c2c5c;
+  --hero-accent: #c04a78;
+  /* The tabs: their text the darkest pink of all, the current one filled with the title's pink by day. */
+  --nav-ink: #5c1538;
+  --nav-current: var(--hero-ink);
   /* Soft neutral vignette that suits both ends of the backdrop. */
   --vignette: rgba(70, 64, 62, 0.1);
 
@@ -97,6 +105,11 @@
 }
 
 :root[data-mode='night'] {
+  /* By night the chrome keeps its deeper plums; the brighter ones above are for the day. */
+  --plum-ink: var(--plum-deep);
+  --plum-soft: #7c2d55;
+  --nav-ink: var(--plum-deep);
+  --nav-current: var(--plum-deep);
   --hero-ink: #fbf3f6;
   --hero-ink-soft: #e2d8ea;
   --hero-accent: #f7c7d7;
