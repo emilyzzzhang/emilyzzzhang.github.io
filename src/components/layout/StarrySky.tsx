@@ -136,19 +136,20 @@ const DIPPER_AT = { x: 4, y: 63, width: 18 };
 
 /**
  * Occasional meteors, in viewport percent like the stars. Each streaks across once per `cycle`
- * seconds, first after `delay`; the cycles differ so they never fall into a pattern. Angles under
- * 90° fall down-right, over 90° down-left. All start clear of the hero and navbar.
+ * seconds, first after `delay`; the cycles differ so they never fall into a pattern. They glide
+ * nearly level, dipping only a little: angles just over 0° drift right, just under 180° drift
+ * left. `size` scales the whole streak, so the small ones look farther off. They sit off to the
+ * sides, where the room doesn't cover them, and all start clear of the hero and navbar.
  */
 const SHOOTING_STARS = [
-  { x: 42, y: 14, angle: 28, cycle: 8, delay: 1 },
-  { x: 92, y: 16, angle: 154, cycle: 11, delay: 4 },
-  { x: 60, y: 26, angle: 22, cycle: 9, delay: 6.5 },
-  { x: 80, y: 34, angle: 160, cycle: 12, delay: 9 },
-  { x: 36, y: 2, angle: 34, cycle: 7, delay: 3 },
-  { x: 70, y: 18, angle: 148, cycle: 10, delay: 5.5 },
-  { x: 50, y: 40, angle: 18, cycle: 9.5, delay: 2 },
-  { x: 96, y: 44, angle: 162, cycle: 11.5, delay: 7.5 },
-  { x: 24, y: 58, angle: 26, cycle: 13, delay: 10 },
+  { x: 36, y: 14, angle: 168, size: 0.6, cycle: 11, delay: 1 },
+  { x: 66, y: 10, angle: 14, size: 1.3, cycle: 12.5, delay: 4 },
+  { x: 76, y: 28, angle: 8, size: 0.75, cycle: 13, delay: 7 },
+  { x: 74, y: 52, angle: 18, size: 1, cycle: 12, delay: 10 },
+  { x: 24, y: 44, angle: 172, size: 1.25, cycle: 11.5, delay: 2.5 },
+  { x: 4, y: 34, angle: 12, size: 0.55, cycle: 13, delay: 5.5 },
+  { x: 26, y: 70, angle: 164, size: 0.9, cycle: 12.5, delay: 8.5 },
+  { x: 90, y: 64, angle: 170, size: 0.7, cycle: 13, delay: 11.5 },
 ];
 
 /** Viewport percent to percent of the oversized pan, which starts MARGIN before the viewport's edge. */
@@ -222,7 +223,7 @@ export const StarrySky = memo(function StarrySky() {
           <StarDot key={i} x={panLeft(x)} y={panTop(y)} {...star} />
         ))}
         <Constellation />
-        {SHOOTING_STARS.map(({ x, y, angle, cycle, delay }, i) => (
+        {SHOOTING_STARS.map(({ x, y, angle, size, cycle, delay }, i) => (
           <span
             key={`meteor-${i}`}
             className="shooting-star"
@@ -231,6 +232,7 @@ export const StarrySky = memo(function StarrySky() {
                 left: panLeft(x),
                 top: panTop(y),
                 '--angle': `${angle}deg`,
+                '--size': size,
                 animationDuration: `${cycle}s`,
                 animationDelay: `${delay}s`,
               } as CSSProperties

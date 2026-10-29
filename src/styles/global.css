@@ -353,7 +353,8 @@ a {
 }
 
 /* A faint streak with a bright head, shooting along its own angle for about half a second per cycle
-   (cycle and first delay are set per meteor). Hidden between streaks and by day. */
+   (cycle, first delay and size are set per meteor; size scales the streak, its head and how far it
+   flies, so small ones read as farther off). Hidden between streaks and by day. */
 .shooting-star {
   position: absolute;
   width: 190px;
@@ -385,20 +386,20 @@ a {
 }
 
 /*
- * Each meteor is visible for the first ~16% of its cycle (about 1.1–2 s across the 7–13 s
+ * Each meteor is visible for the first ~16% of its cycle (about 1.8–2 s across the 11–13 s
  * cycles): it brightens as its tail draws out, glides steadily, then burns out mid-flight.
  */
 @keyframes shooting-star {
   0% {
     opacity: 0;
-    transform: rotate(var(--angle)) translateX(0) scaleX(0.2);
+    transform: rotate(var(--angle)) scale(var(--size, 1)) translateX(0) scaleX(0.2);
   }
   3% {
     opacity: 0.85;
   }
   7% {
     opacity: 1;
-    transform: rotate(var(--angle)) translateX(190px) scaleX(1);
+    transform: rotate(var(--angle)) scale(var(--size, 1)) translateX(190px) scaleX(1);
   }
   12% {
     opacity: 0.8;
@@ -406,7 +407,7 @@ a {
   16%,
   100% {
     opacity: 0;
-    transform: rotate(var(--angle)) translateX(420px) scaleX(1);
+    transform: rotate(var(--angle)) scale(var(--size, 1)) translateX(420px) scaleX(1);
   }
 }
 
