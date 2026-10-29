@@ -6,12 +6,19 @@ I've always loved working on things that are both technical and creative, so I b
 portfolio as a tiny 3D room using React and Three.js. Everything in it is made in code, from the
 furniture to the flowers in the garden outside.
 
-Feel free to look around and click on things! The computer has my projects, the coffee mug is
-a bit about me, the bookshelf has my education, the picture frames are my experience, my
-résumé is pinned on the cork board, and the envelope is how to reach me. You can also play the
-guitar in the corner.
+## Look around
 
-My cat Mochi is in there too, usually sleeping in her bed. You can try waking her up :))
+Feel free to click on things! Each one opens a different part of the portfolio:
 
-If you switch to night mode, the sky fills up with stars, and if you wait a little you might
-catch a shooting star.
+- **Computer**: my projects
+- **Coffee mug**: a bit about me
+- **Bookshelf**: my education
+- **Picture frames**: my experience
+- **Cork board**: my résumé
+- **Envelope**: how to reach me
+
+## Little extras
+
+- **Mochi**: my cat, usually sleeping in her bed. You can try waking her up :))
+- **Guitar**: click it to play a little tune
+- **Night mode**: the sky fills up with stars, and if you wait a little you might catch a shooting star
