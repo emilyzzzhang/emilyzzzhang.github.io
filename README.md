@@ -7,10 +7,6 @@ Welcome to my little studio! Come visit at **[emilyzzzhang.github.io](https://em
   <img src=".github/screenshots/night.jpg" alt="The studio at night, lit by fairy lights under a starry sky" width="49%">
 </p>
 
-I've always loved working on things that are both technical and creative, so I built my
-portfolio as a tiny 3D room using React and Three.js. Everything in it is made in code, from the
-furniture to the flowers in the garden outside.
-
 ## Look around
 
 Feel free to click on things! Each one opens a different part of the portfolio:
