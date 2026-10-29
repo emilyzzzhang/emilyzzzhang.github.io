@@ -1,15 +1,15 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { ThreeEvent } from '@react-three/fiber';
 import { Html, useCursor } from '@react-three/drei';
-import type { Group } from 'three';
+import type { BoxGeometry, Group } from 'three';
 import type { Vec3 } from '../../config/sceneLayout';
 import { CLICK_DRAG_TOLERANCE } from '../../config/layout';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { SectionId } from '../../types/portfolio';
 import { Tooltip } from '../ui/Tooltip';
-import { useHoverGlow } from './useHoverGlow';
+import { HIT_MATERIAL, restingHitBox, useHoverGrow } from './useHoverGrow';
 
-const HOVER_SCALE = 0.04;
+const HOVER_SCALE = 0.07;
 const HOVER_LIFT: Vec3 = [0, 0.03, 0];
 
 interface InteractiveObjectProps {
@@ -46,7 +46,15 @@ export function InteractiveObject({
   const reducedMotion = useReducedMotion();
   const highlighted = hovered && !active;
   useCursor(hovered);
-  useHoverGlow(body, highlighted, { scale: hoverScale, lift: hoverLift, reducedMotion });
+  useHoverGrow(body, highlighted, { scale: hoverScale, lift: hoverLift, reducedMotion });
+
+  // The pieces never change, so their resting bounds are measured once.
+  const [hitBox, setHitBox] = useState<BoxGeometry | null>(null);
+  useLayoutEffect(() => {
+    const box = body.current && restingHitBox(body.current);
+    setHitBox(box);
+    return () => box?.dispose();
+  }, []);
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
@@ -56,16 +64,20 @@ export function InteractiveObject({
   };
 
   return (
-    <group
-      position={position}
-      rotation={rotation}
-      onClick={handleClick}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-      }}
-      onPointerOut={() => setHovered(false)}
-    >
+    <group position={position} rotation={rotation}>
+      {hitBox && (
+        <mesh
+          geometry={hitBox}
+          material={HIT_MATERIAL}
+          userData={{ noShadow: true }}
+          onClick={handleClick}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setHovered(true);
+          }}
+          onPointerOut={() => setHovered(false)}
+        />
+      )}
       <group ref={body}>{children}</group>
       {highlighted && (
         <Html position={labelOffset} center zIndexRange={[20, 10]} style={{ pointerEvents: 'none' }}>

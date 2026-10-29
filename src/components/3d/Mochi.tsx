@@ -16,6 +16,7 @@ import { bodyGeometry, earGeometry, headGeometry, pawGeometry, tailGeometry } fr
 import { refreshShadows } from './renderQuality';
 import { ReplaceableModel } from './ReplaceableModel';
 import { drawZ, useCanvasTexture } from './textures';
+import { HOVER_SPEED } from './useHoverGrow';
 
 const { colors, shape, markings } = MOCHI;
 
@@ -140,7 +141,7 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle, visit, onC
     }
     const target = hovered ? 1 : 0;
     if (root.current && Math.abs(hoverAmount.current - target) > 0.001) {
-      hoverAmount.current = MathUtils.damp(hoverAmount.current, target, 12, delta);
+      hoverAmount.current = MathUtils.damp(hoverAmount.current, target, HOVER_SPEED, delta);
       root.current.scale.setScalar(1 + hoverAmount.current * 0.03);
       refreshShadows(gl);
     }

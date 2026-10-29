@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { Html, useCursor } from '@react-three/drei';
-import { BoxGeometry, CanvasTexture, MeshBasicMaterial, SpriteMaterial, SRGBColorSpace, type Group, type Sprite } from 'three';
+import { BoxGeometry, CanvasTexture, SpriteMaterial, SRGBColorSpace, type Group, type Sprite } from 'three';
 import { CLICK_DRAG_TOLERANCE } from '../../config/layout';
 import type { Vec3 } from '../../config/sceneLayout';
 import { useMusic } from '../../hooks/useMusic';
@@ -9,7 +9,7 @@ import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { Tooltip } from '../ui/Tooltip';
 import { Guitar } from './Guitar';
 import { refreshShadows } from './renderQuality';
-import { useHoverGlow } from './useHoverGlow';
+import { HIT_MATERIAL, useHoverGrow } from './useHoverGrow';
 
 /** Where the tooltip floats, just above the headstock (guitar-local). */
 const LABEL_AT: Vec3 = [0, 2.3, 0.1];
@@ -21,10 +21,9 @@ const NO_LIFT: Vec3 = [0, 0, 0];
  * target on touch screens. It draws nothing and casts no shadow.
  */
 const HIT_BOX = new BoxGeometry(0.55, 1.95, 0.5).translate(0, 0.975, -0.12);
-const HIT_MATERIAL = new MeshBasicMaterial({ colorWrite: false, depthWrite: false });
 
 /**
- * The acoustic guitar on its stand, which plays a little tune: hover for a hint (it glows and
+ * The acoustic guitar on its stand, which plays a little tune: hover for a hint (it grows and
  * sways as if its strings were humming), click to play or pause. While music plays, a few notes
  * drift up beside it. Origin: the floor under the stand, as for <Guitar />.
  */
@@ -35,13 +34,13 @@ export function PlayableGuitar() {
   const reducedMotion = useReducedMotion();
   const playing = music.status === 'playing' || music.status === 'loading';
   useCursor(hovered);
-  const glow = useHoverGlow(body, hovered, { scale: 0.02, lift: NO_LIFT, reducedMotion });
+  const hover = useHoverGrow(body, hovered, { scale: 0.06, lift: NO_LIFT, reducedMotion });
 
   // A gentle sway while hovered, pivoting on the stand's feet; nothing to do once it has settled.
   useFrame(({ clock, gl }) => {
     const b = body.current;
     if (!b) return;
-    const sway = reducedMotion || glow.current < 0.002 ? 0 : Math.sin(clock.elapsedTime * 2.6) * 0.014 * glow.current;
+    const sway = reducedMotion || hover.current < 0.002 ? 0 : Math.sin(clock.elapsedTime * 2.6) * 0.014 * hover.current;
     if (b.rotation.z === sway) return;
     b.rotation.z = sway;
     refreshShadows(gl);
