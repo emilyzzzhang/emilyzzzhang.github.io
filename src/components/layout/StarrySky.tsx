@@ -18,12 +18,13 @@ const COLORS: [string, number][] = [
 
 /**
  * Areas kept clear of anything brighter than a faint pinprick, in viewport percent: the hero
- * introduction (top-left), the navbar (top-right) and the constellation (bottom-left).
+ * introduction (top-left), the navbar (top-right) and the constellations (bottom-left, right).
  */
 const CLEAR: [number, number, number, number][] = [
   [0, 6, 34, 46],
   [48, 0, 100, 11],
   [2, 60, 24, 86],
+  [85, 12, 98, 41],
 ];
 
 /** Small deterministic PRNG, so the sky is identical on every visit (and three.js stays out of this bundle). */
@@ -112,11 +113,25 @@ function buildBand(): Star[] {
 const SKY = buildSky();
 const BAND = buildBand();
 
+interface ConstellationShape {
+  viewBox: [number, number];
+  stars: { name: string; x: number; y: number; size: number; color?: string }[];
+  /** Each a run of star names joined by faint lines. */
+  lines: string[][];
+}
+
+/** Where a constellation sits, in viewport percent (top-left of its box), and how wide it is. */
+interface Placement {
+  x: number;
+  y: number;
+  width: number;
+}
+
 /**
  * The Big Dipper, from the real stars' positions (degrees, flattened onto the sky with x to the
  * right and y down) and sizes from their brightness. Alcor sits just beside Mizar, as it does.
  */
-const DIPPER = {
+const DIPPER: ConstellationShape = {
   viewBox: [25, 13.5],
   stars: [
     { name: 'Dubhe', x: 24.1, y: 0.5, size: 3.4 },
@@ -129,10 +144,33 @@ const DIPPER = {
     { name: 'Alkaid', x: 0.5, y: 12.95, size: 3.3 },
   ],
   /** The handle out from Megrez, then round the bowl. */
-  lines: ['Alkaid', 'Mizar', 'Alioth', 'Megrez', 'Dubhe', 'Merak', 'Phecda', 'Megrez'],
+  lines: [['Alkaid', 'Mizar', 'Alioth', 'Megrez', 'Dubhe', 'Merak', 'Phecda', 'Megrez']],
 };
-/** Where the constellation sits, in viewport percent (top-left of its box), and how wide it is. */
-const DIPPER_AT = { x: 4, y: 63, width: 18 };
+const DIPPER_AT: Placement = { x: 4, y: 63, width: 18 };
+
+/**
+ * Orion, the same way: east to the left as in the sky, so ruddy Betelgeuse is his left shoulder
+ * (upper left) and blue-white Rigel his right foot (lower right), with the three belt stars between.
+ */
+const ORION: ConstellationShape = {
+  viewBox: [11.2, 20.6],
+  stars: [
+    { name: 'Meissa', x: 5.5, y: 0.5, size: 1.8 },
+    { name: 'Betelgeuse', x: 0.5, y: 3.0, size: 3.4, color: '#FFC9A0' },
+    { name: 'Bellatrix', x: 8.0, y: 4.1, size: 2.9 },
+    { name: 'Mintaka', x: 6.3, y: 10.7, size: 2.6 },
+    { name: 'Alnilam', x: 5.25, y: 11.6, size: 2.9 },
+    { name: 'Alnitak', x: 4.1, y: 12.4, size: 2.9 },
+    { name: 'Rigel', x: 10.7, y: 18.6, size: 3.4, color: '#D6E2FF' },
+    { name: 'Saiph', x: 2.4, y: 20.1, size: 2.6 },
+  ],
+  /** Feet, shoulders and head as one hourglass, then the belt across its waist. */
+  lines: [
+    ['Saiph', 'Alnitak', 'Betelgeuse', 'Meissa', 'Bellatrix', 'Mintaka', 'Rigel'],
+    ['Alnitak', 'Alnilam', 'Mintaka'],
+  ],
+};
+const ORION_AT: Placement = { x: 87, y: 14, width: 8 };
 
 /**
  * Occasional meteors, in viewport percent like the stars. Each streaks across once per `cycle`
@@ -175,25 +213,23 @@ function StarDot({ x, y, size, color, opacity, magnitude, twinkle }: Omit<Star, 
   );
 }
 
-function Constellation() {
-  const [w, h] = DIPPER.viewBox;
-  const byName = Object.fromEntries(DIPPER.stars.map((s) => [s.name, s]));
-  const points = DIPPER.lines.map((name) => `${byName[name].x},${byName[name].y}`).join(' ');
+function Constellation({ shape, at }: { shape: ConstellationShape; at: Placement }) {
+  const [w, h] = shape.viewBox;
+  const byName = Object.fromEntries(shape.stars.map((s) => [s.name, s]));
   return (
-    <div
-      className="constellation"
-      style={{ left: panLeft(DIPPER_AT.x), top: panTop(DIPPER_AT.y), width: `${DIPPER_AT.width}vw`, aspectRatio: w / h }}
-    >
+    <div className="constellation" style={{ left: panLeft(at.x), top: panTop(at.y), width: `${at.width}vw`, aspectRatio: w / h }}>
       <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
-        <polyline points={points} />
+        {shape.lines.map((run, i) => (
+          <polyline key={i} points={run.map((name) => `${byName[name].x},${byName[name].y}`).join(' ')} />
+        ))}
       </svg>
-      {DIPPER.stars.map(({ name, x, y, size }) => (
+      {shape.stars.map(({ name, x, y, size, color = '#F4F2FF' }) => (
         <StarDot
           key={name}
           x={`${(x / w) * 100}%`}
           y={`${(y / h) * 100}%`}
           size={size}
-          color="#F4F2FF"
+          color={color}
           opacity={1}
           magnitude={size > 3 ? 'brilliant' : size > 2 ? 'bright' : 'small'}
         />
@@ -205,10 +241,10 @@ function Constellation() {
 /**
  * Night-only starfield behind the transparent 3D canvas, so the room always draws over it: a dense
  * field of stars of every size, a faint Milky Way across the upper right, the Big Dipper low on
- * the left, and the odd shooting star. Fading, twinkling and meteors are pure CSS (see `.stars` in
- * global.css): no per-frame JS. The field also slides as the room is orbited (SkyParallax sets
- * --sky-yaw and --sky-pitch; see `.stars__pan`). It never changes, so it skips the re-render
- * whenever the app's state does (hundreds of stars).
+ * the left, Orion on the right, and the odd shooting star. Fading, twinkling and meteors are pure
+ * CSS (see `.stars` in global.css): no per-frame JS. The field also slides as the room is orbited
+ * (SkyParallax sets --sky-yaw and --sky-pitch; see `.stars__pan`). It never changes, so it skips
+ * the re-render whenever the app's state does (hundreds of stars).
  */
 export const StarrySky = memo(function StarrySky() {
   return (
@@ -222,7 +258,8 @@ export const StarrySky = memo(function StarrySky() {
         {SKY.map(({ x, y, ...star }, i) => (
           <StarDot key={i} x={panLeft(x)} y={panTop(y)} {...star} />
         ))}
-        <Constellation />
+        <Constellation shape={DIPPER} at={DIPPER_AT} />
+        <Constellation shape={ORION} at={ORION_AT} />
         {SHOOTING_STARS.map(({ x, y, angle, size, cycle, delay }, i) => (
           <span
             key={`meteor-${i}`}

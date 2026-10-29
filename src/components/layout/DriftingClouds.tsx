@@ -1,9 +1,9 @@
 import { memo, type CSSProperties } from 'react';
 
 /**
- * Two layers of soft clouds drifting across the daytime sky, behind the transparent 3D canvas.
+ * Three layers of soft clouds drifting across the daytime sky, behind the transparent 3D canvas.
  * The far layer is hazier, fainter and slower; the near layer is a little crisper and faster, which
- * gives the backdrop depth. Each layer holds the same set of clouds twice side by side and slides
+ * gives the backdrop depth; the low layer is big, faint banks along the bottom, like the painting's. Each layer holds the same set of clouds twice side by side and slides
  * left by exactly one copy, so it loops seamlessly. Pure CSS (see `.clouds` in global.css): only
  * transforms animate, and the clouds fade out at night. As the room is orbited, the layers also
  * slide with the camera (SkyParallax sets --sky-yaw and --sky-pitch).
@@ -93,7 +93,7 @@ const BACKGROUNDS = Object.fromEntries(
 /**
  * Mostly the upper sky and the sides, big clouds mixed with small wisps; the room draws over the
  * middle, so they never crowd it. Positions are percent of one copy of the (oversized, see
- * `.clouds__pan`) layer: about 20–80% is on screen.
+ * `.clouds__pan`) layer: about 20–80% across and 15–85% down is on screen.
  */
 const FAR: Cloud[] = [
   { x: 4, y: 26, width: 23, shape: 'cumulus' },
@@ -112,15 +112,23 @@ const NEAR: Cloud[] = [
   { x: 3, y: 48, width: 18, shape: 'wisp' },
   { x: 10, y: 56, width: 29, shape: 'cumulus' },
   { x: 24, y: 43, width: 23, shape: 'heap' },
-  { x: 38, y: 68, width: 21, shape: 'wisp' },
-  { x: 53, y: 64, width: 34, shape: 'cumulus' },
   { x: 62, y: 40, width: 16, shape: 'wisp' },
   { x: 70, y: 47, width: 22, shape: 'heap' },
-  { x: 80, y: 70, width: 20, shape: 'wisp' },
-  { x: 88, y: 60, width: 29, shape: 'cumulus' },
+];
+/** Wide banks overlapping along the bottom and running off it, as the painting's do; faint (see CSS). */
+const LOW: Cloud[] = [
+  { x: 0, y: 80, width: 42, shape: 'cumulus' },
+  { x: 12, y: 71, width: 30, shape: 'heap' },
+  { x: 22, y: 84, width: 46, shape: 'cumulus' },
+  { x: 36, y: 75, width: 38, shape: 'cumulus' },
+  { x: 48, y: 69, width: 26, shape: 'heap' },
+  { x: 56, y: 82, width: 44, shape: 'cumulus' },
+  { x: 70, y: 73, width: 36, shape: 'cumulus' },
+  { x: 80, y: 84, width: 40, shape: 'cumulus' },
+  { x: 90, y: 72, width: 30, shape: 'heap' },
 ];
 
-function Layer({ clouds, depth }: { clouds: Cloud[]; depth: 'far' | 'near' }) {
+function Layer({ clouds, depth }: { clouds: Cloud[]; depth: 'far' | 'near' | 'low' }) {
   return (
     // The outer layer follows the camera (parallax); the inner one drifts on its own loop.
     <div className={`clouds__pan clouds__pan--${depth}`}>
@@ -153,6 +161,7 @@ export const DriftingClouds = memo(function DriftingClouds() {
     <div className="clouds" aria-hidden="true">
       <Layer clouds={FAR} depth="far" />
       <Layer clouds={NEAR} depth="near" />
+      <Layer clouds={LOW} depth="low" />
     </div>
   );
 });

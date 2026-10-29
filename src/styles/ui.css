@@ -225,8 +225,12 @@
   font-weight: 700;
 }
 
-.section--about p:first-child {
+/* The about text reads as one voice: every paragraph in the full ink, the opening one a touch larger. */
+.section--about p {
   color: var(--ink);
+}
+
+.section--about p:first-child {
   font-size: 1.08rem;
 }
 
@@ -793,7 +797,7 @@ a.contact-link:hover {
 
 .music-control {
   position: fixed;
-  left: var(--gutter);
+  right: var(--gutter);
   bottom: calc(16px + env(safe-area-inset-bottom));
   z-index: calc(var(--z-panel) + 1);
   display: inline-flex;

@@ -39,6 +39,8 @@ export default function App() {
   const [sceneFailed, setSceneFailed] = useState(() => !isWebGL2Available());
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneCodeLoaded, setSceneCodeLoaded] = useState(false);
+  // Explore mode: the welcome text steps aside and the camera centres the whole room.
+  const [exploring, setExploring] = useState(false);
   const reducedMotion = useReducedMotion();
   const isMobile = useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
   const resumeAvailable = useResumeAvailable();
@@ -74,6 +76,17 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [mochiFocused, closeSection]);
   const togglePanelExpanded = useCallback(() => setPanelExpanded((e) => !e), []);
+
+  const startExploring = useCallback(() => setExploring(true), []);
+  const stopExploring = useCallback(() => setExploring(false), []);
+  // Back is only offered over the bare room, so Escape follows it; a panel or Mochi takes Escape first.
+  const canGoBack = exploring && section === null && !mochiFocused;
+  useEffect(() => {
+    if (!canGoBack) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && stopExploring();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [canGoBack, stopExploring]);
 
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
 
@@ -118,7 +131,7 @@ export default function App() {
 
   return (
     <MusicProvider>
-      <div className={`app${section ? ' app--panel-open' : ''}`}>
+      <div className={`app${section ? ' app--panel-open' : ''}${canGoBack ? ' app--exploring' : ''}`}>
         <DriftingClouds />
         <StarrySky />
         <a className="skip-link" href="#main">
@@ -136,6 +149,7 @@ export default function App() {
                   <RoomScene
                     activeSection={section}
                     panelExpanded={panelExpanded}
+                    exploring={exploring}
                     onSelect={openSection}
                     onMiss={closeSection}
                     mochiVisit={mochi.phase}
@@ -155,7 +169,13 @@ export default function App() {
             </p>
           </div>
 
-          <Hero dimmed={section !== null || mochiFocused} />
+          <Hero dimmed={section !== null || mochiFocused || exploring} onExplore={startExploring} />
+          <button type="button" className={`explore-back${canGoBack ? '' : ' explore-back--hidden'}`} onClick={stopExploring} inert={!canGoBack}>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Back
+          </button>
           <InfoPanel
             section={section}
             expanded={panelExpanded}

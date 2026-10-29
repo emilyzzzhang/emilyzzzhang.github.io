@@ -8,6 +8,8 @@ import {
   CAMERA_ANIMATION,
   CONTROLS,
   DESKTOP_FOCUS_SCALE,
+  EXPLORE_VIEW,
+  exploreFit,
   FOCUS_VIEWS,
   HOME_VIEW,
   INTRO_VIEW,
@@ -30,6 +32,8 @@ const NO_SHIFT: ViewShift = { x: 0, y: 0 };
 interface CameraControllerProps {
   focus: CameraFocus | null;
   panelExpanded: boolean;
+  /** Explore mode: with the hero text away, the overview gives way to the whole diorama, centred. */
+  exploring: boolean;
   reducedMotion: boolean;
 }
 
@@ -40,7 +44,7 @@ interface CameraControllerProps {
  * While a panel is open the projection is shifted (setViewOffset) so the focused object
  * sits beside the panel — left of a side panel, or above a mobile bottom sheet.
  */
-export function CameraController({ focus, panelExpanded, reducedMotion }: CameraControllerProps) {
+export function CameraController({ focus, panelExpanded, exploring, reducedMotion }: CameraControllerProps) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const controls = useRef<OrbitControlsImpl>(null);
@@ -54,10 +58,12 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
   const fit = useMemo(() => (isMobile ? null : overviewFit(size.width, size.height, navbarHeight())), [isMobile, size.width, size.height]);
   const home = scalePreset(HOME_VIEW, overviewScale * (fit?.scale ?? 1));
   const homeDistance = new Vector3(...home.position).distanceTo(new Vector3(...home.target));
+  const explore = useMemo(() => exploreFit(size.width, size.height, navbarHeight()), [size.width, size.height]);
+  const exploreView = scalePreset(EXPLORE_VIEW, explore.scale);
 
   // Latest values for callbacks that must not re-run effects on every resize.
-  const latest = useRef({ size, isMobile, home, fit, reducedMotion });
-  latest.current = { size, isMobile, home, fit, reducedMotion };
+  const latest = useRef({ size, isMobile, home, fit, explore, exploreView, reducedMotion });
+  latest.current = { size, isMobile, home, fit, explore, exploreView, reducedMotion };
 
   const applyShift = useCallback(() => {
     const { x, y } = shift.current;
@@ -110,7 +116,10 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
   useEffect(() => {
     const orbit = controls.current;
     if (!orbit) return;
-    const { home: overview, isMobile: mobile, size: viewport, fit: frame } = latest.current;
+    const { home, isMobile: mobile, size: viewport, fit, explore, exploreView } = latest.current;
+    // Where the camera rests when nothing is focused: beside the hero text, or centred while exploring.
+    const overview = exploring ? exploreView : home;
+    const restShift = exploring ? explore.shift : overviewShift(mobile, fit?.shiftY);
     const enableOrbit = () => {
       orbit.enabled = true;
       orbit.update();
@@ -129,14 +138,14 @@ export function CameraController({ focus, panelExpanded, reducedMotion }: Camera
       camera.position.set(...intro.position);
       orbit.target.set(...intro.target);
       camera.lookAt(orbit.target);
-      flyTo(overview, overviewShift(mobile, frame?.shiftY), CAMERA_ANIMATION.introDuration, enableOrbit);
+      flyTo(overview, restShift, CAMERA_ANIMATION.introDuration, enableOrbit);
     } else {
       orbit.enabled = false;
-      flyTo(overview, overviewShift(mobile, frame?.shiftY), CAMERA_ANIMATION.returnDuration, enableOrbit);
+      flyTo(overview, restShift, CAMERA_ANIMATION.returnDuration, enableOrbit);
     }
     firstRun.current = false;
     // overviewScale is read only for the intro; re-running on every resize would yank the camera.
-  }, [focus, panelExpanded, isMobile, camera, flyTo]);
+  }, [focus, panelExpanded, exploring, isMobile, camera, flyTo]);
 
   useEffect(
     () => () => {

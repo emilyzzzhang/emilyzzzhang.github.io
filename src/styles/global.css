@@ -188,7 +188,8 @@ a {
   will-change: transform;
 }
 
-.clouds__pan--near {
+.clouds__pan--near,
+.clouds__pan--low {
   --sky-shift-x: 300px;
   --sky-shift-y: 200px;
 }
@@ -212,6 +213,13 @@ a {
   opacity: 0.75;
   filter: blur(1.5px);
   animation-duration: 240s;
+}
+
+/* The bottom banks: big but faint and soft, so the painted clouds show through them. */
+.clouds__layer--low {
+  opacity: 0.45;
+  filter: blur(2.5px);
+  animation-duration: 330s;
 }
 
 .cloud {
@@ -331,7 +339,7 @@ a {
   mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent);
 }
 
-/* The Big Dipper: faint lines joining its stars, so it reads as a constellation without shouting. */
+/* The constellations: faint lines joining their stars, so it reads as a constellation without shouting. */
 .constellation {
   position: absolute;
 }
@@ -447,9 +455,9 @@ a {
   z-index: var(--z-navbar);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
-  padding: 16px var(--gutter);
+  padding: 12px var(--gutter);
   pointer-events: none;
 }
 
@@ -458,49 +466,66 @@ a {
 }
 
 .navbar nav {
-  margin-left: auto;
+  /* The tabs sit in the middle of the screen; the day/night switch keeps to the right. */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .navbar__links {
   display: flex;
-  gap: 4px;
+  gap: 10px;
   margin: 0;
-  padding: 5px;
+  padding: 0;
   list-style: none;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: var(--radius-pill);
-  background: var(--surface-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: var(--shadow-sm);
 }
 
 .navbar__link {
-  padding: 8px 16px;
+  position: relative;
+  padding: 6px 14px;
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: 11px;
   background: transparent;
   color: var(--nav-ink);
-  font-size: 1.05rem;
+  /* No tray behind the tabs: a soft glow keeps them clear of the sky. */
+  text-shadow: 0 1px 10px var(--nav-glow);
+  font-size: 1rem;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background var(--duration-fast),
-    color var(--duration-fast);
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease;
 }
 
-.navbar__link:hover {
-  background: rgba(247, 199, 215, 0.45);
-}
-
-.navbar__link[aria-current='true'] {
+/* A short pink underline: a hint of it on hover, drawn in full under the current tab. */
+.navbar__link::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
   background: var(--nav-current);
-  color: var(--cream);
+  opacity: 0;
+  transform: translateX(-50%) scaleX(0.4);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.navbar__link:hover::after {
+  opacity: 0.55;
+}
+
+.navbar__link[aria-current='true']::after {
+  opacity: 1;
+  transform: translateX(-50%) scaleX(1);
 }
 
 .navbar__link:focus-visible {
-  border-radius: var(--radius-pill);
+  border-radius: 11px;
 }
 
 /* ---------- Hero ---------- */
@@ -543,6 +568,103 @@ a {
   transition: color var(--duration-mode) ease;
 }
 
+.hero__explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 9px 18px 9px 15px;
+  border: 1px solid rgba(239, 184, 200, 0.9);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 253, 251, 0.94), rgba(251, 232, 238, 0.9));
+  color: var(--button-ink);
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  /* The hero itself lets clicks through to the room. */
+  pointer-events: auto;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) ease,
+    background var(--duration-fast) ease;
+}
+
+.hero__explore:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, var(--warm-white), var(--rose-tint));
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.hero__explore:active {
+  transform: none;
+}
+
+.hero__explore:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.hero__explore-arrow {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.hero__explore:hover .hero__explore-arrow {
+  transform: translateX(3px);
+}
+
+/* Explore mode's way back: small, in the bottom-left corner, in once the welcome text has gone. */
+.explore-back {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  left: var(--gutter);
+  z-index: var(--z-footer);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px 6px 10px;
+  border: 1px solid rgba(239, 184, 200, 0.7);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--button-ink);
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    opacity var(--duration-base) var(--ease-out) 200ms,
+    transform var(--duration-base) var(--ease-out) 200ms,
+    background var(--duration-fast) ease;
+}
+
+.explore-back:hover {
+  background: var(--rose-tint);
+}
+
+.explore-back svg {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.explore-back:hover svg {
+  transform: translateX(-2px);
+}
+
+.explore-back:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.explore-back--hidden {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition-delay: 0s;
+}
+
 .hero__subtitle {
   margin-top: 14px;
   color: var(--hero-ink-soft);
@@ -574,7 +696,10 @@ a {
   position: absolute;
   right: var(--gutter);
   bottom: calc(22px + env(safe-area-inset-bottom));
+  transition: bottom var(--duration-base) var(--ease-out);
   color: var(--hero-ink-soft);
+  /* A plain line of small print, not part of the playful chrome. */
+  font-family: var(--font-professional);
   font-size: 0.9rem;
   pointer-events: none;
 }
@@ -593,6 +718,11 @@ a {
   .hero__subtitle {
     display: none;
   }
+}
+
+/* The music player takes the bottom-right corner once the tune has started; the credit steps up above it. */
+.app:has(.music-control) .footer__credit {
+  bottom: calc(64px + env(safe-area-inset-bottom));
 }
 
 /* ---------- Loading screen ---------- */
@@ -778,6 +908,8 @@ a {
   }
 
   .navbar nav {
+    position: static;
+    transform: none;
     flex: 1;
     min-width: 0;
     overflow-x: auto;

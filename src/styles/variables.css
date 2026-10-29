@@ -35,7 +35,9 @@
    */
   --backdrop-day: #f6c9c4;
   --backdrop-day-end: #c9d7ad;
-  --page-day: url('../assets/sky-day.jpg') center / cover no-repeat, linear-gradient(172deg, var(--backdrop-day), var(--backdrop-day-end));
+  /* A light warm-ivory veil over the painting softens its contrast and colour, so the room stands out. */
+  --sky-veil: linear-gradient(rgba(255, 247, 242, 0.2), rgba(255, 247, 242, 0.2));
+  --page-day: var(--sky-veil), url('../assets/sky-day.jpg') center / cover no-repeat, linear-gradient(172deg, var(--backdrop-day), var(--backdrop-day-end));
   --page-night: radial-gradient(120% 90% at 70% 40%, #5a4c78 0%, #3d3558 50%, #2a2540 100%);
 
   /*
@@ -56,9 +58,12 @@
   --hero-ink: #7d1f4a;
   --hero-ink-soft: #9c2c5c;
   --hero-accent: #c04a78;
-  /* The tabs: their text the darkest pink of all, the current one filled with the title's pink by day. */
+  /* The tabs: their text the darkest pink of all, the current one underlined in the welcome line's pink. */
   --nav-ink: #5c1538;
-  --nav-current: var(--hero-ink);
+  --nav-current: var(--hero-accent);
+  --nav-glow: rgba(255, 247, 242, 0.75);
+  /* Text on the ivory Explore and Back buttons, the same in both modes. */
+  --button-ink: #5c1538;
   /* Soft neutral vignette that suits both ends of the backdrop. */
   --vignette: rgba(70, 64, 62, 0.1);
 
@@ -93,7 +98,7 @@
 
   /* Layout */
   --gutter: 24px;
-  --navbar-height: 72px;
+  --navbar-height: 64px;
 
   /* Layers */
   --z-scene: 0;
@@ -108,8 +113,9 @@
   /* By night the chrome keeps its deeper plums; the brighter ones above are for the day. */
   --plum-ink: var(--plum-deep);
   --plum-soft: #7c2d55;
-  --nav-ink: var(--plum-deep);
-  --nav-current: var(--plum-deep);
+  --nav-ink: #fbf3f6;
+  --nav-current: #f7c7d7;
+  --nav-glow: rgba(20, 14, 35, 0.55);
   --hero-ink: #fbf3f6;
   --hero-ink-soft: #e2d8ea;
   --hero-accent: #f7c7d7;

@@ -33,6 +33,8 @@ export interface RoomSceneProps {
   activeSection: SectionId | null;
   /** The open panel is widened to three quarters of the screen. */
   panelExpanded: boolean;
+  /** Explore mode: the room centred on its own, without the hero text beside it. */
+  exploring: boolean;
   onSelect: (section: SectionId) => void;
   /** A click in the room that hit no clickable object. */
   onMiss: () => void;
@@ -124,7 +126,7 @@ const PIECES = {
   envelope: <Envelope />,
 };
 
-export default function RoomScene({ activeSection, panelExpanded, onSelect, onMiss, mochiVisit, onMochiClick, timeOfDay, reducedMotion, lowPower, onReady }: RoomSceneProps) {
+export default function RoomScene({ activeSection, panelExpanded, exploring, onSelect, onMiss, mochiVisit, onMochiClick, timeOfDay, reducedMotion, lowPower, onReady }: RoomSceneProps) {
   const mochiFocused = mochiVisit !== null;
   const interactive = (section: SectionId) => ({
     section,
@@ -149,7 +151,7 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, onMi
       <DayNightProvider mode={timeOfDay} reducedMotion={reducedMotion}>
         <Lighting lowPower={lowPower} />
         <SkyParallax />
-        <CameraController focus={activeSection ?? (mochiFocused ? 'mochi' : null)} panelExpanded={panelExpanded} reducedMotion={reducedMotion} />
+        <CameraController focus={activeSection ?? (mochiFocused ? 'mochi' : null)} panelExpanded={panelExpanded} exploring={exploring} reducedMotion={reducedMotion} />
         <ZoomWatcher onChange={setZoomedIn} />
         <PauseWhenHidden />
         <ShadowsOnDemand />
