@@ -91,7 +91,7 @@ export const DESKTOP_FOCUS_SCALE = 1.9;
 const FRAME_TOP: Vec3[] = (() => {
   const y = ROOM.wallHeight + 0.48;
   const back = -(ROOM.half + ROOM.wallThickness + 0.31);
-  const end = ROOM.half + 0.1 + 0.31;
+  const end = ROOM.half - 0.02 + 0.31;
   return [[back, y, back], [end, y, back], [back, y, end]];
 })();
 const FRAME_BOTTOM: Vec3[] = (() => {
@@ -101,6 +101,13 @@ const FRAME_BOTTOM: Vec3[] = (() => {
 })();
 /** The gap left above and below the diorama, as a fraction of the viewport height. */
 const FRAME_MARGIN = 0.03;
+/**
+ * How much closer the overview comes than the fit that shows the whole diorama, so the room fills
+ * more of the screen. The cornice sits just under the tabs; the front tip of the lawn runs off below.
+ */
+const OVERVIEW_ZOOM = 0.9;
+/** The overview's smaller gap between the tabs and the cornice, as a fraction of the viewport height. */
+const OVERVIEW_TOP_GAP = 0.008;
 
 /**
  * Fits the desktop overview into the space below the navigation tabs: how much further back the
@@ -131,9 +138,9 @@ export function overviewFit(width: number, height: number, clearTop: number) {
   // Narrower screens already sit further back so the diorama fits across; never come closer
   // than that, or its sides would run off. It is still centred in the band, with the gaps larger.
   if (base > 1) scale = Math.max(scale, 1);
-  const { top, bottom } = project(scale);
-  const centre = (bandTop - 1) / 2;
-  return { scale, shiftY: (centre - (top + bottom) / 2) / 2 };
+  scale *= OVERVIEW_ZOOM;
+  const { top } = project(scale);
+  return { scale, shiftY: (bandTop - 2 * OVERVIEW_TOP_GAP - top) / 2 };
 }
 
 /** Moves the camera along its view ray, keeping the target fixed. */

@@ -8,8 +8,12 @@ export type Vec3 = [number, number, number];
 export const ROOM = {
   half: 4,
   wallHeight: 5.2,
-  /** Walls grow outward from their inner faces (z = −4, x = −4), so thickness never eats into the room. */
-  wallThickness: 0.7,
+  /**
+   * Walls grow outward from their inner faces (z = −4, x = −4), so thickness never eats into the room.
+   * Thin enough that the antas cladding the open ends stand square: the wall plus a pilaster's
+   * projection (0.14) makes a pilaster's width (0.46).
+   */
+  wallThickness: 0.32,
   wainscotHeight: 1.7,
 } as const;
 
@@ -19,16 +23,18 @@ export const ROOM = {
  * the sides the overview camera sees.
  */
 export const DIORAMA = {
-  slab: 0.35,
+  slab: 0.5,
+  /** How far the slab runs past the room's open sides (the front and right), flush with the antas' bases. */
+  openReach: 0.12,
   plinth: { height: 0.38, overhang: 0.1 },
-  /** A thin layer of turf on a band of soil, like a model-railway lawn. */
-  lawn: { top: -0.6, thickness: 0.1, bevel: 0.035, soil: 0.16, front: 1.45, back: 0.45 },
+  /** A thick, soft layer of turf on a thin band of soil, like a model-railway lawn. */
+  lawn: { top: -0.75, thickness: 0.22, bevel: 0.07, soil: 0.08, front: 1.45, back: 0.45 },
 } as const;
 
 /** Plinth footprint [minX, maxX] (the same along z): the slab under walls and floor, plus a small overhang. */
 export const PLINTH_SPAN: [number, number] = [
   -ROOM.half - ROOM.wallThickness - DIORAMA.plinth.overhang,
-  ROOM.half + DIORAMA.plinth.overhang,
+  ROOM.half + DIORAMA.openReach + DIORAMA.plinth.overhang,
 ];
 
 /** Lawn footprint [minX, maxX] (the same along z). */

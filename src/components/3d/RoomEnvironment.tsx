@@ -15,7 +15,8 @@ import { drawDaySky, drawNightSky, seededRandom, useCanvasTexture } from './text
 
 const { half, wallHeight, wallThickness: t, wainscotHeight } = ROOM;
 const SLAB = DIORAMA.slab;
-const OUTER = half * 2 + t;
+/** The slab runs from the walls' outer faces to just past the room's open sides. */
+const OUTER = half * 2 + t + DIORAMA.openReach;
 const WALL_H = wallHeight + SLAB;
 
 export function RoomEnvironment() {
@@ -34,7 +35,7 @@ export function RoomEnvironment() {
 function Floor() {
   return (
     <group>
-      <RoundedBox args={[OUTER, SLAB, OUTER]} radius={0.1} position={[-t / 2, -SLAB / 2, -t / 2]} material={materials.slab} />
+      <RoundedBox args={[OUTER, SLAB, OUTER]} radius={0.1} position={[(DIORAMA.openReach - t) / 2, -SLAB / 2, (DIORAMA.openReach - t) / 2]} material={materials.slab} />
       <mesh rotation-x={-Math.PI / 2} position-y={0.002} material={materials.floor}>
         <planeGeometry args={[half * 2, half * 2]} />
       </mesh>
@@ -54,7 +55,12 @@ const CORNICE = {
   sleeve: 0.1,
   height: 0.58,
 };
-const POST = 0.12;
+/**
+ * The anta that finishes each wall's open end: how far it stands past the wall's length, and how far
+ * the wall body stops short of that length. The body's rounded end hides inside the anta, its flat
+ * faces running just up to the anta's back edge, so the anta's outer face continues the wall's.
+ */
+const ANTA = { proud: 0.06, inset: 0.18 };
 
 /** Each layer's heights above the entablature's base, and reaches past the wall face. */
 const ARCHITRAVE = { top: 0.13 };
@@ -171,12 +177,13 @@ function spaced(from: number, to: number, spacing: number) {
 
 /**
  * One wall's entablature, wall-local (x along the wall, the inner face at z = 0, +z into the room).
- * `corner` is the end that meets the other wall; the other end returns round the post's outer face.
+ * `corner` is the end that meets the other wall; the other end returns round the anta, set back so
+ * the anta's capital stands as far proud of the return as the inner capitals do of the wall.
  * Returns the molding, its carving (dentils, egg-and-dart, paterae) and the gilding, one geometry each.
  */
 function entablatureGeometry(halfLength: number, corner: -1 | 1) {
   const free = -corner;
-  const face = halfLength + POST - 0.02;
+  const face = halfLength + ANTA.proud - 0.08;
   // How far each capital's abacus reaches: from the pilaster's centre, and from the wall's end.
   const capitalHalf = (PILASTER.width + PILASTER.abacusOver) / 2;
   const capitalReach = PILASTER.width / 2 + capitalHalf;
@@ -206,10 +213,16 @@ function entablatureGeometry(halfLength: number, corner: -1 | 1) {
     sweep(profile, mainInner),
     sweep(profile, mainReturn),
     sweep(profile, mainOuter),
-    // Breaks over the corner pilaster, the inner end pilaster, and the pilaster on the end face.
+    // Breaks over the corner pilaster, then over the anta's capital all the way round the open end:
+    // its inner face, its end, and the abacus's overhang on the outer face.
     sweep(ressaut, inner(toCorner, () => corner * (halfLength - capitalReach), [false, true])),
-    sweep(ressaut, inner(() => free * (halfLength - capitalReach), roundEnd, [true, false])),
-    sweep(ressaut, endFace((e) => e, () => -t / 2 - capitalHalf, [false, true])),
+    sweep(ressaut, inner(() => free * (halfLength + ANTA.proud - capitalReach), roundEnd, [true, false])),
+    sweep(ressaut, endFace((e) => e, (e) => -t - e)),
+    sweep(ressaut, {
+      at: (end, e, y) => new Vector3(end === 0 ? free * (halfLength + ANTA.proud - END_CAPITAL_PROUD) : roundEnd(e), y, -t - e),
+      out: new Vector3(0, 0, -1),
+      caps: [true, false],
+    }),
   ]);
 
   const carving: BufferGeometry[] = [];
@@ -238,7 +251,7 @@ function entablatureGeometry(halfLength: number, corner: -1 | 1) {
 // Wall: x along the wall, the inner face at z = 0, +z into the room.
 
 /** Width and depth of a pilaster's shaft; the base, capital and abacus step out around it. */
-const PILASTER = { width: 0.34, proud: 0.12, base: 0.3, capital: 0.5, abacus: 0.07, abacusOver: 0.22, flutes: 5 };
+const PILASTER = { width: 0.46, proud: 0.14, base: 0.3, capital: 0.5, abacus: 0.07, abacusOver: 0.22, flutes: 7 };
 /** Raised panel frames on the wainscot, between the pilasters. */
 const PANEL = { count: 5, bottom: 0.4, top: wainscotHeight - 0.22, bar: 0.05, proud: 0.03, gap: 0.24, margin: 0.2 };
 const WAINSCOT_FACE = 0.05;
@@ -327,9 +340,10 @@ function volute(radius: number, tube: number, side: 1 | -1) {
  * A Corinthian capital for a pilaster `w` wide and `proud` deep, from `bottom` up to `top`, facing
  * +z: an astragal ring; a bell flaring in a soft curve under two rows of curling acanthus leaves;
  * volutes on stalks rolling out under the abacus corners, with a smaller pair under its centre; and
- * a moulded abacus with a fleuron, which the architrave rests on.
+ * a moulded abacus with a fleuron, which the architrave rests on. A wide capital gets more leaves
+ * across it; `omit` leaves out one side's corner leaf and volute, where another capital meets it.
  */
-function corinthianCapital(w: number, proud: number, bottom: number, top: number): BufferGeometry[] {
+function corinthianCapital(w: number, proud: number, bottom: number, top: number, omit?: -1 | 1): BufferGeometry[] {
   const { abacus, abacusOver } = PILASTER;
   const ring = 0.04;
   const bellBottom = bottom + ring;
@@ -350,24 +364,31 @@ function corinthianCapital(w: number, proud: number, bottom: number, top: number
   parts.push(bell);
   const leaf = (x: number, f: number, angle: number, length: number, width: number, curl: number) =>
     parts.push(acanthusLeaf(length, width, curl).rotateY(angle).translate(x, bellBottom + f * bellH, front(f) - 0.01));
-  // The lower row: a leaf at the centre and one wrapping each front corner.
-  leaf(0, 0, 0, bellH * 0.5, 0.12, 1.5);
-  for (const s of [-1, 1]) leaf(s * (widthAt(0) / 2 - 0.01), 0, (s * Math.PI) / 4, bellH * 0.48, 0.12, 1.5);
+  // The lower row: a leaf at the centre and one wrapping each front corner, more between on a wide capital.
+  const edge = widthAt(0) / 2 - 0.01;
+  const steps = Math.max(1, Math.round(edge / 0.17));
+  for (let k = -steps; k <= steps; k++) {
+    const s = Math.abs(k) === steps ? Math.sign(k) : 0;
+    if (s !== 0 && s === omit) continue;
+    leaf((k / steps) * edge, 0, (s * Math.PI) / 4, bellH * (s ? 0.48 : 0.5), 0.12, 1.5);
+  }
   // The upper row: taller leaves between them, curling further.
-  for (const s of [-1, 1]) leaf(s * 0.075, 0.28, 0, bellH * 0.62, 0.11, 1.9);
+  for (let k = -steps; k < steps; k++) leaf(((k + 0.5) / steps) * edge * 0.88, 0.28, 0, bellH * 0.62, 0.11, 1.9);
   // Volutes rolling out under each corner of the abacus, turned a little to face outward, on stalks
   // rising from among the upper leaves; and a smaller pair curling in towards the centre.
   const R = 0.07;
   for (const s of [-1, 1] as const) {
-    const turn = new Matrix4().makeRotationY(s * 0.55).setPosition(s * (w / 2 + 0.02), bellTop - R * 0.95, front(0.9) + 0.015);
-    parts.push(...volute(R, 0.016, s).map((g) => g.applyMatrix4(turn)));
-    const scrollStart = new Vector3(-s * R, 0, 0).applyMatrix4(turn);
-    const stalk = new CatmullRomCurve3([
-      new Vector3(s * 0.07, bellBottom + bellH * 0.45, front(0.45) + 0.02),
-      new Vector3(s * 0.1, bellBottom + bellH * 0.68, front(0.68) + 0.03),
-      scrollStart,
-    ]);
-    parts.push(new TubeGeometry(stalk, 16, 0.012, 6, false).toNonIndexed());
+    if (s !== omit) {
+      const turn = new Matrix4().makeRotationY(s * 0.55).setPosition(s * (w / 2 + 0.02), bellTop - R * 0.95, front(0.9) + 0.015);
+      parts.push(...volute(R, 0.016, s).map((g) => g.applyMatrix4(turn)));
+      const scrollStart = new Vector3(-s * R, 0, 0).applyMatrix4(turn);
+      const stalk = new CatmullRomCurve3([
+        new Vector3(s * (w / 2 - 0.1), bellBottom + bellH * 0.45, front(0.45) + 0.02),
+        new Vector3(s * (w / 2 - 0.07), bellBottom + bellH * 0.68, front(0.68) + 0.03),
+        scrollStart,
+      ]);
+      parts.push(new TubeGeometry(stalk, 16, 0.012, 6, false).toNonIndexed());
+    }
     const centre = new Matrix4().setPosition(s * 0.045, bellTop - 0.04, front(0.92) + 0.01);
     parts.push(...volute(0.032, 0.009, -s as 1 | -1).map((g) => g.applyMatrix4(centre)));
   }
@@ -410,9 +431,53 @@ function pilasterGeometry(bottom: number, top: number, proud = PILASTER.proud) {
   return mergeGeometries(parts);
 }
 
-/** Pilasters on the wall's inner face run from the floor; those on the open ends from the slab's foot. */
+/** The pilaster in the inside corner, from the floor up to the entablature. */
 const INNER_PILASTER = pilasterGeometry(0, wallHeight - CORNICE.sleeve);
-const END_PILASTER = pilasterGeometry(-SLAB, wallHeight - CORNICE.sleeve, 0.08);
+
+/** How deep the anta's end capital is built, from its back inside the wall to the shaft's face. */
+const END_CAPITAL_PROUD = 0.16;
+
+/**
+ * The open end of a wall, wall-local with `free` the open end: one anta, a pier that clads the
+ * wall's end instead of a column fixed to a block. Its inner face is a pilaster's width and its end
+ * face the wall's full thickness, both fluted, its outer face flush with the wall's. It stands on
+ * the slab under an Attic base that steps out into the room and over the open end, but not past the
+ * wall's outer face, so the slab's edges, the base and the wall line up; the base takes in the
+ * skirting. A wide Corinthian capital across the end meets the inner face's capital at the corner,
+ * their abaci flush, as an angle capital.
+ */
+function antaGeometry(halfLength: number, free: -1 | 1) {
+  const { width: w, proud, base, capital, flutes } = PILASTER;
+  const top = wallHeight - CORNICE.sleeve;
+  const end = halfLength + ANTA.proud;
+  const depth = t + proud;
+  const zMid = (proud - t) / 2;
+  const shaftTop = top - capital;
+  // The pier's footprint grown by `grow` along the wall and into the room, from `bottom` up `height`.
+  const tier = (grow: number, bottom: number, height: number, r: number) =>
+    block(w + 2 * grow, height, depth + grow, free * (end - w / 2), bottom + height / 2, zMid + grow / 2, r);
+  // The base's foot reaches the slab's edge, and sinks into its rounded lip so no gap shows beneath.
+  const foot = DIORAMA.openReach - ANTA.proud;
+  const parts: BufferGeometry[] = [
+    tier(foot, -0.1, 0.22, 0.015),
+    tier(foot - 0.02, 0.12, 0.1, 0.045),
+    tier(foot - 0.045, 0.22, 0.07, 0.03),
+    tier(0, base, shaftTop - base, 0.02),
+  ];
+  // Reeds at the same pitch on both faces.
+  const pitch = (w - 0.08) / (flutes - 1);
+  const reed = (x: number, z: number) =>
+    new CylinderGeometry(0.017, 0.017, shaftTop - base - 0.14, 8).translate(x, (base + shaftTop) / 2, z).toNonIndexed();
+  for (let i = 0; i < flutes; i++) parts.push(reed(free * (end - w / 2 + (i - (flutes - 1) / 2) * pitch), proud));
+  const endReeds = Math.round((depth - 0.08) / pitch) + 1;
+  for (let i = 0; i < endReeds; i++) parts.push(reed(free * end, zMid + (i - (endReeds - 1) / 2) * pitch));
+  // The inner face's capital leaves its corner to the end's, which turns the corner with its leaf and volute.
+  const innerCapital = mergeGeometries(corinthianCapital(w, proud, shaftTop, top, free)).translate(free * (end - w / 2), 0, 0);
+  const endCapital = mergeGeometries(corinthianCapital(depth, END_CAPITAL_PROUD, shaftTop, top))
+    .rotateY((free * Math.PI) / 2)
+    .translate(free * (end - END_CAPITAL_PROUD), 0, zMid);
+  return mergeGeometries([...parts, innerCapital, endCapital]);
+}
 
 /** The wainscot's raised panel frames, spaced evenly between the pilasters, as one geometry. */
 function panelFramesGeometry(length: number) {
@@ -447,31 +512,29 @@ interface WallProps {
 /**
  * One wall plus its cream wainscot with panel molding, chair rail and skirting board, built along
  * local +x with its inner face at local z = 0, so thickness grows outward. Finished with the
- * entablature resting on Corinthian pilasters at both ends, and a post with its own pilaster at
- * the open end, which the entablature returns round.
+ * entablature resting on a Corinthian pilaster in the corner and an anta at the open end, which
+ * the entablature returns round.
  */
 function Wall({ length, corner, cornerReach }: WallProps) {
   const halfLength = length / 2;
-  const free = -corner;
+  const free = -corner as -1 | 1;
   const entablature = useMemo(() => entablatureGeometry(halfLength, corner), [corner, halfLength]);
+  const anta = useMemo(() => antaGeometry(halfLength, free), [free, halfLength]);
   const base = wallHeight - CORNICE.sleeve;
   return (
     <group>
-      <RoundedBox args={[length + cornerReach, WALL_H, t]} radius={0.1} position={[(corner * cornerReach) / 2, WALL_H / 2 - SLAB, -t / 2]} material={materials.wallUpper} />
+      <RoundedBox
+        args={[length + cornerReach - ANTA.inset, WALL_H, t]}
+        radius={0.1}
+        position={[(corner * (cornerReach + ANTA.inset)) / 2, WALL_H / 2 - SLAB, -t / 2]}
+        material={materials.wallUpper}
+      />
       <group position-y={base}>
         <mesh geometry={entablature.molding} material={materials.molding} />
         <mesh geometry={entablature.carving} material={materials.molding} />
         <mesh geometry={entablature.gilding} material={materials.gold} />
       </group>
-      <RoundedBox
-        args={[POST, WALL_H - CORNICE.sleeve, t + 0.1]}
-        radius={0.05}
-        smoothness={4}
-        position={[free * (halfLength + POST / 2 - 0.02), (WALL_H - CORNICE.sleeve) / 2 - SLAB, -t / 2]}
-        material={materials.molding}
-      />
-      <mesh geometry={END_PILASTER} position={[free * (halfLength + POST - 0.02), 0, -t / 2]} rotation-y={(free * Math.PI) / 2} material={materials.molding} />
-      <mesh geometry={INNER_PILASTER} position={[free * (halfLength - PILASTER.width / 2), 0, 0]} material={materials.molding} />
+      <mesh geometry={anta} material={materials.molding} />
       <mesh geometry={INNER_PILASTER} position={[corner * (halfLength - PILASTER.width / 2), 0, 0]} material={materials.molding} />
       <mesh position={[0, wainscotHeight / 2, WAINSCOT_FACE / 2]} material={materials.wallLower}>
         <boxGeometry ref={worldBoxUVs} args={[length, wainscotHeight, WAINSCOT_FACE]} />
