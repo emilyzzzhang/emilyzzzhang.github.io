@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Color, MathUtils, MeshStandardMaterial, type Group, type InstancedMesh, type Material, type Mesh } from 'three';
 import type { Vec3 } from '../../config/sceneLayout';
+import { refreshShadows } from './renderQuality';
 
 /**
  * How much a hovered object brightens, as a share of its own colour. Brightening in its own hue
@@ -51,9 +52,10 @@ export function useHoverGlow(body: RefObject<Group | null>, highlighted: boolean
     return () => clones.forEach((m) => m.dispose());
   }, [body]);
 
-  useFrame((_, delta) => {
+  useFrame(({ gl }, delta) => {
     const target = highlighted ? 1 : 0;
     if (Math.abs(glow.current - target) <= 0.001) return;
+    refreshShadows(gl); // it grows and lifts
     glow.current = reducedMotion ? target : MathUtils.damp(glow.current, target, 12, delta);
     for (const { material, color } of glowMaterials.current) material.emissive.copy(color).multiplyScalar(glow.current * GLOW_STRENGTH);
     if (body.current) {

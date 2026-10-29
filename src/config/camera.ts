@@ -34,7 +34,7 @@ const [mx, , mz] = ANCHORS.mug;
 const [ex, , ez] = ANCHORS.envelope;
 const [bx, , bz] = ANCHORS.bookshelf;
 const [gx, gy, gz] = ANCHORS.gallery;
-const [, ry, rz] = ANCHORS.resumePoster;
+const [, , rz] = ANCHORS.resumePoster;
 
 /** What the camera can close in on: a section's object, or Mochi (no panel) after she wakes. */
 export type CameraFocus = SectionId | 'mochi';
@@ -49,8 +49,9 @@ export const FOCUS_VIEWS: Record<CameraFocus, CameraPreset> = {
   about: { position: [mx + 1.9, 3.0, mz + 2.6], target: [mx, DESK.height + 0.2, mz] },
   contact: { position: [ex + 0.9, 3.25, ez + 2.6], target: [ex, DESK.height + 0.1, ez] },
   education: { position: [3.2, 2.6, bz + 3.0], target: [bx, 1.85, bz] },
-  experience: { position: [gx + 0.4, gy - 0.35, 3.4], target: [gx, gy - 0.1, gz] },
-  resume: { position: [1.3, ry + 0.1, rz + 1.3], target: [-4, ry, rz] },
+  experience: { position: [gx + 0.3, gy - 0.27, 1.2], target: [gx, gy - 0.1, gz] },
+  // Lower and further forward than the poster, so the guitar and the basket corner below it share the frame.
+  resume: { position: [-0.2, 2.55, rz + 1.05], target: [-3.6, 1.7, rz + 0.45] },
 };
 
 /** OrbitControls limits keep the camera outside the walls and above the floor. */

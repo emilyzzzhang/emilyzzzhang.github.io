@@ -22,7 +22,7 @@ import { InteractiveObject } from './InteractiveObject';
 import { Lighting } from './Lighting';
 import { Mochi } from './Mochi';
 import { PlayableGuitar } from './PlayableGuitar';
-import { LightenWhileOrbiting, PauseWhenHidden, ReadyAfterFirstFrame, useAdaptivePixelRatio, ZoomWatcher } from './renderQuality';
+import { LightenWhileOrbiting, PauseWhenHidden, ReadyAfterFirstFrame, ShadowsOnDemand, useAdaptivePixelRatio, ZoomWatcher } from './renderQuality';
 import { ReplaceableModel } from './ReplaceableModel';
 import { RoomEnvironment } from './RoomEnvironment';
 import { SkyParallax } from './SkyParallax';
@@ -67,6 +67,63 @@ const GROUNDING: ContactShadowProps[] = [
 ];
 const mochiBed: Placement = PLACEMENTS.mochiBed;
 
+/**
+ * Everything in the room that never changes with the camera, the open section or Mochi, made once.
+ * React skips an element it has already rendered, so opening a section (or zooming into close-up
+ * range) re-renders only what follows the camera, not the whole room just as the camera sets off.
+ */
+const FURNISHINGS = (
+  <>
+    <RoomEnvironment />
+    <WallDecor />
+
+    <Placed id="desk">
+      <Desk />
+    </Placed>
+    <Placed id="chair">
+      <Chair />
+    </Placed>
+    <Placed id="floorPlant">
+      <FloorPlant />
+    </Placed>
+    <Placed id="pouf">
+      <Pouf />
+    </Placed>
+    <Placed id="bookStack">
+      <BookStack />
+    </Placed>
+
+    {GROUNDING.map((props, i) => (
+      <ContactShadow key={i} {...props} />
+    ))}
+
+    <DeskLamp position={ANCHORS.lamp} />
+    <group position={ANCHORS.guitar} rotation-y={GUITAR_TURN}>
+      <PlayableGuitar />
+    </group>
+    <CozyCorner position={ANCHORS.cozyCorner} />
+    <PencilCup position={ANCHORS.pencilCup} />
+    <Succulent position={ANCHORS.succulent} />
+  </>
+);
+
+/** What each section's object shows, made once for the same reason (InteractiveObject itself re-renders as hover and focus change). */
+const PIECES = {
+  computer: <Computer />,
+  bookshelf: <Bookshelf />,
+  gallery: <GalleryFrames />,
+  board: (
+    <group scale={BOARD_SCALE}>
+      <InspirationBoard />
+      <group position={RESUME_SPOT.position} rotation-z={RESUME_SPOT.tilt}>
+        <MiniResume />
+      </group>
+    </group>
+  ),
+  mug: <Mug />,
+  envelope: <Envelope />,
+};
+
 export default function RoomScene({ activeSection, panelExpanded, onSelect, onMiss, mochiVisit, onMochiClick, timeOfDay, reducedMotion, lowPower, onReady }: RoomSceneProps) {
   const mochiFocused = mochiVisit !== null;
   const interactive = (section: SectionId) => ({
@@ -95,66 +152,33 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, onMi
         <CameraController focus={activeSection ?? (mochiFocused ? 'mochi' : null)} panelExpanded={panelExpanded} reducedMotion={reducedMotion} />
         <ZoomWatcher onChange={setZoomedIn} />
         <PauseWhenHidden />
+        <ShadowsOnDemand />
         <LightenWhileOrbiting />
         <ReadyAfterFirstFrame onReady={onReady} />
 
         <ShadowSetup>
-          <RoomEnvironment />
-          <WallDecor />
-
-          <Placed id="desk">
-            <Desk />
-          </Placed>
-          <Placed id="chair">
-            <Chair />
-          </Placed>
-          <Placed id="floorPlant">
-            <FloorPlant />
-          </Placed>
-          <Placed id="pouf">
-            <Pouf />
-          </Placed>
-          <Placed id="bookStack">
-            <BookStack />
-          </Placed>
-
-          {GROUNDING.map((props, i) => (
-            <ContactShadow key={i} {...props} />
-          ))}
-
-          <DeskLamp position={ANCHORS.lamp} />
-          <group position={ANCHORS.guitar} rotation-y={GUITAR_TURN}>
-            <PlayableGuitar />
-          </group>
-          <CozyCorner position={ANCHORS.cozyCorner} />
-          <PencilCup position={ANCHORS.pencilCup} />
-          <Succulent position={ANCHORS.succulent} />
+          {FURNISHINGS}
 
           <Mochi position={mochiBed.position} rotationY={mochiBed.rotationY} reducedMotion={reducedMotion} idle={activeSection === null} visit={mochiVisit} onClick={onMochiClick} />
 
           <InteractiveObject {...interactive('projects')} position={ANCHORS.computer} labelOffset={[0, 1.5, 0]}>
-            <Computer />
+            {PIECES.computer}
           </InteractiveObject>
           <InteractiveObject {...interactive('education')} position={ANCHORS.bookshelf} rotation={FACE_PLUS_X} labelOffset={[0.35, 4.15, 0.2]}>
-            <Bookshelf />
+            {PIECES.bookshelf}
           </InteractiveObject>
           <InteractiveObject {...interactive('experience')} position={ANCHORS.gallery} labelOffset={[0, 0.82, 0.25]}>
-            <GalleryFrames />
+            {PIECES.gallery}
           </InteractiveObject>
           {/* The whole inspiration board opens the résumé pinned to it. */}
           <InteractiveObject {...interactive('resume')} position={ANCHORS.resumePoster} rotation={FACE_PLUS_X} labelOffset={[0, 0.9, 0.2]} hoverLift={[0, 0, 0.04]}>
-            <group scale={BOARD_SCALE}>
-              <InspirationBoard />
-              <group position={RESUME_SPOT.position} rotation-z={RESUME_SPOT.tilt}>
-                <MiniResume />
-              </group>
-            </group>
+            {PIECES.board}
           </InteractiveObject>
           <InteractiveObject {...interactive('about')} position={ANCHORS.mug} labelOffset={[0, 0.8, 0]}>
-            <Mug />
+            {PIECES.mug}
           </InteractiveObject>
           <InteractiveObject {...interactive('contact')} position={ANCHORS.envelope} labelOffset={[0, 0.55, 0]} hoverScale={0.12} hoverLift={[0, 0.06, 0]}>
-            <Envelope />
+            {PIECES.envelope}
           </InteractiveObject>
         </ShadowSetup>
       </DayNightProvider>

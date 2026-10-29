@@ -8,6 +8,7 @@ import { ContactShadow } from './ContactShadow';
 import { Corkboard } from './Corkboard';
 import { weldNormals } from './geometry';
 import { Monstera } from './Monstera';
+import { refreshShadows } from './renderQuality';
 import { boucle, materials } from './materials';
 import { useCanvasTexture } from './textures';
 import { WallShelf } from './WallShelf';
@@ -18,7 +19,7 @@ export function WallDecor() {
     <group>
       <Corkboard position={ANCHORS.corkboard} />
       <group position={[-ROOM.half, 0, 0]} rotation-y={Math.PI / 2}>
-        <WallClock position={[0.95, 4.4, 0]} />
+        <WallClock position={[0.95, 4.3, 0]} />
         <WallShelf position={[-3.0, 2.55, 0]} />
       </group>
     </group>
@@ -279,7 +280,9 @@ export function BookStack() {
 // Wall clock: a chunky, softly rounded pink bezel round a cream face with raised-looking pink
 // numerals, a short brown hour hand, a slim rose-gold minute hand and a gold centre cap.
 
-const CLOCK = { face: 0.258, rim: [0.255, 0.33] as [number, number], depth: 0.075 };
+const CLOCK = { face: 0.258, rim: [0.255, 0.295] as [number, number], depth: 0.05 };
+/** The whole clock is modelled at this size, then enlarged so it reads from the overview. */
+const CLOCK_SCALE = 1.4;
 
 /** The bezel's cross-section, turned round the face: straight walls front and back of a fully rounded lip. */
 const clockBezel = (() => {
@@ -354,16 +357,24 @@ function WallClock({ position }: { position: [number, number, number] }) {
   const minute = useRef<Group>(null);
   const face = useCanvasTexture(drawClockFace, 512, 512);
 
-  useFrame(() => {
+  const shadowedAt = useRef(-1);
+
+  useFrame(({ gl }) => {
     const now = new Date();
     const m = now.getMinutes() + now.getSeconds() / 60;
     const h = (now.getHours() % 12) + m / 60;
     if (minute.current) minute.current.rotation.z = -(m / 60) * Math.PI * 2;
     if (hour.current) hour.current.rotation.z = -(h / 12) * Math.PI * 2;
+    // The hands' shadows follow every 10 s (a degree of the minute hand), not every frame.
+    const step = Math.floor(now.getTime() / 10_000);
+    if (step !== shadowedAt.current) {
+      shadowedAt.current = step;
+      refreshShadows(gl);
+    }
   });
 
   return (
-    <group position={position}>
+    <group position={position} scale={CLOCK_SCALE}>
       <mesh geometry={clockBezel} material={clockPink} />
       <mesh position-z={0.022}>
         <circleGeometry args={[CLOCK.face, 64]} />

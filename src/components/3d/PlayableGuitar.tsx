@@ -8,6 +8,7 @@ import { useMusic } from '../../hooks/useMusic';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { Tooltip } from '../ui/Tooltip';
 import { Guitar } from './Guitar';
+import { refreshShadows } from './renderQuality';
 import { useHoverGlow } from './useHoverGlow';
 
 /** Where the tooltip floats, just above the headstock (guitar-local). */
@@ -37,11 +38,13 @@ export function PlayableGuitar() {
   const glow = useHoverGlow(body, hovered, { scale: 0.02, lift: NO_LIFT, reducedMotion });
 
   // A gentle sway while hovered, pivoting on the stand's feet; nothing to do once it has settled.
-  useFrame(({ clock }) => {
+  useFrame(({ clock, gl }) => {
     const b = body.current;
     if (!b) return;
     const sway = reducedMotion || glow.current < 0.002 ? 0 : Math.sin(clock.elapsedTime * 2.6) * 0.014 * glow.current;
-    if (b.rotation.z !== sway) b.rotation.z = sway;
+    if (b.rotation.z === sway) return;
+    b.rotation.z = sway;
+    refreshShadows(gl);
   });
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {

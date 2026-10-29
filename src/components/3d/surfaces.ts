@@ -354,6 +354,44 @@ function boucleSurface(size: number): Surface {
   return bake({ size, tint, roughness, height, relief: 2.2 });
 }
 
+/**
+ * Chunky stockinette knit: columns of V-shaped stitches, each two plump legs of yarn leaning in
+ * towards each other, with a faint twist along the yarn and shaded gaps between the stitches.
+ */
+function knitSurface(size: number): Surface {
+  const columns = 8;
+  const rows = 12;
+  /** Cell height over width, so the legs are shaped in real proportions. */
+  const aspect = rows / columns;
+  const tint = new Float32Array(size * size * 3);
+  const roughness = new Float32Array(size * size);
+  const height = new Float32Array(size * size);
+  eachTexel(size, (u, v, i) => {
+    const fu = (u * columns) % 1;
+    const fv = (v * rows) % 1;
+    let h = 0;
+    // Legs reach into the rows above and below, so each texel checks its neighbours' stitches too.
+    for (let row = -1; row <= 1; row++) {
+      for (const side of [-1, 1]) {
+        const x = (fu - 0.5 - side * 0.21) * aspect;
+        const y = fv - 0.5 - row;
+        const lean = side * 0.5;
+        const across = x * Math.cos(lean) - y * Math.sin(lean);
+        const along = x * Math.sin(lean) + y * Math.cos(lean);
+        const r = (across / 0.27) ** 2 + (along / 0.62) ** 2;
+        if (r >= 1) continue;
+        const ply = 0.9 + 0.1 * Math.sin((along * 3 + across) * 26);
+        h = Math.max(h, Math.sqrt(1 - r) * ply);
+      }
+    }
+    h = 0.9 * h + 0.1 * fbm(u, v, 48, 48, 2, 93);
+    tint.fill(0.77 + 0.23 * h, i * 3, i * 3 + 3);
+    roughness[i] = 0.93 + 0.07 * h;
+    height[i] = h;
+  });
+  return bake({ size, tint, roughness, height, relief: 3 });
+}
+
 /** Plain-weave linen with slubby threads; threads run along both u and v. */
 function linenSurface(size: number, threads: number): Surface {
   const tint = new Float32Array(size * size * 3);
@@ -462,6 +500,7 @@ export const surfaces = {
   floor: floorSurface(1024, 14, 4, wood.albedoMean),
   plaster: plasterSurface(256),
   boucle: boucleSurface(256),
+  knit: knitSurface(256),
   linen: linenSurface(256, 20),
   glaze: glazeSurface(256),
   paper: paperSurface(256),

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { memo, type CSSProperties } from 'react';
 
 /** Stars visible in the viewport at the overview; more are scattered just off-screen for parallax. */
 const STAR_COUNT = 700;
@@ -206,9 +206,10 @@ function Constellation() {
  * field of stars of every size, a faint Milky Way across the upper right, the Big Dipper low on
  * the left, and the odd shooting star. Fading, twinkling and meteors are pure CSS (see `.stars` in
  * global.css): no per-frame JS. The field also slides as the room is orbited (SkyParallax sets
- * --sky-yaw and --sky-pitch; see `.stars__pan`).
+ * --sky-yaw and --sky-pitch; see `.stars__pan`). It never changes, so it skips the re-render
+ * whenever the app's state does (hundreds of stars).
  */
-export function StarrySky() {
+export const StarrySky = memo(function StarrySky() {
   return (
     <div className="stars" aria-hidden="true">
       <div className="stars__pan">
@@ -239,4 +240,4 @@ export function StarrySky() {
       </div>
     </div>
   );
-}
+});

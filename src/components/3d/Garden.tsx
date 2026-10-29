@@ -1,6 +1,26 @@
 import { useLayoutEffect, useMemo, useRef, type RefObject } from 'react';
 import { RoundedBox } from '@react-three/drei';
-import { Color, ConeGeometry, CylinderGeometry, Euler, ExtrudeGeometry, Float32BufferAttribute, InstancedMesh, Matrix4, Quaternion, Shape, SphereGeometry, Vector3, type BufferGeometry, type Material } from 'three';
+import {
+  BufferGeometry,
+  Color,
+  CylinderGeometry,
+  DataTexture,
+  Euler,
+  ExtrudeGeometry,
+  Float32BufferAttribute,
+  InstancedMesh,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  Matrix4,
+  NoColorSpace,
+  Quaternion,
+  RGBAFormat,
+  Shape,
+  SphereGeometry,
+  Vector2,
+  Vector3,
+  type Material,
+} from 'three';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { DIORAMA, LAWN_SPAN, PLINTH_SPAN } from '../../config/sceneLayout';
 import { sceneColors as c } from '../../config/theme';
@@ -13,14 +33,15 @@ const ignoreRaycast = () => null;
 
 /**
  * Cream plinth under the floor slab and the lawn it stands on, planted along its visible edges
- * with beds of roses, tulips, leaf plants and daisies around smooth stones, in a cover of grass.
+ * with beds of roses, tulips, leaf plants and daisies around smooth stones, in a cover of low
+ * leafy sprigs over turf that is darker and lusher around the beds.
  */
 export function Garden() {
   return (
     <group>
       <Plinth />
       <Lawn />
-      <GrassTufts />
+      <GroundCover />
       <Plantings />
     </group>
   );
@@ -94,9 +115,6 @@ const soilGeometry = new ExtrudeGeometry(lawnShape(0.06), {
   bevelSize: 0.03,
   bevelSegments: 2,
 }).rotateX(-Math.PI / 2);
-// Extrude UVs are world units on the caps, like RoundedBox, so the blades tile evenly.
-const turfMaterial = grassTurf(c.grass);
-
 function Lawn() {
   const turfBottom = lawn.top - lawn.thickness;
   return (
@@ -108,7 +126,7 @@ function Lawn() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Shared pieces. Every flower, leaf, stone and tuft in the garden is an instance of one of these.
+// Shared pieces. Every flower, leaf, stone and sprig in the garden is an instance of one of these.
 
 interface Instance {
   position: Vector3;
@@ -563,6 +581,20 @@ function plantGarden() {
     else cloverPatch(x, z);
   }
 
+  // Planted last, so everything above keeps its place: small leaf plants at the beds' fringes and
+  // drifts of daisies straying out of them, so the beds melt into the lawn.
+  for (const { x, z, size } of BEDS) {
+    const away = (d: number): [number, number] => [x + (x > plinthMax ? d : range(-0.8, 0.8) * size), z + (z > plinthMax ? d : range(-0.8, 0.8) * size)];
+    if (rand() < 0.75) leafPlant(...away(range(0.25, 0.45)), range(0.28, 0.4));
+    daisyClump(...away(range(0.3, 0.55)), 2 + Math.floor(rand() * 2), 0.18);
+  }
+  for (let i = 0; i < 30; i++) {
+    const along = range(lawnMin + 0.3, lawnMax - 0.3);
+    const out = range(plinthMax + 0.15, lawnMax - 0.2);
+    const [x, z] = rand() < 0.5 ? [along, out] : [out, along];
+    daisyClump(x, z, 1, 0.05);
+  }
+
   return { rocks, plants, cores, leaves, stems, roses, tulips, straps, daisies, clover, petals, shadows, solid };
 }
 
@@ -580,60 +612,141 @@ function lushness(x: number, z: number) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Grass tufts: little clumps of blades scattered over the lawn, so it reads as grass, not paint.
+// Lawn colour: soft drifts painted across the whole lawn, deeper and lusher around the beds and
+// paler out in the open, so the turf's tiled blades never read as one flat colour.
 
-const TUFT_BLADES = 9;
-
-/** A full tuft of long, tapered blades splaying out from one root (at the origin). */
-function tuftGeometry() {
-  const rand = seededRandom(91);
-  const blades: BufferGeometry[] = [];
-  for (let k = 0; k < TUFT_BLADES; k++) {
-    const h = 0.8 + rand() * 0.6;
-    blades.push(
-      // Open-ended: the cone's base is buried in the turf.
-      new ConeGeometry(0.075, h, 3, 1, true)
-        .translate(0, h / 2, 0)
-        .rotateX(0.2 + rand() * 0.55)
-        .rotateY((k / TUFT_BLADES) * Math.PI * 2 + rand() * 0.5)
-        .translate((rand() - 0.5) * 0.1, 0, (rand() - 0.5) * 0.1),
-    );
+/** Lawn-wide tint, as a multiplier on the turf's own colour (0.5 in the texture = unchanged). */
+function lawnTint() {
+  const size = 256;
+  const span = lawnMax - lawnMin;
+  const open = [1.07, 1.05, 0.97];
+  const deep = [0.84, 0.91, 0.83];
+  const factors = new Float32Array(size * size * 3);
+  const mean = [0, 0, 0];
+  let counted = 0;
+  for (let j = 0; j < size; j++) {
+    for (let i = 0; i < size; i++) {
+      const x = lawnMin + ((i + 0.5) / size) * span;
+      const z = lawnMin + ((j + 0.5) / size) * span;
+      // The same lushness the beds use, plus slow drifts across the open lawn so it never looks mown.
+      const drift = 0.5 + 0.5 * Math.sin(x * 1.7 + 1.3) * Math.sin(z * 1.9 + 0.4);
+      const lush = Math.max(lushness(x, z), drift * 0.45);
+      const mottle = 1 + 0.035 * Math.sin(x * 4.3 + z * 1.1) * Math.sin(z * 3.9 - x * 0.7) + 0.02 * Math.sin(x * 11.7 + 2) * Math.sin(z * 10.3);
+      for (let ch = 0; ch < 3; ch++) {
+        const f = (open[ch] + (deep[ch] - open[ch]) * lush) * mottle;
+        factors[(j * size + i) * 3 + ch] = f;
+        if (onLawn(x, z, 0) && !underPlinth(x, z, 0)) mean[ch] += f;
+      }
+      if (onLawn(x, z, 0) && !underPlinth(x, z, 0)) counted++;
+    }
   }
-  return mergeGeometries(blades);
+  // Normalised over the visible lawn, so the drifts vary the turf without shifting its average colour.
+  const data = new Uint8Array(size * size * 4);
+  for (let k = 0; k < size * size; k++) {
+    for (let ch = 0; ch < 3; ch++) data[k * 4 + ch] = Math.round(Math.min(1, (factors[k * 3 + ch] / (mean[ch] / counted)) * 0.5) * 255);
+    data[k * 4 + 3] = 255;
+  }
+  const texture = new DataTexture(data, size, size, RGBAFormat);
+  texture.colorSpace = NoColorSpace;
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.needsUpdate = true;
+  return texture;
 }
 
-const TUFT = tuftGeometry();
-const TUFT_COUNT = 4200;
+/** The turf: tiled blades (extrude UVs are world units on the caps, like RoundedBox) under the lawn-wide tint. */
+const turfMaterial = (() => {
+  const material = grassTurf(c.grass);
+  const tint = lawnTint();
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.lawnTint = { value: tint };
+    shader.uniforms.lawnOrigin = { value: new Vector2(lawnMin, lawnMin) };
+    shader.uniforms.lawnSpan = { value: lawnMax - lawnMin };
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec2 vLawn;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvLawn = (modelMatrix * vec4(transformed, 1.0)).xz;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform sampler2D lawnTint;\nuniform vec2 lawnOrigin;\nuniform float lawnSpan;\nvarying vec2 vLawn;')
+      .replace('#include <map_fragment>', '#include <map_fragment>\ndiffuseColor.rgb *= texture2D(lawnTint, (vLawn - lawnOrigin) / lawnSpan).rgb * 2.0;');
+  };
+  return material;
+})();
+
+// ---------------------------------------------------------------------------------------------
+// Ground cover: little sprigs of leaves scattered over the lawn, thickest around the beds, so it
+// reads as a living lawn, not paint. Each leaf is a pointed blade folded along its midrib, 8
+// triangles, so hundreds of sprigs cost less than a few flowers.
+
+/** One leaf, 1 unit long along +z from its root, `width` across, folded up along its midrib. */
+function sprigLeaf(width: number) {
+  const w = width / 2;
+  // Root, a row of three across a third of the way out, three more two thirds out, and the tip.
+  const points = [0, 0, 0, -w, 0, 0.3, 0, 0.035, 0.3, w, 0, 0.3, -w * 0.75, 0, 0.66, 0, 0.03, 0.66, w * 0.75, 0, 0.66, 0, 0, 1];
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new Float32BufferAttribute(points, 3));
+  // Wound to face up, so the leaves show from above.
+  geometry.setIndex([0, 1, 2, 0, 2, 3, 1, 4, 5, 1, 5, 2, 2, 5, 6, 2, 6, 3, 4, 7, 5, 5, 7, 6]);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+/** A sprig of `count` leaves from one root, tilted up between `lift` radians and a little more. */
+function sprigGeometry(seed: number, count: number, width: number, [liftMin, liftMax]: [number, number]) {
+  const rand = seededRandom(seed);
+  const leaves: BufferGeometry[] = [];
+  for (let k = 0; k < count; k++) {
+    const length = 0.75 + rand() * 0.35;
+    leaves.push(
+      sprigLeaf(width)
+        .scale(length, length, length)
+        .rotateX(-(liftMin + rand() * (liftMax - liftMin)))
+        .rotateY((k / count) * TAU + rand() * 0.5),
+    );
+  }
+  return mergeGeometries(leaves);
+}
+
+/** Low, spreading rosettes, and younger shoots standing more upright. */
+const SPRIG_LOW = sprigGeometry(41, 5, 0.42, [0.2, 0.45]);
+const SPRIG_UP = sprigGeometry(42, 4, 0.28, [0.75, 1.05]);
+const SPRIG_COUNT = 480;
 const OPEN_TINTS = tints('#B2CC93', '#A8C68A', '#BBD39C', '#A0C084');
 const LUSH_TINTS = tints('#8EB476', '#81AA6C', '#98BB7F', '#A3C389');
 
-function GrassTufts() {
-  const instances = useMemo(() => {
+function GroundCover() {
+  const [low, up] = useMemo(() => {
     const rand = seededRandom(17);
-    const result: Instance[] = [];
+    const low: Instance[] = [];
+    const up: Instance[] = [];
     let guard = 0;
-    while (result.length < TUFT_COUNT && guard++ < TUFT_COUNT * 20) {
+    while (low.length + up.length < SPRIG_COUNT && guard++ < SPRIG_COUNT * 40) {
       const x = lawnMin + rand() * (lawnMax - lawnMin);
       const z = lawnMin + rand() * (lawnMax - lawnMin);
-      // Right up to the plinth, and out to where the turf's top starts rounding over its rim.
       if (underPlinth(x, z, 0.01)) continue;
-      // Grass grows up against the bases of stones and plants, hiding where they meet the lawn.
-      if (!onLawn(x, z, 0.012) || inside(x, z, GARDEN.solid, 0.85)) continue;
-      // Soft patches of longer grass drift across the open lawn too, so it never looks mown.
+      // Sprigs grow up against the bases of stones and plants, hiding where they meet the lawn.
+      if (!onLawn(x, z, 0.015) || inside(x, z, GARDEN.solid, 0.85)) continue;
       const drift = 0.5 + 0.5 * Math.sin(x * 1.7 + 1.3) * Math.sin(z * 1.9 + 0.4);
       const lush = Math.max(lushness(x, z), drift * 0.45);
-      const s = 0.06 + lush * 0.035 + rand() * 0.04;
-      result.push({
-        position: new Vector3(x, lawn.top - 0.01, z),
-        rotation: new Euler(0, rand() * Math.PI * 2, 0),
-        scale: new Vector3(s, s * (0.7 + lush * 0.3 + rand() * 0.35), s),
+      // Thicker around the beds, sparse out in the open.
+      if (rand() > 0.25 + 0.75 * lush) continue;
+      const s = 0.07 + lush * 0.04 + rand() * 0.04;
+      (rand() < 0.35 + lush * 0.3 ? up : low).push({
+        position: new Vector3(x, lawn.top - 0.004, z),
+        rotation: new Euler(0, rand() * TAU, 0),
+        scale: new Vector3(s, s * (0.8 + lush * 0.4), s),
         color: (rand() < lush ? LUSH_TINTS : OPEN_TINTS)[Math.floor(rand() * 4)],
       });
     }
-    return result;
+    return [low, up];
   }, []);
-  // Too small to cast a meaningful shadow; skipping the shadow pass keeps thousands of tufts cheap.
-  return <InstancedGroup geometry={TUFT} instances={instances} material={materials.foliage} noShadow />;
+  // Too small to cast a meaningful shadow; skipping the shadow pass keeps hundreds of sprigs cheap.
+  return (
+    <>
+      <InstancedGroup geometry={SPRIG_LOW} instances={low} material={materials.foliage} noShadow />
+      <InstancedGroup geometry={SPRIG_UP} instances={up} material={materials.foliage} noShadow />
+    </>
+  );
 }
 
 function Plantings() {

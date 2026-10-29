@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { memo, type CSSProperties } from 'react';
 
 /**
  * Two layers of soft clouds drifting across the daytime sky, behind the transparent 3D canvas.
@@ -147,11 +147,12 @@ function Layer({ clouds, depth }: { clouds: Cloud[]; depth: 'far' | 'near' }) {
   );
 }
 
-export function DriftingClouds() {
+/** The clouds never change, so they skip the re-render whenever the app's state does. */
+export const DriftingClouds = memo(function DriftingClouds() {
   return (
     <div className="clouds" aria-hidden="true">
       <Layer clouds={FAR} depth="far" />
       <Layer clouds={NEAR} depth="near" />
     </div>
   );
-}
+});

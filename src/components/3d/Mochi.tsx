@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { Html, useCursor } from '@react-three/drei';
-import { CatmullRomCurve3, Color, MathUtils, MeshPhysicalMaterial, MeshStandardMaterial, Vector3, type Group, type Sprite, type SpriteMaterial } from 'three';
+import { CatmullRomCurve3, Color, LatheGeometry, MathUtils, MeshPhysicalMaterial, MeshStandardMaterial, Vector2, Vector3, type Group, type Sprite, type SpriteMaterial } from 'three';
 import gsap from 'gsap';
 import { CLICK_DRAG_TOLERANCE } from '../../config/layout';
 import { MOCHI, MOCHI_COPY } from '../../config/mochi';
@@ -10,8 +10,10 @@ import type { Vec3 } from '../../config/sceneLayout';
 import { sceneColors } from '../../config/theme';
 import { Tooltip } from '../ui/Tooltip';
 import { ContactShadow } from './ContactShadow';
+import { weldNormals } from './geometry';
 import { boucle } from './materials';
 import { bodyGeometry, earGeometry, headGeometry, pawGeometry, tailGeometry } from './mochiGeometry';
+import { refreshShadows } from './renderQuality';
 import { ReplaceableModel } from './ReplaceableModel';
 import { drawZ, useCanvasTexture } from './textures';
 
@@ -54,6 +56,7 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle, visit, onC
   const earL = useRef<Group>(null);
   const earR = useRef<Group>(null);
   const timeline = useRef<gsap.core.Timeline | null>(null);
+  const wasWaking = useRef(false);
   const hoverAmount = useRef(0);
   const [hovered, setHovered] = useState(false);
   const [awake, setAwake] = useState(false);
@@ -122,8 +125,9 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle, visit, onC
   );
   useEffect(() => () => Object.values(geo).forEach((g) => g.dispose()), [geo]);
 
-  // Gentle breathing, floating z's and hover lift. Cheap: a few transforms per frame.
-  useFrame(({ clock }, delta) => {
+  // Gentle breathing, floating z's and hover lift. Cheap: a few transforms per frame. Breathing
+  // alone leaves the shadow maps be: its 2.5% swell moves her shadow by less than a shadow texel.
+  useFrame(({ clock, gl }, delta) => {
     zSprites.current.forEach((sprite, i) => {
       if (!sprite) return;
       const phase = reducedMotion ? 0.45 + i * 0.25 : (clock.elapsedTime * 0.32 + i * 0.5) % 1;
@@ -138,7 +142,13 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle, visit, onC
     if (root.current && Math.abs(hoverAmount.current - target) > 0.001) {
       hoverAmount.current = MathUtils.damp(hoverAmount.current, target, 12, delta);
       root.current.scale.setScalar(1 + hoverAmount.current * 0.03);
+      refreshShadows(gl);
     }
+    // Waking lifts her head and wiggles her ears. gsap ticks on its own, so its last step may land
+    // after this frame's check: keep refreshing for one frame more.
+    const waking = timeline.current?.isActive() ?? false;
+    if (waking || wasWaking.current) refreshShadows(gl);
+    wasWaking.current = waking;
   });
 
   useEffect(() => () => void timeline.current?.kill(), []);
@@ -295,28 +305,80 @@ export function Mochi({ position, rotationY = 0, reducedMotion, idle, visit, onC
   );
 }
 
-/** Bouclé for the bed, tiled to each primitive's UV span (circumferences, and the cushion's diameter). */
+// Mochi's bed: a plump donut bed turned from one soft profile (a rounded base swelling into a
+// bolster, then dipping into the seat), with an uneven, slumped bolster so it reads as stuffed
+// fabric rather than a torus; a domed pillow sits in the seat. Both are built once at load.
+
+/** The bed's cross-section, (radius, height): from under its centre, out, up over the bolster and down into the seat. */
+const BED_PROFILE = [
+  [0, 0],
+  [0.32, 0],
+  [0.55, 0.012],
+  [0.615, 0.06],
+  [0.63, 0.14],
+  [0.595, 0.23],
+  [0.51, 0.28],
+  [0.43, 0.255],
+  [0.38, 0.19],
+  [0.365, 0.125],
+  [0.22, 0.1],
+  [0, 0.1],
+];
+/** The pillow's cross-section: a flat underside, rounded edge and gently domed top (centre at CAT_HEIGHT). */
+const PILLOW_PROFILE = [
+  [0, 0.085],
+  [0.3, 0.085],
+  [0.385, 0.098],
+  [0.41, 0.127],
+  [0.39, 0.155],
+  [0.3, 0.168],
+  [0, 0.172],
+];
+const BED_SEGMENTS = 56;
+
+/** Turns a profile into a smooth lathe; `sag(angle, height)` returns how far each point dips, so the stuffing settles unevenly. */
+function plumpLathe(profile: number[][], samples: number, sag: (angle: number, y: number) => number) {
+  const curve = new CatmullRomCurve3(profile.map(([r, y]) => new Vector3(r, y, 0)), false, 'centripetal');
+  const points = curve.getSpacedPoints(samples).map((p) => new Vector2(Math.max(p.x, 0), p.y));
+  const geometry = new LatheGeometry(points, BED_SEGMENTS);
+  const pos = geometry.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    const dy = sag(Math.atan2(z, x), y);
+    // Where the stuffing sinks it also spreads a little.
+    const spread = 1 - dy * 0.6;
+    pos.setXYZ(i, x * spread, y + dy, z * spread);
+  }
+  geometry.computeVertexNormals();
+  return { geometry: weldNormals(geometry), length: curve.getLength() };
+}
+
+const smooth = (edge0: number, edge1: number, x: number) => MathUtils.smoothstep(x, edge0, edge1);
+
+// The bolster slumps in a couple of broad dips (lowest by Mochi's chin, at +x) with smaller puffs between.
+const bed = plumpLathe(BED_PROFILE, 44, (a, y) => {
+  const lump = 0.018 * Math.sin(2 * a + 0.9) + 0.01 * Math.sin(3 * a + 2.2) + 0.005 * Math.sin(7 * a + 4.1) - 0.016 * Math.max(Math.cos(a), 0) ** 3;
+  return lump * smooth(0.06, 0.24, y);
+});
+// The pillow's top is pressed down a touch, unevenly.
+const pillow = plumpLathe(PILLOW_PROFILE, 20, (a, y) => (0.004 * Math.sin(2 * a + 1.3) - 0.003) * smooth(0.12, 0.17, y));
+
+/** Bouclé for the bed, tiled to each lathe's UV span (round its widest circumference, and along its profile). */
 const bedFabric = {
-  base: boucle(sceneColors.warmWhite, [Math.PI * 2 * 0.61, 0.12], true),
   // The same soft pink as the desk chair.
-  rim: boucle(sceneColors.upholstery, [Math.PI * 2 * 0.5, Math.PI * 2 * 0.13], true),
-  cushion: boucle(sceneColors.upholstery, [0.88, 0.88], true),
+  shell: boucle(sceneColors.upholstery, [Math.PI * 2 * 0.55, bed.length], true),
+  pillow: boucle(sceneColors.upholstery, [Math.PI * 2 * 0.36, pillow.length], true),
 };
 
-/** Round, puffy pink cushion. Origin: floor under its centre. */
+/** Round, plump pink donut bed with a pillow in its seat. Origin: floor under its centre. */
 function CatBed() {
   return (
     <group>
       <ContactShadow position={[0, 0, 0]} size={[1.24, 1.24]} spread={0.2} strength={0.5} shape="round" />
-      <mesh position-y={0.06} material={bedFabric.base}>
-        <cylinderGeometry args={[0.6, 0.62, 0.12, 40]} />
-      </mesh>
-      <mesh position-y={0.17} rotation-x={Math.PI / 2} scale={[1, 1, 0.85]} material={bedFabric.rim}>
-        <torusGeometry args={[0.5, 0.13, 16, 44]} />
-      </mesh>
-      <mesh position-y={0.13} material={bedFabric.cushion}>
-        <cylinderGeometry args={[0.44, 0.44, 0.07, 36]} />
-      </mesh>
+      <mesh geometry={bed.geometry} material={bedFabric.shell} />
+      <mesh geometry={pillow.geometry} material={bedFabric.pillow} />
     </group>
   );
 }

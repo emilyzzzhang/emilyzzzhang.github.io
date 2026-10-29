@@ -3,7 +3,6 @@ import { profile } from '../../data/profile';
 export function Hero({ dimmed }: { dimmed: boolean }) {
   return (
     <section className={`hero${dimmed ? ' hero--dimmed' : ''}`} aria-labelledby="hero-title">
-      <p className="hero__eyebrow">Emily's studio</p>
       <h1 id="hero-title" className="hero__title">
         {profile.heroTitle}
       </h1>

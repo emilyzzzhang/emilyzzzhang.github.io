@@ -12,6 +12,7 @@ export const FINISH = {
   floor: { relief: 0.3, roughness: 0.72 },
   plaster: { tile: 2.2, relief: 0.04 },
   boucle: { tile: 0.32, relief: 0.5 },
+  knit: { tile: 0.18, relief: 0.9 },
   linen: { tile: 0.18, relief: 0.5 },
   grass: { tile: 1.3, relief: 1 },
   glaze: { relief: 0.08, roughness: 0.38, clearcoat: 0.45, clearcoatRoughness: 0.14 },
@@ -60,6 +61,10 @@ const plaster = (color: string) => withSurface(matte(color, 0.95), plasterSurfac
 /** Soft, matte bouclé upholstery. */
 export const boucle = (color: string, span: UVSpan = [1, 1], closed = false) =>
   withSurface(matte(color, 1), tiledSurface(surfaces.boucle, FINISH.boucle.tile, span, closed), FINISH.boucle.relief);
+
+/** Chunky, soft knit for the slippers. */
+export const knit = (color: string, span: UVSpan = [1, 1], closed = false) =>
+  withSurface(matte(color, 1), tiledSurface(surfaces.knit, FINISH.knit.tile, span, closed), FINISH.knit.relief);
 
 /** Lightly slubbed linen for drapes. */
 export const linen = (color: string, span: UVSpan, closed = false) =>

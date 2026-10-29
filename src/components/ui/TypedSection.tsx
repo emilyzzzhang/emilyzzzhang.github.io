@@ -35,10 +35,12 @@ export function TypedSection({ paragraphs, className = 'section', paragraphClass
   const root = useRef<HTMLDivElement>(null);
   const caret = useRef<HTMLSpanElement>(null);
   const following = useRef(follow);
+  // Found once: looking it up reads styles up the page, too much for every character typed.
+  const scrollerRef = useRef<HTMLElement | null>(null);
 
   // Stop following as soon as the visitor scrolls the panel themselves.
   useEffect(() => {
-    const scroller = scrollParent(root.current);
+    const scroller = (scrollerRef.current = scrollParent(root.current));
     if (!scroller) return;
     const stop = () => (following.current = false);
     scroller.addEventListener('wheel', stop, { passive: true });
@@ -51,7 +53,7 @@ export function TypedSection({ paragraphs, className = 'section', paragraphClass
 
   // Keep the line being typed in view. Once it's done, the panel stays where it is.
   useEffect(() => {
-    const scroller = scrollParent(root.current);
+    const scroller = scrollerRef.current;
     if (!scroller || !following.current || !caret.current) return;
     const bottom = caret.current.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top + scroller.scrollTop;
     const top = bottom + FOLLOW_MARGIN - scroller.clientHeight;

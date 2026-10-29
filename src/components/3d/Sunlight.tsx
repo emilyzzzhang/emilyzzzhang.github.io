@@ -1,9 +1,11 @@
 import { useMemo, useRef } from 'react';
+import { useThree } from '@react-three/fiber';
 import { AdditiveBlending, Color, Matrix4, MathUtils, Object3D, PlaneGeometry, ShaderMaterial, Vector2, Vector3, type MeshBasicMaterial, type SpotLight } from 'three';
 import { HOME_VIEW } from '../../config/camera';
 import { ANCHORS, DIORAMA, LAWN_SPAN } from '../../config/sceneLayout';
 import { LIGHTING, SUNLIGHT } from '../../config/theme';
 import { useDayNight } from './dayNight';
+import { refreshShadows } from './renderQuality';
 import { drawSunCookie, drawSunShaft, useCanvasTexture } from './textures';
 
 /**
@@ -39,6 +41,7 @@ export function Sunlight({ lowPower }: { lowPower: boolean }) {
 function Sunbeam({ lowPower }: { lowPower: boolean }) {
   const cookie = useCanvasTexture(drawSunCookie, 256, 256);
   const spot = useRef<SpotLight>(null);
+  const gl = useThree((s) => s.gl);
   const target = useMemo(() => {
     const t = new Object3D();
     t.position.copy(LANDING);
@@ -51,8 +54,10 @@ function Sunbeam({ lowPower }: { lowPower: boolean }) {
     light.intensity = SUNLIGHT.intensity * mix('sun', t);
     // No point re-rendering this shadow map at night, when the beam is off. It still has to be
     // rendered once (needsUpdate): loading straight into night would otherwise leave lit
-    // materials sampling a shadow map that was never created.
+    // materials sampling a shadow map that was never created. Coming back on, it catches up
+    // with anything that moved while it was off.
     const on = light.intensity > 0;
+    if (on && !light.shadow.autoUpdate) refreshShadows(gl);
     light.shadow.autoUpdate = on;
     if (!on) light.shadow.needsUpdate = true;
   });

@@ -12,7 +12,6 @@ import {
   Float32BufferAttribute,
   LatheGeometry,
   Matrix4,
-  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Quaternion,
   RepeatWrapping,
@@ -26,7 +25,7 @@ import {
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { ContactShadow } from './ContactShadow';
 import { weldNormals } from './geometry';
-import { boucle } from './materials';
+import { boucle, knit } from './materials';
 import { surfaces, tiled } from './surfaces';
 import { seededRandom, useCanvasTexture } from './textures';
 
@@ -404,23 +403,26 @@ function Strawberry() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Fluffy slippers: a plump moccasin shape under layered fur shells, like the rug's pile, so the
-// outline is genuinely fuzzy. Fur is longest on the rolled collar, plush over the sides and toe,
-// short inside the pink lining, and absent on the sole.
+// Knitted slippers: a plump moccasin shape in chunky cream knit. Soft padding is built into the
+// shape: thickest in the rolled collar, plush over the sides and toe, thinner inside the pink
+// lining and absent on the sole.
 
 const SLIPPER = { half: [0.12, 0.095, 0.26] as [number, number, number] };
-const FUR = { layers: 18, length: 0.026 };
+/** How far the padding puffs the surface out where it's thickest (the collar reaches 1.7×). */
+const PADDING = 0.013;
 const CREAM = new Color('#FFF8F0');
 const LINING = new Color('#FBD6E7');
 const SOLE = new Color('#EAD3C8');
 
-/** The base surface, toe towards +z: rest positions, normals, colours and how long the fur grows at each point. */
+/** The slipper's surface, toe towards +z, with its colours and its padding puffed out along its normals. */
 function slipperBase() {
-  // Seam turned to the heel, where it's least seen.
-  const sphere = new SphereGeometry(1, 72, 44).rotateY(-Math.PI / 2);
+  // Seam turned to the heel, where it's least seen. The opening and the collar change gently
+  // enough to come out smooth over these rings of vertices.
+  const sphere = new SphereGeometry(1, 64, 56).rotateY(-Math.PI / 2);
   const pos = sphere.attributes.position;
   const colors = new Float32Array(pos.count * 3);
-  const fur = new Float32Array(pos.count);
+  const padding = new Float32Array(pos.count);
+  const lining = new Uint8Array(pos.count);
   const p = new Vector3();
   const color = new Color();
   const [hx, hy, hz] = SLIPPER.half;
@@ -435,14 +437,16 @@ function slipperBase() {
       const d = (p.x / 0.6) ** 2 + ((p.z + 0.26) / 0.62) ** 2;
       if (d < 1) {
         // A big oval opening dipping into a pink-lined hollow.
-        const inside = smoothstep(0, 0.25, 1 - d);
+        const inside = smoothstep(0, 0.55, 1 - d);
         y += (-0.3 - y) * inside;
         color.lerp(LINING, smoothstep(0, 0.1, 1 - d));
         length = 1 - 0.55 * inside;
       }
-      // The rolled collar: a plump ridge of extra-long fluff round the opening.
-      const collar = Math.exp(-(((d - 1) / 0.24) ** 2)) * smoothstep(0, 0.35, p.y);
+      // The rolled collar: a plump ridge of extra padding round the opening.
+      const collar = Math.exp(-(((d - 1) / 0.4) ** 2)) * smoothstep(0, 0.35, p.y);
       y += 0.22 * collar;
+      // The lining and the rolled cuff over it are smooth jersey (see the groups below).
+      lining[i] = d < 1.3 ? 1 : 0;
       length += 0.7 * collar;
       // A round, slightly lower toe box.
       y *= 1 - 0.22 * smoothstep(0.15, 1, p.z);
@@ -454,96 +458,47 @@ function slipperBase() {
     length *= smoothstep(-0.62, -0.42, y);
     pos.setXYZ(i, x * hx, y * hy, p.z * hz);
     colors.set([color.r, color.g, color.b], i * 3);
-    fur[i] = length;
+    padding[i] = length;
   }
   sphere.setAttribute('color', new Float32BufferAttribute(colors, 3));
-  sphere.setAttribute('aFur', new Float32BufferAttribute(fur, 1));
   sphere.translate(0, 0.59 * hy, 0);
   sphere.computeVertexNormals();
-  return weldNormals(sphere);
+  weldNormals(sphere);
+  // Puff the surface out by the padding, then shade the plumper shape.
+  const normal = sphere.attributes.normal;
+  for (let i = 0; i < pos.count; i++) {
+    const reach = PADDING * padding[i];
+    pos.setXYZ(i, pos.getX(i) + normal.getX(i) * reach, pos.getY(i) + normal.getY(i) * reach, pos.getZ(i) + normal.getZ(i) * reach);
+  }
+  sphere.computeVertexNormals();
+  weldNormals(sphere);
+  // The lining and the rolled cuff are smooth jersey, not knit (the stitches would crowd together
+  // there, where the texture converges): their triangles form a second group for its own material.
+  const index = sphere.getIndex()!;
+  const outer: number[] = [];
+  const inner: number[] = [];
+  for (let t = 0; t < index.count; t += 3) {
+    const tri = [index.getX(t), index.getX(t + 1), index.getX(t + 2)];
+    (tri.every((k) => lining[k]) ? inner : outer).push(...tri);
+  }
+  sphere.setIndex([...outer, ...inner]);
+  sphere.clearGroups();
+  sphere.addGroup(0, outer.length, 0);
+  sphere.addGroup(outer.length, inner.length, 1);
+  return sphere;
 }
 
 const SLIPPER_BASE = slipperBase();
 
-/** The fur: copies of the base pushed out along its normals, one per layer, merged into one draw call. */
-const SLIPPER_FUR = (() => {
-  const { position, normal, color, aFur } = SLIPPER_BASE.attributes;
-  const index = SLIPPER_BASE.getIndex()!;
-  const positions: number[] = [];
-  const normals: number[] = [];
-  const colors: number[] = [];
-  const rest: number[] = [];
-  const layer: number[] = [];
-  const indices: number[] = [];
-  for (let l = 1; l <= FUR.layers; l++) {
-    const h = l / FUR.layers;
-    const offset = positions.length / 3;
-    for (let i = 0; i < position.count; i++) {
-      const reach = h * FUR.length * aFur.getX(i);
-      positions.push(position.getX(i) + normal.getX(i) * reach, position.getY(i) + normal.getY(i) * reach - h * h * 0.004, position.getZ(i) + normal.getZ(i) * reach);
-      normals.push(normal.getX(i), normal.getY(i), normal.getZ(i));
-      colors.push(color.getX(i), color.getY(i), color.getZ(i));
-      rest.push(position.getX(i), position.getY(i), position.getZ(i));
-      layer.push(aFur.getX(i) > 0.02 ? h : 2);
-    }
-    for (let k = 0; k < index.count; k++) indices.push(offset + index.getX(k));
-  }
-  const geometry = new BufferGeometry();
-  geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
-  geometry.setAttribute('normal', new Float32BufferAttribute(normals, 3));
-  geometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
-  geometry.setAttribute('aRest', new Float32BufferAttribute(rest, 3));
-  geometry.setAttribute('aLayer', new Float32BufferAttribute(layer, 1));
-  geometry.setIndex(indices);
-  return geometry;
+/** Knit, coloured by the vertices (cream upper, oatmeal sole), and soft jersey for the cream cuff and pink lining. */
+const slipperMaterials = (() => {
+  const outer = knit('#FFFFFF', [TAU * 0.18, 0.55], true);
+  outer.vertexColors = true;
+  const lining = new MeshStandardMaterial({ color: '#FFFFFF', vertexColors: true, roughness: 1 });
+  return [outer, lining];
 })();
 
-/** Soft fur: fibres thin out towards their tips, with a velvety sheen and darker roots. */
-function slipperFurMaterial() {
-  const material = new MeshPhysicalMaterial({ color: '#FFFFFF', vertexColors: true, roughness: 1, sheen: 1, sheenRoughness: 0.5, sheenColor: new Color('#FFF4EE') });
-  material.onBeforeCompile = (shader) => {
-    shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute vec3 aRest;\nattribute float aLayer;\nvarying vec3 vRest;\nvarying float vLayer;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRest = aRest;\nvLayer = aLayer;');
-    shader.fragmentShader = shader.fragmentShader
-      .replace(
-        '#include <common>',
-        `#include <common>
-        varying vec3 vRest;
-        varying float vLayer;
-        float fluffHash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
-        float fluffNoise(vec3 p) {
-          vec3 i = floor(p);
-          vec3 f = fract(p);
-          vec3 u = f * f * (3.0 - 2.0 * f);
-          return mix(
-            mix(mix(fluffHash(i), fluffHash(i + vec3(1, 0, 0)), u.x), mix(fluffHash(i + vec3(0, 1, 0)), fluffHash(i + vec3(1, 1, 0)), u.x), u.y),
-            mix(mix(fluffHash(i + vec3(0, 0, 1)), fluffHash(i + vec3(1, 0, 1)), u.x), mix(fluffHash(i + vec3(0, 1, 1)), fluffHash(i + vec3(1, 1, 1)), u.x), u.y),
-            u.z);
-        }`,
-      )
-      .replace(
-        '#include <map_fragment>',
-        `#include <map_fragment>
-        if (vLayer > 1.0) discard;
-        // Fine fibres and soft clumps: fewer survive towards the tips, so the edge melts into fuzz.
-        float fibre = fluffNoise(vRest * 420.0) * 0.6 + fluffNoise(vRest * 140.0 + 3.0) * 0.4;
-        if (fibre < 0.28 + vLayer * 0.62) discard;
-        diffuseColor.rgb *= mix(0.8, 1.04, vLayer);`,
-      );
-  };
-  return material;
-}
-
-const slipperFur = slipperFurMaterial();
-/** The felted surface beneath the fur, which also casts the slipper's shadow (the shells can't). */
-const slipperFelt = (() => {
-  const m = boucle('#FFFFFF', [TAU * 0.18, 0.55], true);
-  m.vertexColors = true;
-  return m;
-})();
-
-/** Where the bow sits: the top of the toe box, lifted onto the fluff, and the surface's normal there. */
+/** Where the bow sits: the top of the toe box, resting on the knit, and the surface's normal there. */
 const BOW_POSE = (() => {
   const { position, normal } = SLIPPER_BASE.attributes;
   let best = -1;
@@ -551,7 +506,7 @@ const BOW_POSE = (() => {
     if (Math.abs(position.getX(i)) < 0.015 && Math.abs(position.getZ(i) - 0.175) < 0.02 && (best < 0 || position.getY(i) > position.getY(best))) best = i;
   }
   const n = new Vector3().fromBufferAttribute(normal, best);
-  const at = new Vector3().fromBufferAttribute(position, best).addScaledVector(n, FUR.length * 0.9);
+  const at = new Vector3().fromBufferAttribute(position, best).addScaledVector(n, 0.004);
   return { position: at, quaternion: new Quaternion().setFromUnitVectors(UP, n) };
 })();
 
@@ -570,9 +525,7 @@ const bowYarn = boucle('#E8A9C1');
 function Slipper({ position, rotationY }: { position: [number, number, number]; rotationY: number }) {
   return (
     <group position={position} rotation-y={rotationY}>
-      <mesh geometry={SLIPPER_BASE} material={slipperFelt} />
-      {/* Shells cut fibres with discard, which the shadow pass can't see, so only the base casts. */}
-      <mesh geometry={SLIPPER_FUR} material={slipperFur} userData={{ noShadow: true }} raycast={() => null} />
+      <mesh geometry={SLIPPER_BASE} material={slipperMaterials} />
       <mesh geometry={BOW_YARN} material={bowYarn} position={BOW_POSE.position} quaternion={BOW_POSE.quaternion} scale={1.35} />
     </group>
   );

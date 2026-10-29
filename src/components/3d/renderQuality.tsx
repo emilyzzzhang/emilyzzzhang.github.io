@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Vector3 } from 'three';
+import { Vector3, type WebGLRenderer } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { CAMERA_ANIMATION, HOME_VIEW, overviewDistanceScale, scalePreset } from '../../config/camera';
 
@@ -97,25 +97,48 @@ export function ZoomWatcher({ onChange }: { onChange: (zoomedIn: boolean) => voi
 }
 
 /**
- * Lighter frames while the visitor drags or zooms the camera. The lights and almost everything
- * they shine on stay put, so the shadow maps (each one the whole room drawn again) are reused
- * rather than redrawn, and the pointer isn't ray-tested against every object for hovers that
- * can't happen mid-drag. Both come back the moment the drag ends, before its click is handled.
+ * Redraws the shadow maps only when something that casts a shadow has moved, instead of every
+ * frame. Each map is the whole room drawn again (about half of every frame's draw calls and GPU
+ * time), yet the lights are fixed and the room almost always stands still: orbiting, zooming and
+ * flying to a section move only the camera. Whatever moves a shadow caster calls refreshShadows.
+ */
+export function ShadowsOnDemand() {
+  const gl = useThree((s) => s.gl);
+
+  useLayoutEffect(() => {
+    gl.shadowMap.autoUpdate = false;
+    refreshShadows(gl);
+    // A restored context has lost the maps along with everything else.
+    const restored = () => refreshShadows(gl);
+    gl.domElement.addEventListener('webglcontextrestored', restored);
+    return () => {
+      gl.domElement.removeEventListener('webglcontextrestored', restored);
+      gl.shadowMap.autoUpdate = true;
+    };
+  }, [gl]);
+
+  return null;
+}
+
+/** Redraws the shadow maps with the next frame. Call on every frame that moves something casting a shadow. */
+export function refreshShadows(gl: WebGLRenderer) {
+  gl.shadowMap.needsUpdate = true;
+}
+
+/**
+ * Lighter frames while the visitor drags or zooms the camera: the pointer isn't ray-tested against
+ * every object for hovers that can't happen mid-drag. Hover tests come back the moment the drag
+ * ends, before its click is handled.
  */
 export function LightenWhileOrbiting() {
   const controls = useThree((s) => s.controls) as OrbitControlsImpl | null;
-  const gl = useThree((s) => s.gl);
   const raycaster = useThree((s) => s.raycaster);
 
   useEffect(() => {
     if (!controls) return;
     const mask = raycaster.layers.mask;
-    const start = () => {
-      gl.shadowMap.autoUpdate = false;
-      raycaster.layers.disableAll();
-    };
+    const start = () => raycaster.layers.disableAll();
     const end = () => {
-      gl.shadowMap.autoUpdate = true;
       raycaster.layers.mask = mask;
     };
     controls.addEventListener('start', start);
@@ -125,7 +148,7 @@ export function LightenWhileOrbiting() {
       controls.removeEventListener('end', end);
       end();
     };
-  }, [controls, gl, raycaster]);
+  }, [controls, raycaster]);
 
   return null;
 }
