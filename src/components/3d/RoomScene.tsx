@@ -22,7 +22,7 @@ import { InteractiveObject } from './InteractiveObject';
 import { Lighting } from './Lighting';
 import { Mochi } from './Mochi';
 import { PlayableGuitar } from './PlayableGuitar';
-import { PauseWhenHidden, useAdaptivePixelRatio, ZoomWatcher } from './renderQuality';
+import { LightenWhileOrbiting, PauseWhenHidden, ReadyAfterFirstFrame, useAdaptivePixelRatio, ZoomWatcher } from './renderQuality';
 import { ReplaceableModel } from './ReplaceableModel';
 import { RoomEnvironment } from './RoomEnvironment';
 import { SkyParallax } from './SkyParallax';
@@ -87,7 +87,6 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, onMi
       camera={{ fov: CAMERA.fov, near: CAMERA.near, far: CAMERA.far, position: HOME_VIEW.position }}
       // Neutral tone mapping keeps the pastel palette true to its hex values.
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', toneMapping: NeutralToneMapping }}
-      onCreated={onReady}
       onPointerMissed={(e) => e.type === 'click' && onMiss()}
     >
       <DayNightProvider mode={timeOfDay} reducedMotion={reducedMotion}>
@@ -96,6 +95,8 @@ export default function RoomScene({ activeSection, panelExpanded, onSelect, onMi
         <CameraController focus={activeSection ?? (mochiFocused ? 'mochi' : null)} panelExpanded={panelExpanded} reducedMotion={reducedMotion} />
         <ZoomWatcher onChange={setZoomedIn} />
         <PauseWhenHidden />
+        <LightenWhileOrbiting />
+        <ReadyAfterFirstFrame onReady={onReady} />
 
         <ShadowSetup>
           <RoomEnvironment />

@@ -95,3 +95,51 @@ export function ZoomWatcher({ onChange }: { onChange: (zoomedIn: boolean) => voi
 
   return null;
 }
+
+/**
+ * Lighter frames while the visitor drags or zooms the camera. The lights and almost everything
+ * they shine on stay put, so the shadow maps (each one the whole room drawn again) are reused
+ * rather than redrawn, and the pointer isn't ray-tested against every object for hovers that
+ * can't happen mid-drag. Both come back the moment the drag ends, before its click is handled.
+ */
+export function LightenWhileOrbiting() {
+  const controls = useThree((s) => s.controls) as OrbitControlsImpl | null;
+  const gl = useThree((s) => s.gl);
+  const raycaster = useThree((s) => s.raycaster);
+
+  useEffect(() => {
+    if (!controls) return;
+    const mask = raycaster.layers.mask;
+    const start = () => {
+      gl.shadowMap.autoUpdate = false;
+      raycaster.layers.disableAll();
+    };
+    const end = () => {
+      gl.shadowMap.autoUpdate = true;
+      raycaster.layers.mask = mask;
+    };
+    controls.addEventListener('start', start);
+    controls.addEventListener('end', end);
+    return () => {
+      controls.removeEventListener('start', start);
+      controls.removeEventListener('end', end);
+      end();
+    };
+  }, [controls, gl, raycaster]);
+
+  return null;
+}
+
+/**
+ * Reports ready once the room has actually been drawn, not merely when the canvas exists: the
+ * first draw compiles every shader, which can hold up the page for a moment. A frame callback
+ * runs before that frame renders, so the second one means the first is on screen.
+ */
+export function ReadyAfterFirstFrame({ onReady }: { onReady: () => void }) {
+  const frames = useRef(0);
+  useFrame(() => {
+    frames.current += 1;
+    if (frames.current === 2) onReady();
+  });
+  return null;
+}
