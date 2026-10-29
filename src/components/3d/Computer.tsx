@@ -72,14 +72,14 @@ export function Computer() {
         <meshBasicMaterial ref={backlight} map={glowMap} color={sceneColors.rose} transparent opacity={0} depthWrite={false} blending={AdditiveBlending} toneMapped={false} />
       </mesh>
       <pointLight ref={light} position={[0, SCREEN_Y, 0.6]} color={sceneColors.lavenderLight} intensity={0} distance={2.6} decay={1.8} />
-      {/* sticky notes on the bezel */}
+      {/* sticky notes on the bezel, overlapping the screen's edge: offset further than the screen and glass so those never show through them */}
       <mesh position={[SCREEN_W / 2 - 0.02, SCREEN_Y + 0.3, 0.045]} rotation-z={0.12}>
         <planeGeometry args={[0.14, 0.14]} />
-        <meshStandardMaterial color="#FFF1C9" roughness={0.9} />
+        <meshStandardMaterial color="#FFF1C9" roughness={0.9} polygonOffset polygonOffsetFactor={-4} polygonOffsetUnits={-16} />
       </mesh>
       <mesh position={[SCREEN_W / 2 - 0.06, SCREEN_Y + 0.14, 0.044]} rotation-z={-0.08}>
         <planeGeometry args={[0.12, 0.12]} />
-        <meshStandardMaterial color={sceneColors.rose} roughness={0.9} />
+        <meshStandardMaterial color={sceneColors.rose} roughness={0.9} polygonOffset polygonOffsetFactor={-4} polygonOffsetUnits={-16} />
       </mesh>
 
       {/* keyboard */}

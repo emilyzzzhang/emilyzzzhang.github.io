@@ -1,6 +1,6 @@
 import { RoundedBox } from '@react-three/drei';
 import { BufferGeometry, Float32BufferAttribute, LatheGeometry, Vector2 } from 'three';
-import { RUG_TOP } from '../../config/sceneLayout';
+import { RUG, RUG_TOP } from '../../config/sceneLayout';
 import { sceneColors as c } from '../../config/theme';
 import { ContactShadow } from './ContactShadow';
 import { boucle, materials } from './materials';
@@ -162,6 +162,11 @@ const shellFabric = boucle(c.upholstery);
 const WHEEL_R = 0.058;
 /** Where the base rests: on the rug. */
 const BASE_Y = RUG_TOP;
+/**
+ * The rug's puffed top, where the chair's contact shadows lie: lower, inside the rug, they'd only
+ * break through it in patches that flicker as the camera moves.
+ */
+const SHADOW_Y = RUG.thickness + 0.003;
 
 /** Cosy bouclé tub chair on a pale swivel base. Origin: floor under the gas lift; faces local −z. */
 export function Chair() {
@@ -177,10 +182,10 @@ export function Chair() {
           <mesh position={[0, BASE_Y + WHEEL_R * 2 + 0.008, 0.44]} material={materials.white}>
             <cylinderGeometry args={[0.026, 0.032, 0.04, 12]} />
           </mesh>
-          <ContactShadow position={[0, BASE_Y - 0.01, 0.44]} size={[0.09, 0.12]} spread={0.08} strength={0.5} corner={0.04} />
+          <ContactShadow position={[0, SHADOW_Y, 0.44]} size={[0.09, 0.12]} spread={0.08} strength={0.5} corner={0.04} />
         </group>
       ))}
-      <ContactShadow position={[0, BASE_Y - 0.01, 0]} size={[1.1, 1.1]} spread={0.32} strength={0.18} shape="round" />
+      <ContactShadow position={[0, SHADOW_Y, 0]} size={[1.1, 1.1]} spread={0.32} strength={0.18} shape="round" />
       <mesh position-y={BASE_Y + 0.17} material={materials.white}>
         <cylinderGeometry args={[0.1, 0.12, 0.09, 24]} />
       </mesh>
