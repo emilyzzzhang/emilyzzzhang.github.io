@@ -2,6 +2,11 @@
 
 Welcome to my little studio! Come visit at **[emilyzzzhang.github.io](https://emilyzzzhang.github.io)**.
 
+<p>
+  <img src=".github/screenshots/day.jpg" alt="The studio by day: a pink-and-white room on a garden lawn, floating in pink clouds" width="49%">
+  <img src=".github/screenshots/night.jpg" alt="The studio at night, lit by fairy lights under a starry sky" width="49%">
+</p>
+
 I've always loved working on things that are both technical and creative, so I built my
 portfolio as a tiny 3D room using React and Three.js. Everything in it is made in code, from the
 furniture to the flowers in the garden outside.
