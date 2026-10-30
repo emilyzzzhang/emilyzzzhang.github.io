@@ -12,7 +12,7 @@ export const profile: Profile = {
     'Outside of coding, I love exploring new places, finding cute cafés, and spending time with my cat, Mochi. You might even spot her sleeping somewhere in the studio :))',
   ],
   interests: [
-    '3D Graphics & Interactive Experiences',
+    '3D Graphics',
     'Software Engineering',
     'Full-Stack Development',
     'Computer Vision',

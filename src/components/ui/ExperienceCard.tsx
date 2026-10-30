@@ -1,32 +1,19 @@
 import type { Experience } from '../../types/portfolio';
-import { Placeholder } from './Placeholder';
 
+/** One job as an entry in the journal: written straight on the page, its note on ruled lines. */
 export function ExperienceCard({ item }: { item: Experience }) {
-  const { company, role, focus, summary, period, location, highlights, tags, accent } = item;
+  const { company, role, focus, summary, location, tags } = item;
 
   return (
-    <article className={`card experience-card accent-${accent}`}>
-      <header className="experience-card__header">
-        <div>
-          <h3>{company}</h3>
-          <p className="experience-card__role">
-            {role} · <span>{focus}</span>
-          </p>
-        </div>
-        {(period || location) && <p className="experience-card__meta">{[period, location].filter(Boolean).join(' · ')}</p>}
+    <article className="experience-entry">
+      <header className="experience-entry__header">
+        <h3 className="experience-entry__company">{company}</h3>
+        {location && <p className="experience-entry__meta">{location}</p>}
       </header>
-      <p>{summary}</p>
-      {highlights.length > 0 ? (
-        <ul className="experience-card__highlights">
-          {highlights.map((h) => (
-            <li key={h}>{h}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>
-          <Placeholder>Add highlights in src/data/experience.ts</Placeholder>
-        </p>
-      )}
+      <p className="experience-entry__role">
+        {role} · <span>{focus}</span>
+      </p>
+      <p className="experience-entry__notes">{summary}</p>
       <ul className="tags" aria-label="Focus areas">
         {tags.map((tag) => (
           <li key={tag} className="tag">

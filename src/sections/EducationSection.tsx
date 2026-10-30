@@ -6,13 +6,13 @@ export function EducationSection() {
 
   return (
     <div className="section">
-      <article className="card education-card accent-peach">
-        {logo && <img className="education-card__logo" src={logo.src} alt={logo.alt} />}
-        <div className="education-card__body">
+      <article className="education-entry">
+        {logo && <img className="education-entry__logo" src={logo.src} alt={logo.alt} />}
+        <div className="education-entry__body">
           <h3>{institution}</h3>
-          <p className="education-card__degree">{degree}</p>
-          <p className="education-card__meta">{period ?? <Placeholder>Years attended</Placeholder>}</p>
+          <p className="education-entry__degree">{degree}</p>
         </div>
+        <p className="education-entry__meta">{period ?? <Placeholder>Years attended</Placeholder>}</p>
       </article>
 
       <h3 className="section__subheading">Relevant coursework</h3>

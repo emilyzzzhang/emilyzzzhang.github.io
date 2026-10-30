@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { Html, useCursor } from '@react-three/drei';
 import { BoxGeometry, CanvasTexture, SpriteMaterial, SRGBColorSpace, type Group, type Sprite } from 'three';
@@ -27,8 +27,15 @@ const HIT_BOX = new BoxGeometry(0.55, 1.95, 0.5).translate(0, 0.975, -0.12);
  * sways as if its strings were humming), click to play or pause. While music plays, a few notes
  * drift up beside it. Origin: the floor under the stand, as for <Guitar />.
  */
+/**
+ * Called when a click on the guitar starts its tune (RoomScene provides it; the app zooms in). A
+ * context, since the guitar is built once among the room's furnishings and takes no props.
+ */
+export const GuitarPlayContext = createContext<() => void>(() => {});
+
 export function PlayableGuitar() {
   const music = useMusic();
+  const onPlay = useContext(GuitarPlayContext);
   const body = useRef<Group>(null);
   const [hovered, setHovered] = useState(false);
   const reducedMotion = useReducedMotion();
@@ -50,6 +57,7 @@ export function PlayableGuitar() {
     e.stopPropagation();
     if (e.delta > CLICK_DRAG_TOLERANCE) return; // the visitor was orbiting, not clicking
     music.toggle();
+    if (!playing && music.status !== 'unavailable') onPlay();
     // Touch has no hover to end, so don't leave the tooltip hanging after a tap.
     if ((e.nativeEvent as PointerEvent).pointerType === 'touch') setHovered(false);
   };

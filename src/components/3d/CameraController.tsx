@@ -128,8 +128,8 @@ export function CameraController({ focus, panelExpanded, exploring, reducedMotio
     if (focus) {
       orbit.enabled = false;
       const preset = scalePreset(FOCUS_VIEWS[focus], mobile ? MOBILE_FOCUS_SCALE : DESKTOP_FOCUS_SCALE);
-      // Mochi has no panel beside her, so she stays centred.
-      const toShift = focus === 'mochi' ? NO_SHIFT : panelShift(viewport.width, mobile, panelExpanded);
+      // Mochi and the guitar have no panel beside them, so they stay centred.
+      const toShift = focus === 'mochi' || focus === 'guitar' ? NO_SHIFT : panelShift(viewport.width, mobile, panelExpanded);
       flyTo(preset, toShift, CAMERA_ANIMATION.focusDuration);
     } else if (firstRun.current) {
       // Glide in from further out on first load.

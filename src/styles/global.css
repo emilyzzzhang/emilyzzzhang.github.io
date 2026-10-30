@@ -106,7 +106,7 @@ a {
   gap: 8px;
   padding: 10px 18px;
   border: 1px solid transparent;
-  border-radius: var(--radius-pill);
+  border-radius: 6px;
   background: var(--charcoal);
   color: var(--cream);
   font-weight: 600;
@@ -209,17 +209,28 @@ a {
   animation-duration: 420s;
 }
 
+/* Faint, so the clouds across the middle of the screen don't compete with the room. */
 .clouds__layer--near {
-  opacity: 0.75;
+  opacity: 0.45;
   filter: blur(1.5px);
   animation-duration: 240s;
 }
 
 /* The bottom banks: big but faint and soft, so the painted clouds show through them. */
-.clouds__layer--low {
+.clouds__layer--low,
+.clouds__corners {
   opacity: 0.45;
   filter: blur(2.5px);
+}
+
+.clouds__layer--low {
   animation-duration: 330s;
+}
+
+/* The corner banks hold still (see CORNERS in DriftingClouds). */
+.clouds__corners {
+  position: absolute;
+  inset: 0;
 }
 
 .cloud {
@@ -568,40 +579,44 @@ a {
   transition: color var(--duration-mode) ease;
 }
 
+/*
+ * Explore My Studio as a little paper label on the page: grainy ivory, a thin pink edge, corners cut
+ * not quite evenly, set on at a slight tilt. Pointing at it straightens it and lifts it a touch, like
+ * a note being touched.
+ */
 .hero__explore {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 20px;
-  padding: 9px 18px 9px 15px;
-  border: 1px solid rgba(239, 184, 200, 0.9);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255, 253, 251, 0.94), rgba(251, 232, 238, 0.9));
+  margin-top: 22px;
+  padding: 8px 16px 8px 15px;
+  border: 1px solid rgba(239, 184, 200, 0.85);
+  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
+  background: var(--paper-grain), #fffaf2;
   color: var(--button-ink);
   font-family: var(--font-heading);
-  font-size: 1.02rem;
-  box-shadow:
-    var(--shadow-sm),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.3);
+  rotate: -1deg;
   cursor: pointer;
   /* The hero itself lets clicks through to the room. */
   pointer-events: auto;
   transition:
-    transform var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) ease,
-    background var(--duration-fast) ease;
+    rotate var(--duration-fast) var(--ease-out),
+    translate var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) ease;
 }
 
+
 .hero__explore:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(180deg, var(--warm-white), var(--rose-tint));
-  box-shadow:
-    var(--shadow-md),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  rotate: 0deg;
+  translate: 0 -1px;
+  box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
 }
 
 .hero__explore:active {
-  transform: none;
+  translate: 0 0;
 }
 
 .hero__explore:focus-visible {
@@ -617,7 +632,7 @@ a {
   transform: translateX(3px);
 }
 
-/* Explore mode's way back: small, in the bottom-left corner, in once the welcome text has gone. */
+/* Explore mode's way back, a paper label like the Explore button: bottom left, in once the welcome text has gone. */
 .explore-back {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom));
@@ -626,23 +641,29 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 14px 6px 10px;
-  border: 1px solid rgba(239, 184, 200, 0.7);
-  border-radius: 12px;
-  background: var(--surface);
+  padding: 6px 14px 6px 11px;
+  border: 1px solid rgba(239, 184, 200, 0.85);
+  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
+  background: var(--paper-grain), #fffaf2;
   color: var(--button-ink);
   font-family: var(--font-heading);
-  font-size: 0.92rem;
-  box-shadow: var(--shadow-sm);
+  font-size: 0.9rem;
+  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.3);
+  rotate: 1deg;
   cursor: pointer;
   transition:
     opacity var(--duration-base) var(--ease-out) 200ms,
     transform var(--duration-base) var(--ease-out) 200ms,
-    background var(--duration-fast) ease;
+    rotate var(--duration-fast) var(--ease-out),
+    translate var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) ease;
 }
 
+/* Like the Explore button's hover. It uses `rotate`/`translate`, apart from the delayed `transform` it appears with. */
 .explore-back:hover {
-  background: var(--rose-tint);
+  rotate: 0deg;
+  translate: 0 -1px;
+  box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
 }
 
 .explore-back svg {
@@ -696,7 +717,6 @@ a {
   position: absolute;
   right: var(--gutter);
   bottom: calc(22px + env(safe-area-inset-bottom));
-  transition: bottom var(--duration-base) var(--ease-out);
   color: var(--hero-ink-soft);
   /* A plain line of small print, not part of the playful chrome. */
   font-family: var(--font-professional);
@@ -718,11 +738,6 @@ a {
   .hero__subtitle {
     display: none;
   }
-}
-
-/* The music player takes the bottom-right corner once the tune has started; the credit steps up above it. */
-.app:has(.music-control) .footer__credit {
-  bottom: calc(64px + env(safe-area-inset-bottom));
 }
 
 /* ---------- Loading screen ---------- */

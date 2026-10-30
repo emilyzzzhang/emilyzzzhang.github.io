@@ -76,6 +76,10 @@
 
 /* ---------- Info panel ---------- */
 
+/*
+ * A page from a personal journal: warm plain paper with nearly square corners, spiral-bound down
+ * the left, the next page peeking out behind, and a strip of washi tape over the top.
+ */
 .panel {
   position: fixed;
   top: calc(var(--navbar-height) + 4px);
@@ -87,12 +91,13 @@
   /* Half the screen, so the room stays at least 50% visible (mirrors panelWidth() in config/layout.ts). */
   width: min(calc(50vw - var(--gutter)), calc(100vw - var(--gutter) * 2));
   max-height: calc(100svh - var(--navbar-height) - var(--gutter) - 4px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid #efe3d6;
+  border-radius: 3px;
+  background: var(--paper);
+  box-shadow:
+    5px 5px 0 -1px #f7efe4,
+    5px 5px 0 0 rgba(120, 70, 85, 0.12),
+    var(--shadow-lg);
   animation: panel-in var(--duration-panel) var(--ease-out) both;
   transition: width var(--duration-panel) var(--ease-out);
 }
@@ -105,6 +110,45 @@
 .panel--leaving {
   animation: panel-out calc(var(--duration-panel) * 0.6) var(--ease-in) both;
   pointer-events: none;
+}
+
+/* Washi tape: pink stripes, torn at both ends, stuck across the top edge. */
+.panel::after {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 44px;
+  z-index: 1;
+  width: 104px;
+  height: 24px;
+  background: repeating-linear-gradient(-45deg, rgba(247, 199, 215, 0.85) 0 7px, rgba(252, 226, 235, 0.85) 7px 14px);
+  clip-path: polygon(3% 0, 97% 0, 100% 20%, 97% 40%, 100% 60%, 97% 80%, 100% 100%, 3% 100%, 0 80%, 3% 60%, 0 40%, 3% 20%, 0 0);
+  transform: rotate(-3deg);
+  pointer-events: none;
+}
+
+/*
+ * The spiral binding: evenly spaced punched holes, each with a soft pink wire coming out of it, over
+ * the page's left edge and round, then back behind the page at the edge, so only the outer curve
+ * shows (desktop; on phones the panel is a bottom sheet). The page edge is 16px into each tile.
+ */
+@media (min-width: 768px) {
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 26px;
+    bottom: 26px;
+    left: -16px;
+    width: 40px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 32'%3E%3Cpath d='M26 18.2C23 15 19.5 13.6 16 13.4' fill='none' stroke='%23785a64' stroke-opacity='.16' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M26.5 16.5C22 11.5 9 10.8 5.5 15C3.4 17.8 7 21.2 16 21.2' fill='none' stroke='%23eaaec2' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M23 13.2C18 11.4 10.5 11.5 7.4 13.8' fill='none' stroke='%23fff' stroke-opacity='.7' stroke-width='1' stroke-linecap='round'/%3E%3Ccircle cx='27.5' cy='17' r='3' fill='%23e3d0d5'/%3E%3Ccircle cx='27.5' cy='17' r='1.9' fill='%23a98a93'/%3E%3C/svg%3E") center top / 40px 32px repeat-y;
+    pointer-events: none;
+  }
+
+  .panel__header,
+  .panel__body,
+  .panel__footer {
+    padding-left: 46px;
+  }
 }
 
 @keyframes panel-in {
@@ -127,7 +171,8 @@
   justify-content: space-between;
   gap: 16px;
   padding: 24px 24px 16px 28px;
-  border-bottom: 1px solid var(--line);
+  /* A perforated line, as if the page could be torn off there. */
+  border-bottom: 1.5px dashed rgba(162, 63, 102, 0.22);
 }
 
 .panel__eyebrow {
@@ -140,6 +185,9 @@
 }
 
 .panel__title {
+  display: inline-block;
+  padding-bottom: 8px;
+  background: var(--pen-squiggle) left bottom / 100% 7px no-repeat;
   font-size: 1.85rem;
   font-weight: 700;
 }
@@ -150,38 +198,30 @@
   gap: 8px;
 }
 
-.panel__close,
+/* Dressed like the tags: soft pink marker, no border, rose ink, square. */
 .panel__expand {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--surface-solid);
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 4px;
+  background: rgba(247, 199, 215, 0.45);
+  color: var(--text-rose);
   cursor: pointer;
   transition:
     transform var(--duration-fast) var(--ease-out),
     background var(--duration-fast);
 }
 
-.panel__close:hover,
 .panel__expand:hover {
-  background: var(--rose-tint);
-}
-
-.panel__close:hover {
-  transform: rotate(90deg);
-}
-
-.panel__expand:hover {
+  background: rgba(247, 199, 215, 0.75);
   transform: scale(1.06);
 }
 
-.panel__close:focus-visible,
 .panel__expand:focus-visible {
-  border-radius: 50%;
+  border-radius: 4px;
 }
 
 .panel__body {
@@ -192,18 +232,37 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 20px 28px 24px;
-  color: var(--ink);
+  color: var(--text-ink);
   font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .panel__footer {
   padding: 12px 24px 16px 28px;
-  border-top: 1px solid var(--line);
+  border-top: 1.5px dashed rgba(162, 63, 102, 0.22);
 }
 
-/* "Back to the room" belongs to the panel's chrome, so it takes the plum ink too. */
+/* "Back to the room": a pink label taped on at a slight angle; it lifts a touch as you point at it. */
 .panel__footer .button--ghost {
-  color: var(--plum-ink);
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 3px;
+  background: rgba(247, 199, 215, 0.8);
+  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.35);
+  color: var(--button-ink);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  transform: rotate(-1.5deg);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) ease;
+}
+
+.panel__footer .button--ghost:hover {
+  background: rgb(247, 199, 215);
+  box-shadow: 0 4px 10px -4px rgba(120, 70, 85, 0.4);
+  transform: rotate(-1.5deg) translateY(-1px);
 }
 
 /* ---------- Section content ---------- */
@@ -211,27 +270,19 @@
 .section {
   display: grid;
   gap: 16px;
-  color: var(--ink-soft);
+  color: var(--text-ink);
 }
 
-.section__intro {
-  color: var(--ink-soft);
-}
-
+/* Picked out with a pink highlighter, as in a notebook. */
 .section__subheading {
-  margin-top: 8px;
-  color: var(--ink);
+  justify-self: start;
+  margin: 8px 0 0 -4px;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: linear-gradient(transparent 55%, rgba(247, 199, 215, 0.75) 55%, rgba(247, 199, 215, 0.75) 92%, transparent 92%);
+  color: var(--button-ink);
   font-size: 1rem;
-  font-weight: 700;
-}
-
-/* The about text reads as one voice: every paragraph in the full ink, the opening one a touch larger. */
-.section--about p {
-  color: var(--ink);
-}
-
-.section--about p:first-child {
-  font-size: 1.08rem;
+  font-weight: 800;
 }
 
 /* Typing out a section's text (see TypedSection): the rest is laid out but invisible, so nothing jumps. */
@@ -264,6 +315,11 @@
   }
 }
 
+.section__subheading::after {
+  content: ' \2661';
+  color: var(--rose-ink);
+}
+
 /* The interests come in once the typing has finished. */
 .section__after-typing {
   display: grid;
@@ -289,18 +345,14 @@
   list-style: none;
 }
 
+/* Small highlighted words in soft pink marker, no border, kept secondary (interests, tech, courses). */
 .tag {
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--rose-tint);
-  color: var(--rose-ink);
-  font-size: 0.8rem;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(247, 199, 215, 0.45);
+  color: var(--text-rose);
+  font-size: 0.75rem;
   font-weight: 600;
-}
-
-.tag--large {
-  padding: 6px 14px;
-  font-size: 0.9rem;
 }
 
 .placeholder {
@@ -316,7 +368,7 @@
 .badge {
   flex-shrink: 0;
   padding: 2px 8px;
-  border-radius: var(--radius-pill);
+  border-radius: 4px;
   background: var(--rose-tint);
   color: var(--rose-ink);
   font-size: 0.7rem;
@@ -327,14 +379,11 @@
 
 /* ---------- Cards ---------- */
 
+/* Project cards: paper notes like the school's (see .education-entry). */
 .card {
   --accent: var(--rose);
   --accent-tint: var(--rose-tint);
   --accent-ink: var(--rose-ink);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface-solid);
-  box-shadow: var(--shadow-sm);
   transition:
     transform var(--duration-base) var(--ease-out),
     box-shadow var(--duration-base) var(--ease-out);
@@ -352,14 +401,12 @@
   --accent-ink: var(--lavender-ink);
 }
 
+/* Titles and writing in the Experience entries' styles: bold burgundy name, warm-grey description. */
 .card h3 {
-  color: var(--ink);
-  font-size: 1.15rem;
-}
-
-.card .tag {
-  background: var(--accent-tint);
-  color: var(--accent-ink);
+  color: var(--button-ink);
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.3;
 }
 
 .project-grid {
@@ -371,13 +418,13 @@
 .project-card {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .project-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 6px 14px -6px rgba(120, 70, 85, 0.35);
+  transform: translateY(-2px);
 }
+
 
 .project-card.is-placeholder {
   border-style: dashed;
@@ -388,6 +435,8 @@
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
+  /* Rounded to sit inside the card's top corners. */
+  border-radius: 7px 7px 0 0;
   background: var(--accent-tint);
 }
 
@@ -403,52 +452,30 @@
   transform: scale(1.03);
 }
 
+/* No screenshot yet: a flat block of the project's colour with its initial, like a photo still to stick in. */
 .project-card__art {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, var(--accent-tint), var(--accent));
+  display: grid;
+  place-items: center;
+  background: var(--accent-tint);
 }
 
 .project-card__monogram {
-  position: absolute;
-  right: 8%;
-  bottom: 2%;
-  font-family: var(--font-heading);
-  font-size: 4.5rem;
-  font-weight: 700;
+  font-size: 3.5rem;
+  font-weight: 800;
   line-height: 1;
-  color: rgba(255, 253, 251, 0.85);
-}
-
-.project-card__shape {
-  position: absolute;
-  width: 46%;
-  aspect-ratio: 1;
-  left: 12%;
-  top: 22%;
-  border-radius: 28%;
-  background: rgba(255, 252, 248, 0.6);
-  transform: rotate(12deg);
-  transition: transform 600ms var(--ease-out);
-}
-
-.project-card__shape--2 {
-  width: 28%;
-  left: 58%;
-  top: 12%;
-  border-radius: 50%;
-  background: rgba(53, 49, 61, 0.12);
-}
-
-.project-card:hover .project-card__shape {
-  transform: rotate(24deg) scale(1.05);
+  color: var(--accent-ink);
+  opacity: 0.4;
 }
 
 .project-card__content {
   display: grid;
   gap: 10px;
   padding: 16px 18px 18px;
-  font-size: 0.93rem;
+  color: var(--text-ink);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .project-card__heading {
@@ -462,123 +489,211 @@
   display: flex;
   gap: 16px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
-/* ---------- Experience timeline ---------- */
+.project-card__links a {
+  color: var(--text-rose);
+}
 
+/* ---------- Experience: journal entries ---------- */
+
+/* A thin, slightly wobbly pen line down the page, with a small hollow circle at each entry. */
 .timeline {
   position: relative;
   display: grid;
-  gap: 16px;
   margin: 0;
-  padding: 0 0 0 28px;
+  padding: 0 0 0 30px;
   list-style: none;
 }
 
 .timeline::before {
   content: '';
   position: absolute;
-  top: 12px;
-  bottom: 12px;
-  left: 8px;
-  width: 2px;
-  border-radius: 2px;
-  background: linear-gradient(var(--rose), var(--peach-deep), var(--lavender));
+  top: 10px;
+  bottom: 10px;
+  left: 6px;
+  width: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 40'%3E%3Cpath d='M3 0c-1.6 7 1.6 13 0 20s1.6 13 0 20' fill='none' stroke='%23a23f66' stroke-opacity='.35' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") center top / 6px 40px repeat-y;
 }
 
 .timeline__item {
   position: relative;
+  padding-bottom: 28px;
 }
 
+/* Entries are parted by a soft pink dashed line, like a gap left between days. */
+.timeline__item + .timeline__item {
+  padding-top: 26px;
+  border-top: 1.5px dashed rgba(239, 184, 200, 0.9);
+}
+
+/* A small pink marker level with the company name. */
 .timeline__item::before {
   content: '';
   position: absolute;
-  top: 22px;
-  left: -26px;
-  width: 14px;
-  height: 14px;
-  border: 3px solid var(--surface-solid);
+  top: 6px;
+  left: -28px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid #e29ab4;
   border-radius: 50%;
-  background: var(--charcoal);
-  box-shadow: 0 0 0 1px var(--line);
+  background: var(--paper);
 }
 
-.experience-card {
+.timeline__item + .timeline__item::before {
+  top: 32px;
+}
+
+/*
+ * One entry, in three styles: Nunito for the writing (bold burgundy company, medium warm-grey
+ * role, regular description), and Caveat, the room's handwriting, for the little location note.
+ */
+.experience-entry {
   display: grid;
-  gap: 10px;
-  padding: 18px 20px;
-  border-left: 4px solid var(--accent);
-  font-size: 0.95rem;
+  gap: 4px;
+  justify-items: start;
 }
 
-.experience-card__header {
+.experience-entry__header {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 4px 16px;
+  gap: 2px 16px;
+  justify-self: stretch;
 }
 
-.experience-card__role {
-  color: var(--ink);
+.experience-entry__company {
+  color: var(--button-ink);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.005em;
+  line-height: 1.3;
+}
+
+/* A little note in the margin, in the room's handwriting. */
+.experience-entry__meta {
+  color: var(--text-rose);
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.experience-entry__role {
+  color: var(--text-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.experience-entry__role span {
+  color: var(--text-rose);
   font-weight: 500;
 }
 
-.experience-card__role span {
-  color: var(--accent-ink);
+/*
+ * The description sits on faint ruled lines. Its line height matches the rule spacing, and each
+ * rule is drawn just under Nunito's baseline (about 16px down a 22px line at this size), so the
+ * text rests on its line as if written there.
+ */
+.experience-entry__notes {
+  --rule: 22px;
+  margin-top: 4px;
+  color: var(--text-ink);
+  font-size: 0.9rem;
+  line-height: var(--rule);
+  background: linear-gradient(transparent 17px, rgba(162, 63, 102, 0.1) 17px, rgba(162, 63, 102, 0.1) 18px, transparent 18px) 0 0 / 100% var(--rule);
 }
 
-.experience-card__meta {
-  color: var(--ink-faint);
-  font-size: 0.85rem;
-}
-
-.experience-card__highlights {
-  margin: 0;
-  padding-left: 18px;
+.experience-entry .tags {
+  margin-top: 8px;
 }
 
 /* ---------- Education ---------- */
 
-.education-card {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 20px;
-  background: linear-gradient(135deg, var(--surface-solid) 40%, var(--peach-tint));
+/*
+ * A paper note pasted into the journal (the school, projects, the ways to get in touch): soft ivory
+ * with a thin pink edge and a light shadow; the school's is taped on at a corner.
+ */
+.education-entry,
+.contact-link,
+.card {
+  position: relative;
+  border: 1px solid rgba(239, 184, 200, 0.7);
+  border-radius: 8px;
+  background: #fffdf8;
+  box-shadow: 0 2px 8px -4px rgba(120, 70, 85, 0.28);
 }
 
-.education-card__logo {
-  flex: none;
-  width: 56px;
-  height: auto;
+.education-entry::before {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: -12px;
+  width: 58px;
+  height: 18px;
+  background: repeating-linear-gradient(-45deg, rgba(247, 199, 215, 0.85) 0 6px, rgba(252, 226, 235, 0.85) 6px 12px);
+  clip-path: polygon(4% 0, 96% 0, 100% 25%, 96% 50%, 100% 75%, 96% 100%, 4% 100%, 0 75%, 4% 50%, 0 25%);
+  transform: rotate(-32deg);
+  pointer-events: none;
 }
 
-.education-card__body {
+/*
+ * The school's note: the crest on the left, the name (underlined in pink) and degree beside it, and
+ * the year as a handwritten note in the top right.
+ */
+.education-entry {
   display: grid;
-  gap: 4px;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 14px;
+  margin: 6px 0 4px;
+  padding: 16px 18px;
 }
 
-.education-card h3 {
-  font-size: 1.35rem;
+.education-entry__logo {
+  width: auto;
+  height: 46px;
 }
 
-.education-card__degree {
-  color: var(--ink);
-  font-weight: 500;
+.education-entry__body {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
 }
 
-.education-card__meta {
-  margin-top: 6px;
+.education-entry h3 {
+  padding-bottom: 3px;
+  border-bottom: 1.5px solid rgba(239, 184, 200, 0.95);
+  color: var(--button-ink);
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.education-entry__meta {
+  color: var(--text-rose);
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.education-entry__degree {
+  color: var(--text-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 /* ---------- Contact ---------- */
 
+/* Each way to reach out is a paper note like the school's (see .education-entry). */
 .contact-list {
   display: grid;
-  gap: 10px;
-  margin: 0;
+  gap: 16px;
+  margin: 12px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -586,47 +701,57 @@
 .contact-link {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface-solid);
-  color: var(--ink);
+  gap: 16px;
+  padding: 14px 18px;
+  color: var(--text-ink);
   text-decoration: none;
   transition:
     transform var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast);
-}
-
-a.contact-link:hover {
-  transform: translateX(3px);
-  box-shadow: var(--shadow-md);
-}
-
-.contact-link--empty {
-  border-style: dashed;
+    box-shadow var(--duration-fast) ease;
 }
 
 .contact-link__icon {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
-  border-radius: 12px;
-  background: var(--rose-tint);
   color: var(--rose-ink);
+  transition: transform var(--duration-fast) var(--ease-out);
 }
 
+/* The label like an entry's name; the address below like its writing. */
 .contact-link__label {
   display: block;
-  font-weight: 600;
+  color: var(--button-ink);
+  font-size: 0.95rem;
+  font-weight: 800;
 }
 
 .contact-link__value {
   display: block;
-  color: var(--ink-soft);
-  font-size: 0.9rem;
+  color: var(--text-ink);
+}
+
+
+/* Pointing at one lifts it a touch and tilts its icon. */
+a.contact-link:hover {
+  box-shadow: 0 6px 14px -6px rgba(120, 70, 85, 0.35);
+  transform: translateY(-1px);
+}
+
+a.contact-link:hover .contact-link__icon {
+  transform: rotate(-6deg);
+}
+
+/* A little handwritten sign-off, as at the end of a letter. */
+.contact-signoff {
+  margin-top: 14px;
+  color: var(--text-rose);
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-align: right;
 }
 
 /* ---------- Résumé ---------- */
@@ -718,7 +843,8 @@ a.contact-link:hover {
     bottom: 0;
     width: auto;
     max-height: 68svh;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-radius: 3px 3px 0 0;
+    box-shadow: var(--shadow-lg);
     animation-name: sheet-in;
   }
 
@@ -749,11 +875,6 @@ a.contact-link:hover {
 
   .panel__title {
     font-size: 1.5rem;
-  }
-
-  .panel__close {
-    width: 46px;
-    height: 46px;
   }
 
   .panel__body {
@@ -790,120 +911,5 @@ a.contact-link:hover {
 
   .scene-fallback {
     padding-top: calc(var(--navbar-height) + 140px);
-  }
-}
-
-/* ---------- Music control (floating player for the guitar's tune) ---------- */
-
-.music-control {
-  position: fixed;
-  right: var(--gutter);
-  bottom: calc(16px + env(safe-area-inset-bottom));
-  z-index: calc(var(--z-panel) + 1);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 5px 5px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: var(--radius-pill);
-  background: var(--surface-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: var(--shadow-sm);
-  color: var(--plum-soft);
-  font-family: var(--font-heading);
-  font-size: 0.8rem;
-  font-weight: 700;
-  animation: music-in var(--duration-base) var(--ease-out);
-}
-
-.music-control__label {
-  margin-right: 2px;
-  white-space: nowrap;
-}
-
-.music-control__button {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.75);
-  color: var(--plum-ink);
-  cursor: pointer;
-  transition: background var(--duration-base);
-}
-
-/* Hover only where there's a real pointer: on touch screens it would stick after a tap. */
-@media (hover: hover) {
-  .music-control__button:hover {
-    background: var(--pink);
-  }
-}
-
-.music-control__button[aria-pressed='true'] {
-  background: var(--blush);
-}
-
-/* Three little equaliser bars: still while paused or muted, gently bouncing while the tune plays. */
-.music-control__bars {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 12px;
-}
-
-.music-control__bars span {
-  width: 3px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--rose);
-}
-
-.music-control--playing .music-control__bars span {
-  animation: music-bar 0.9s ease-in-out infinite alternate;
-}
-
-.music-control--playing .music-control__bars span:nth-child(2) {
-  animation-delay: -0.3s;
-}
-
-.music-control--playing .music-control__bars span:nth-child(3) {
-  animation-delay: -0.6s;
-}
-
-@keyframes music-bar {
-  to {
-    height: 12px;
-  }
-}
-
-@keyframes music-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
-@media (max-width: 767px) {
-  .music-control__label {
-    display: none;
-  }
-
-  /* The bottom sheet covers the lower screen, so the player moves up beside the room. */
-  .app--panel-open .music-control {
-    top: calc(var(--navbar-height) + 8px);
-    right: var(--gutter);
-    bottom: auto;
-    left: auto;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .music-control,
-  .music-control--playing .music-control__bars span {
-    animation: none;
   }
 }

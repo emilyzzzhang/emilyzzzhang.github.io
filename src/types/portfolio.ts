@@ -39,11 +39,10 @@ export interface Experience {
   company: string;
   role: string;
   focus: string;
+  /** A short, high-level note on the work; the details live on the résumé. */
   summary: string;
-  /** Optional — omitted from the card when undefined. */
-  period?: string;
+  /** Optional — omitted from the entry when undefined. */
   location?: string;
-  highlights: string[];
   tags: string[];
   accent: Accent;
 }

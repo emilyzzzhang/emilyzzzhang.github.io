@@ -128,28 +128,35 @@ const LOW: Cloud[] = [
   { x: 90, y: 72, width: 30, shape: 'heap' },
 ];
 
+/**
+ * Banks that stay put in the bottom corners rather than drifting by, so the corners are always
+ * clouded like the painting's; they still follow the camera with the low layer. Positions are
+ * percent of the (oversized) pan itself: about 17–83% across and 15–85% down is on screen.
+ */
+const CORNERS: Cloud[] = [
+  { x: 8, y: 79, width: 44, shape: 'cumulus' },
+  { x: 13, y: 73, width: 32, shape: 'heap' },
+  { x: 24, y: 83, width: 22, shape: 'wisp' },
+  { x: 63, y: 83, width: 24, shape: 'wisp' },
+  { x: 67, y: 80, width: 44, shape: 'cumulus' },
+  { x: 72, y: 74, width: 30, shape: 'heap' },
+];
+
+function CloudPuff({ x, y, width, shape }: Cloud) {
+  return (
+    <span
+      className="cloud"
+      style={{ left: `${x}%`, top: `${y}%`, width: `${width}vw`, aspectRatio: SHAPES[shape].aspect, background: BACKGROUNDS[shape] } as CSSProperties}
+    />
+  );
+}
+
 function Layer({ clouds, depth }: { clouds: Cloud[]; depth: 'far' | 'near' | 'low' }) {
   return (
     // The outer layer follows the camera (parallax); the inner one drifts on its own loop.
     <div className={`clouds__pan clouds__pan--${depth}`}>
       <div className={`clouds__layer clouds__layer--${depth}`}>
-        {[0, 1].map((copy) =>
-          clouds.map(({ x, y, width, shape }, i) => (
-            <span
-              key={`${copy}-${i}`}
-              className="cloud"
-              style={
-                {
-                  left: `${(copy * 100 + x) / 2}%`,
-                  top: `${y}%`,
-                  width: `${width}vw`,
-                  aspectRatio: SHAPES[shape].aspect,
-                  background: BACKGROUNDS[shape],
-                } as CSSProperties
-              }
-            />
-          )),
-        )}
+        {[0, 1].map((copy) => clouds.map((cloud, i) => <CloudPuff key={`${copy}-${i}`} {...cloud} x={(copy * 100 + cloud.x) / 2} />))}
       </div>
     </div>
   );
@@ -162,6 +169,13 @@ export const DriftingClouds = memo(function DriftingClouds() {
       <Layer clouds={FAR} depth="far" />
       <Layer clouds={NEAR} depth="near" />
       <Layer clouds={LOW} depth="low" />
+      <div className="clouds__pan clouds__pan--low">
+        <div className="clouds__corners">
+          {CORNERS.map((cloud, i) => (
+            <CloudPuff key={i} {...cloud} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 });

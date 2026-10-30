@@ -7,8 +7,8 @@ import { SceneErrorBoundary, SceneFallback } from './components/layout/SceneFall
 import { DriftingClouds } from './components/layout/DriftingClouds';
 import { StarrySky } from './components/layout/StarrySky';
 import { InfoPanel } from './components/ui/InfoPanel';
-import { MusicControl } from './components/ui/MusicControl';
 import { MOBILE_BREAKPOINT } from './config/layout';
+import { useGuitarVisit } from './hooks/useGuitarVisit';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { useMochiVisit } from './hooks/useMochiVisit';
 import { useOutsideClick } from './hooks/useOutsideClick';
@@ -48,39 +48,50 @@ export default function App() {
   const mochi = useMochiVisit(reducedMotion);
   const endMochiVisit = mochi.end;
   const startMochiVisit = mochi.start;
+  const guitar = useGuitarVisit(reducedMotion);
+  const endGuitarVisit = guitar.end;
+  const startGuitarVisit = guitar.start;
 
   const openSection = useCallback((id: SectionId) => {
     setSection(id);
     setPanelExpanded(false);
     endMochiVisit();
-  }, [endMochiVisit]);
+    endGuitarVisit();
+  }, [endMochiVisit, endGuitarVisit]);
 
   const closeSection = useCallback(() => {
     setSection(null);
     setPanelExpanded(false);
     endMochiVisit();
-  }, [endMochiVisit]);
+    endGuitarVisit();
+  }, [endMochiVisit, endGuitarVisit]);
   const visitMochi = useCallback(() => {
     if (!startMochiVisit()) return;
     setSection(null);
     setPanelExpanded(false);
-  }, [startMochiVisit]);
+    endGuitarVisit();
+  }, [startMochiVisit, endGuitarVisit]);
 
-  // Clicking elsewhere or Escape zooms out early.
+  // A close-up of Mochi or the guitar: clicking elsewhere or Escape zooms out early.
   const mochiFocused = mochi.phase !== null;
-  useOutsideClick(mochiFocused, closeSection);
+  const closeUp = mochiFocused || guitar.visiting;
+  useOutsideClick(closeUp, closeSection);
   useEffect(() => {
-    if (!mochiFocused) return;
+    if (!closeUp) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeSection();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [mochiFocused, closeSection]);
+  }, [closeUp, closeSection]);
+  // A click on the guitar starting its tune: visit it, unless a section or Mochi already has the camera.
+  const visitGuitar = useCallback(() => {
+    if (section === null && !mochiFocused) startGuitarVisit();
+  }, [section, mochiFocused, startGuitarVisit]);
   const togglePanelExpanded = useCallback(() => setPanelExpanded((e) => !e), []);
 
   const startExploring = useCallback(() => setExploring(true), []);
   const stopExploring = useCallback(() => setExploring(false), []);
   // Back is only offered over the bare room, so Escape follows it; a panel or Mochi takes Escape first.
-  const canGoBack = exploring && section === null && !mochiFocused;
+  const canGoBack = exploring && section === null && !closeUp;
   useEffect(() => {
     if (!canGoBack) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && stopExploring();
@@ -154,6 +165,8 @@ export default function App() {
                     onMiss={closeSection}
                     mochiVisit={mochi.phase}
                     onMochiClick={visitMochi}
+                    guitarVisit={guitar.visiting}
+                    onGuitarPlay={visitGuitar}
                     timeOfDay={timeOfDay}
                     reducedMotion={reducedMotion}
                     lowPower={isMobile}
@@ -169,10 +182,10 @@ export default function App() {
             </p>
           </div>
 
-          <Hero dimmed={section !== null || mochiFocused || exploring} onExplore={startExploring} />
+          <Hero dimmed={section !== null || closeUp || exploring} onExplore={startExploring} />
           <button type="button" className={`explore-back${canGoBack ? '' : ' explore-back--hidden'}`} onClick={stopExploring} inert={!canGoBack}>
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-              <path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M13.5 8.4c-3-.6-6.4-.2-9.7-.8M7.3 4.6C6 5.9 4.7 6.9 3.7 7.9c1.2 1 2.4 2.3 3.5 3.6" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Back
           </button>
@@ -186,7 +199,6 @@ export default function App() {
         </main>
 
         <Footer />
-        <MusicControl />
         {!sceneFailed && <LoadingScreen done={sceneReady} stage={sceneCodeLoaded ? 'building' : 'fetching'} />}
       </div>
     </MusicProvider>

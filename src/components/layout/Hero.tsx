@@ -10,7 +10,7 @@ export function Hero({ dimmed, onExplore }: { dimmed: boolean; onExplore: () => 
       <button type="button" className="hero__explore" onClick={onExplore}>
         Explore My Studio
         <svg className="hero__explore-arrow" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-          <path d="M3 8h9.5M8.5 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M2.5 8.6c3-.6 6.4-.2 9.7-.8M8.7 4.6c1.3 1.3 2.6 2.3 3.6 3.3-1.2 1-2.4 2.3-3.5 3.6" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
     </section>

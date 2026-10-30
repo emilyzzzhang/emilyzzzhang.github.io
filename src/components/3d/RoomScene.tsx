@@ -21,7 +21,7 @@ import { DeskLamp, Envelope, Mug, PencilCup, Succulent } from './DeskItems';
 import { InteractiveObject } from './InteractiveObject';
 import { Lighting } from './Lighting';
 import { Mochi } from './Mochi';
-import { PlayableGuitar } from './PlayableGuitar';
+import { GuitarPlayContext, PlayableGuitar } from './PlayableGuitar';
 import { LightenWhileOrbiting, PauseWhenHidden, ReadyAfterFirstFrame, ShadowsOnDemand, useAdaptivePixelRatio, ZoomWatcher } from './renderQuality';
 import { ReplaceableModel } from './ReplaceableModel';
 import { RoomEnvironment } from './RoomEnvironment';
@@ -41,6 +41,10 @@ export interface RoomSceneProps {
   /** Mochi's close-up, if one is under way (no section is open then). */
   mochiVisit: MochiVisit | null;
   onMochiClick: () => void;
+  /** The camera is visiting the guitar while its tune starts (no section or Mochi visit is open then). */
+  guitarVisit: boolean;
+  /** A click on the guitar started its tune. */
+  onGuitarPlay: () => void;
   timeOfDay: TimeOfDay;
   reducedMotion: boolean;
   lowPower: boolean;
@@ -126,7 +130,7 @@ const PIECES = {
   envelope: <Envelope />,
 };
 
-export default function RoomScene({ activeSection, panelExpanded, exploring, onSelect, onMiss, mochiVisit, onMochiClick, timeOfDay, reducedMotion, lowPower, onReady }: RoomSceneProps) {
+export default function RoomScene({ activeSection, panelExpanded, exploring, onSelect, onMiss, mochiVisit, onMochiClick, guitarVisit, onGuitarPlay, timeOfDay, reducedMotion, lowPower, onReady }: RoomSceneProps) {
   const mochiFocused = mochiVisit !== null;
   const interactive = (section: SectionId) => ({
     section,
@@ -136,7 +140,7 @@ export default function RoomScene({ activeSection, panelExpanded, exploring, onS
   });
 
   const [zoomedIn, setZoomedIn] = useState(false);
-  const dpr = useAdaptivePixelRatio(activeSection !== null || mochiFocused || zoomedIn, lowPower, reducedMotion);
+  const dpr = useAdaptivePixelRatio(activeSection !== null || mochiFocused || guitarVisit || zoomedIn, lowPower, reducedMotion);
 
   return (
     <Canvas
@@ -151,38 +155,40 @@ export default function RoomScene({ activeSection, panelExpanded, exploring, onS
       <DayNightProvider mode={timeOfDay} reducedMotion={reducedMotion}>
         <Lighting lowPower={lowPower} />
         <SkyParallax />
-        <CameraController focus={activeSection ?? (mochiFocused ? 'mochi' : null)} panelExpanded={panelExpanded} exploring={exploring} reducedMotion={reducedMotion} />
+        <CameraController focus={activeSection ?? (mochiFocused ? 'mochi' : guitarVisit ? 'guitar' : null)} panelExpanded={panelExpanded} exploring={exploring} reducedMotion={reducedMotion} />
         <ZoomWatcher onChange={setZoomedIn} />
         <PauseWhenHidden />
         <ShadowsOnDemand />
         <LightenWhileOrbiting />
         <ReadyAfterFirstFrame onReady={onReady} />
 
-        <ShadowSetup>
-          {FURNISHINGS}
+        <GuitarPlayContext value={onGuitarPlay}>
+          <ShadowSetup>
+            {FURNISHINGS}
 
-          <Mochi position={mochiBed.position} rotationY={mochiBed.rotationY} reducedMotion={reducedMotion} idle={activeSection === null} visit={mochiVisit} onClick={onMochiClick} />
+            <Mochi position={mochiBed.position} rotationY={mochiBed.rotationY} reducedMotion={reducedMotion} idle={activeSection === null} visit={mochiVisit} onClick={onMochiClick} />
 
-          <InteractiveObject {...interactive('projects')} position={ANCHORS.computer} labelOffset={[0, 1.5, 0]}>
-            {PIECES.computer}
-          </InteractiveObject>
-          <InteractiveObject {...interactive('education')} position={ANCHORS.bookshelf} rotation={FACE_PLUS_X} labelOffset={[0.35, 4.15, 0.2]}>
-            {PIECES.bookshelf}
-          </InteractiveObject>
-          <InteractiveObject {...interactive('experience')} position={ANCHORS.gallery} labelOffset={[0, 0.82, 0.25]}>
-            {PIECES.gallery}
-          </InteractiveObject>
-          {/* The whole inspiration board opens the résumé pinned to it. */}
-          <InteractiveObject {...interactive('resume')} position={ANCHORS.resumePoster} rotation={FACE_PLUS_X} labelOffset={[0, 0.9, 0.2]} hoverLift={[0, 0, 0.04]}>
-            {PIECES.board}
-          </InteractiveObject>
-          <InteractiveObject {...interactive('about')} position={ANCHORS.mug} labelOffset={[0, 0.8, 0]}>
-            {PIECES.mug}
-          </InteractiveObject>
-          <InteractiveObject {...interactive('contact')} position={ANCHORS.envelope} labelOffset={[0, 0.55, 0]} hoverScale={0.12} hoverLift={[0, 0.06, 0]}>
-            {PIECES.envelope}
-          </InteractiveObject>
-        </ShadowSetup>
+            <InteractiveObject {...interactive('projects')} position={ANCHORS.computer} labelOffset={[0, 1.5, 0]}>
+              {PIECES.computer}
+            </InteractiveObject>
+            <InteractiveObject {...interactive('education')} position={ANCHORS.bookshelf} rotation={FACE_PLUS_X} labelOffset={[0.35, 4.15, 0.2]}>
+              {PIECES.bookshelf}
+            </InteractiveObject>
+            <InteractiveObject {...interactive('experience')} position={ANCHORS.gallery} labelOffset={[0, 0.82, 0.25]}>
+              {PIECES.gallery}
+            </InteractiveObject>
+            {/* The whole inspiration board opens the résumé pinned to it. */}
+            <InteractiveObject {...interactive('resume')} position={ANCHORS.resumePoster} rotation={FACE_PLUS_X} labelOffset={[0, 0.9, 0.2]} hoverLift={[0, 0, 0.04]}>
+              {PIECES.board}
+            </InteractiveObject>
+            <InteractiveObject {...interactive('about')} position={ANCHORS.mug} labelOffset={[0, 0.8, 0]}>
+              {PIECES.mug}
+            </InteractiveObject>
+            <InteractiveObject {...interactive('contact')} position={ANCHORS.envelope} labelOffset={[0, 0.55, 0]} hoverScale={0.12} hoverLift={[0, 0.06, 0]}>
+              {PIECES.envelope}
+            </InteractiveObject>
+          </ShadowSetup>
+        </GuitarPlayContext>
       </DayNightProvider>
     </Canvas>
   );

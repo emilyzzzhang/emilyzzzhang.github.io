@@ -1,19 +1,15 @@
 import type { Experience } from '../types/portfolio';
 
+// A short, high-level note per role; the full details (and dates) are on the résumé.
 export const experience: Experience[] = [
   {
     id: 'google',
     company: 'Google',
     role: 'Software Developer Intern',
     focus: 'Android XR',
-    summary: 'Display and calibration tooling for Gemini-powered Android XR smart glasses.',
-    period: 'May 2025 – Aug 2025',
+    summary:
+      'I worked on display calibration and testing tools for Android XR smart glasses. My main projects involved building Python algorithms to improve color accuracy, automating display testing through ADB, and creating a command-line tool to make hardware debugging easier.',
     location: 'Waterloo, ON',
-    highlights: [
-      'Reduced color calibration preprocessing errors by 50% across lighting conditions with a Python statistical algorithm for pattern detection in noisy sensor data.',
-      'Doubled API verification throughput by building an automated display API validation pipeline with ADB device orchestration and quantitative testing.',
-      'Cut hardware and calibration debugging time by 50% with a Protobuf-based CLI diagnostic tool for device-data processing, reporting and visualization.',
-    ],
     tags: ['Python', 'Android XR', 'ADB', 'Protobuf'],
     accent: 'lavender',
   },
@@ -21,14 +17,10 @@ export const experience: Experience[] = [
     id: 'autodesk',
     company: 'Autodesk',
     role: 'Software Developer Intern',
-    focus: '3D software & OpenUSD',
-    summary: 'OpenUSD workflows in Maya and 3ds Max.',
-    period: 'Sept 2024 – Dec 2024',
-    location: 'Montreal, QC',
-    highlights: [
-      'Implemented OpenUSD light-linking support in Maya and 3ds Max, enabling native light-to-object relationships in USD scenes and reducing manual setup effort by 40%.',
-      'Built a Qt light selection widget with type-ahead search and USD path handling, reducing light-assignment time by 60% in large production scenes.',
-    ],
+    focus: '3D Software & OpenUSD',
+    summary:
+      'I worked on light linking features for Maya and 3ds Max using OpenUSD, which lets artists control how different lights affect objects in a 3D scene. I also built a Qt-based light selection tool with search functionality to make working with large scenes easier.',
+    location: 'Montréal, QC',
     tags: ['C++', 'Python', 'Qt', 'OpenUSD', 'Maya', '3ds Max'],
     accent: 'rose',
   },
@@ -36,13 +28,10 @@ export const experience: Experience[] = [
     id: 'cibc',
     company: 'CIBC',
     role: 'AI/ML Software Developer Intern',
-    focus: 'Retrieval & document automation',
-    summary: 'Production AI systems for internal knowledge retrieval and compliance automation.',
+    focus: 'AI Systems & Document Automation',
+    summary:
+      'I worked on AI tools to help automate internal workflows. One project was a RAG platform that combines vector search, keyword search, and reranking to retrieve more relevant information. I also worked on a mortgage document validation system using Databricks and AI-based document classification to automate parts of the review process.',
     location: 'Toronto, ON',
-    highlights: [
-      'Developed a production RAG platform with an MCP integration layer using LangChain and Qdrant, combining vector search, BM25 and reranking to improve retrieval relevance by 20%.',
-      'Implemented a mortgage validation engine on Databricks PySpark and Delta Lake, orchestrating AI document classification to cut manual review effort by 30%.',
-    ],
     tags: ['Python', 'LangChain', 'Qdrant', 'MCP', 'PySpark', 'Databricks'],
     accent: 'peach',
   },
@@ -50,13 +39,11 @@ export const experience: Experience[] = [
     id: 'mcgill-research',
     company: 'McGill University',
     role: 'Undergraduate Research Assistant',
-    focus: 'Rehabilitation technology',
-    summary: 'Motion-capture tooling supporting post-stroke motor rehabilitation research (atrehab.ca).',
-    location: 'Montreal, QC',
-    highlights: [
-      'Developed a Python biomechanical data pipeline for motion-capture and IMU sensor data, automating ingestion, signal processing, 3D movement reconstruction and upper-body classification.',
-    ],
-    tags: ['Python', 'Signal processing', 'Motion capture', 'IMU'],
+    focus: 'Rehabilitation Technology',
+    summary:
+      'I worked on a research project focused on using motion data to support stroke rehabilitation. I built Python pipelines to process motion-capture and IMU sensor data, visualize 3D movements, and help classify different upper-body motions.',
+    location: 'Montréal, QC',
+    tags: ['Python', 'Signal Processing', 'Motion Capture', 'IMU'],
     accent: 'lavender',
   },
 ];

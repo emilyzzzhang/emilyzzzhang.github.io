@@ -55,6 +55,9 @@ export function ContactSection() {
           </li>
         ))}
       </ul>
+      <p className="contact-signoff" aria-hidden="true">
+        talk soon ♡
+      </p>
     </TypedSection>
   );
 }

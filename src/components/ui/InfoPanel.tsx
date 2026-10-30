@@ -89,11 +89,6 @@ export function InfoPanel({ section, expanded, onToggleExpanded, onClose, render
               />
             </svg>
           </button>
-          <button type="button" className="panel__close" onClick={onClose} aria-label={`Close ${meta.title} and return to the room`}>
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
         </div>
       </header>
       <div className="panel__body">{renderContent(shown)}</div>

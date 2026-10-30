@@ -14,8 +14,6 @@ export function ProjectCard({ project }: { project: Project }) {
           <img src={`${import.meta.env.BASE_URL}${image.src}`} alt={image.alt} loading="lazy" onError={() => setImageFailed(true)} />
         ) : (
           <div className="project-card__art" aria-hidden="true">
-            <span className="project-card__shape" />
-            <span className="project-card__shape project-card__shape--2" />
             <span className="project-card__monogram">{title.charAt(0)}</span>
           </div>
         )}

@@ -7,7 +7,7 @@ export function AboutSection() {
       <h3 className="section__subheading">What I'm into</h3>
       <ul className="tags">
         {profile.interests.map((interest) => (
-          <li key={interest} className="tag tag--large">
+          <li key={interest} className="tag">
             {interest}
           </li>
         ))}

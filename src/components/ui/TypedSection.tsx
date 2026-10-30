@@ -18,7 +18,7 @@ interface TypedSectionProps {
   paragraphs: string[];
   className?: string;
   paragraphClassName?: string;
-  /** Scroll the panel to follow the typing when it runs past the bottom. */
+  /** Scroll the panel to follow the typing (and what follows it) when it runs past the bottom. */
   follow?: boolean;
   /** The rest of the section, which fades in once the typing has finished. */
   children?: ReactNode;
@@ -28,7 +28,8 @@ interface TypedSectionProps {
  * A section whose text types itself out each time it opens, like a little dialogue; a click shows
  * it all at once. Untyped text is laid out but invisible, so the panel never jumps, and the full
  * text is always there for screen readers. With `follow`, if the text runs past the bottom of the
- * panel, the panel scrolls to keep the line being typed in view, until the visitor scrolls it themselves.
+ * panel, the panel scrolls to keep the line being typed in view, and then on to what fades in after
+ * it, until the visitor scrolls it themselves.
  */
 export function TypedSection({ paragraphs, className = 'section', paragraphClassName, follow = false, children }: TypedSectionProps) {
   const { shown, done, skip } = useTypewriter(paragraphs, useReducedMotion());
@@ -51,14 +52,15 @@ export function TypedSection({ paragraphs, className = 'section', paragraphClass
     };
   }, []);
 
-  // Keep the line being typed in view. Once it's done, the panel stays where it is.
+  // Keep the line being typed in view, then carry on down to what fades in after it (the interests).
   useEffect(() => {
     const scroller = scrollerRef.current;
-    if (!scroller || !following.current || !caret.current) return;
-    const bottom = caret.current.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top + scroller.scrollTop;
-    const top = bottom + FOLLOW_MARGIN - scroller.clientHeight;
+    const target = done ? root.current : caret.current;
+    if (!scroller || !following.current || !target) return;
+    const bottom = target.getBoundingClientRect().bottom - scroller.getBoundingClientRect().top + scroller.scrollTop;
+    const top = bottom + (done ? 0 : FOLLOW_MARGIN) - scroller.clientHeight;
     if (top > scroller.scrollTop) scroller.scrollTo({ top, behavior: 'smooth' });
-  }, [shown]);
+  }, [shown, done]);
 
   let offset = 0;
 

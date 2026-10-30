@@ -36,15 +36,18 @@ const [bx, , bz] = ANCHORS.bookshelf;
 const [gx, gy, gz] = ANCHORS.gallery;
 const [, , rz] = ANCHORS.resumePoster;
 
-/** What the camera can close in on: a section's object, or Mochi (no panel) after she wakes. */
-export type CameraFocus = SectionId | 'mochi';
+/** What the camera can close in on: a section's object, or Mochi or the guitar (no panel beside either). */
+export type CameraFocus = SectionId | 'mochi' | 'guitar';
 
 const [kx, , kz] = PLACEMENTS.mochiBed.position;
+const [ux, , uz] = ANCHORS.guitar;
 
 /** Close-up framing for each focusable object. */
 export const FOCUS_VIEWS: Record<CameraFocus, CameraPreset> = {
   // Aimed a little above her so the speech bubble over her ears is in frame too.
   mochi: { position: [kx + 1.0, 1.35, kz + 1.7], target: [kx + 0.1, 0.55, kz + 0.1] },
+  // Nearly face on (the guitar is turned GUITAR_TURN towards the room), looking over the basket in front.
+  guitar: { position: [ux + 2.3, 1.8, uz + 3.0], target: [ux, 1.05, uz] },
   projects: { position: [cx + 0.8, 3.5, 0.75], target: [cx, DESK.height + 0.7, cz] },
   about: { position: [mx + 1.9, 3.0, mz + 2.6], target: [mx, DESK.height + 0.2, mz] },
   contact: { position: [ex + 0.9, 3.25, ez + 2.6], target: [ex, DESK.height + 0.1, ez] },
@@ -148,7 +151,8 @@ const ROOM_BOX: Vec3[] = (() => {
 /**
  * Explore mode's framing: how far along EXPLORE_VIEW's ray the camera sits (as for scalePreset)
  * so the room fills EXPLORE_COVER of the screen, and the view shift (fractions of the viewport,
- * for setViewOffset) that centres it in the space below the tabs, nudged EXPLORE_NUDGE_RIGHT right.
+ * for setViewOffset) that centres it across, nudged EXPLORE_NUDGE_RIGHT right, with its cornice just
+ * under the tabs as in the overview.
  */
 export function exploreFit(width: number, height: number, clearTop: number) {
   const camera = new PerspectiveCamera(CAMERA.fov, width / height, CAMERA.near, CAMERA.far);
@@ -168,11 +172,11 @@ export function exploreFit(width: number, height: number, clearTop: number) {
     const { left, right, top, bottom } = measure(scale);
     scale *= Math.max((right - left) / 2, (top - bottom) / 2) / EXPLORE_COVER;
   }
-  const { left, right, top, bottom } = measure(scale);
+  const { left, right, top } = measure(scale);
   const bandTop = 1 - (2 * clearTop) / height;
   return {
     scale,
-    shift: { x: (left + right) / 4 - EXPLORE_NUDGE_RIGHT, y: ((bandTop - 1) / 2 - (top + bottom) / 2) / 2 },
+    shift: { x: (left + right) / 4 - EXPLORE_NUDGE_RIGHT, y: (bandTop - 2 * OVERVIEW_TOP_GAP - top) / 2 },
   };
 }
 
