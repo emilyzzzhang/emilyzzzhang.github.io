@@ -57,6 +57,7 @@ export function Navbar({ activeSection, onOpen, timeOfDay, onToggleTime }: Navba
                 <button
                   type="button"
                   className="section-menu__item"
+                  data-opens-panel
                   aria-current={activeSection === id ? 'true' : undefined}
                   onClick={() => {
                     setOpen(false);

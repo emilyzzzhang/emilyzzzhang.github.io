@@ -15,6 +15,7 @@ import { useOutsideClick } from './hooks/useOutsideClick';
 import { MusicProvider } from './hooks/useMusic';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { useResumeAvailable } from './hooks/useResumeAvailable';
+import { useSounds } from './hooks/useSounds';
 import { useTimeOfDay } from './hooks/useTimeOfDay';
 import { AboutSection } from './sections/AboutSection';
 import { ContactSection } from './sections/ContactSection';
@@ -51,13 +52,15 @@ export default function App() {
   const guitar = useGuitarVisit(reducedMotion);
   const endGuitarVisit = guitar.end;
   const startGuitarVisit = guitar.start;
+  const { tick, meow, prepareMeow } = useSounds();
 
   const openSection = useCallback((id: SectionId) => {
+    tick();
     setSection(id);
     setPanelExpanded(false);
     endMochiVisit();
     endGuitarVisit();
-  }, [endMochiVisit, endGuitarVisit]);
+  }, [tick, endMochiVisit, endGuitarVisit]);
 
   const closeSection = useCallback(() => {
     setSection(null);
@@ -67,13 +70,18 @@ export default function App() {
   }, [endMochiVisit, endGuitarVisit]);
   const visitMochi = useCallback(() => {
     if (!startMochiVisit()) return;
+    void prepareMeow();
     setSection(null);
     setPanelExpanded(false);
     endGuitarVisit();
-  }, [startMochiVisit, endGuitarVisit]);
+  }, [startMochiVisit, prepareMeow, endGuitarVisit]);
 
   // A close-up of Mochi or the guitar: clicking elsewhere or Escape zooms out early.
   const mochiFocused = mochi.phase !== null;
+  const mochiMeowing = mochi.phase === 'meowing';
+  useEffect(() => {
+    if (mochiMeowing) meow();
+  }, [mochiMeowing, meow]);
   const closeUp = mochiFocused || guitar.visiting;
   useOutsideClick(closeUp, closeSection);
   useEffect(() => {

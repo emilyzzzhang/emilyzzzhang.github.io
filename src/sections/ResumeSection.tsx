@@ -21,10 +21,10 @@ export function ResumeSection({ available, onNavigate }: ResumeSectionProps) {
           in the room.
         </p>
         <div className="button-row">
-          <button type="button" className="button" onClick={() => onNavigate('experience')}>
+          <button type="button" className="button" data-opens-panel onClick={() => onNavigate('experience')}>
             See experience
           </button>
-          <button type="button" className="button button--ghost" onClick={() => onNavigate('education')}>
+          <button type="button" className="button button--ghost" data-opens-panel onClick={() => onNavigate('education')}>
             See education
           </button>
         </div>

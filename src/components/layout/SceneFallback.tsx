@@ -13,7 +13,7 @@ export function SceneFallback({ onOpen }: { onOpen: (section: SectionId) => void
         <ul className="scene-fallback__links">
           {NAV_ORDER.map((id) => (
             <li key={id}>
-              <button type="button" className="button button--ghost" onClick={() => onOpen(id)}>
+              <button type="button" className="button button--ghost" data-opens-panel onClick={() => onOpen(id)}>
                 {SECTIONS[id].navLabel}
               </button>
             </li>
