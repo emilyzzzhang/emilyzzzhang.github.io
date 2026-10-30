@@ -102,26 +102,23 @@ const FRAME_BOTTOM: Vec3[] = (() => {
   const front = (min + max) / 2 + ((max - min) / 2) * Math.SQRT1_2 ** 0.45;
   return [[front, DIORAMA.lawn.top - DIORAMA.lawn.thickness - DIORAMA.lawn.soil, front]];
 })();
-/** The gap left above and below the diorama, as a fraction of the viewport height. */
-const FRAME_MARGIN = 0.03;
 /**
- * How much closer the overview comes than the fit that shows the whole diorama (1: none, so the
- * front corner of the lawn stays in view). The cornice sits just under the tabs.
+ * How close (px) the cornice's top comes to the screen's top edge, in the overview and explore mode.
+ * The top bar holds only the corner buttons, and the cornice peaks between them, so it can rise right up.
  */
-const OVERVIEW_ZOOM = 1;
-/** The overview's smaller gap between the tabs and the cornice, as a fraction of the viewport height. */
-const OVERVIEW_TOP_GAP = 0.008;
+const TOP_CLEARANCE = 20;
+/** The gap left above and below the diorama in the overview, as a fraction of the viewport height. */
+const FRAME_MARGIN = 0.015;
 
 /**
- * Fits the desktop overview into the space below the navigation tabs: how much further back the
- * camera sits (on top of `overviewDistanceScale`) and how far down the view shifts (a fraction of
- * the viewport height, for setViewOffset), so the gap under the tabs matches the gap at the bottom.
+ * Fits the desktop overview, lawn and all, from TOP_CLEARANCE down to the screen's foot: how much
+ * further back the camera sits (on top of `overviewDistanceScale`) and how far down the view shifts
+ * (a fraction of the viewport height, for setViewOffset), with the cornice TOP_CLEARANCE from the top.
  */
-export function overviewFit(width: number, height: number, clearTop: number) {
-  const { scale: fitted, project, bandTop } = fitDiorama(width, height, clearTop, FRAME_MARGIN);
-  const scale = fitted * OVERVIEW_ZOOM;
+export function overviewFit(width: number, height: number) {
+  const { scale, project, bandTop } = fitDiorama(width, height, TOP_CLEARANCE, FRAME_MARGIN);
   const { top } = project(scale);
-  return { scale, shiftY: (bandTop - 2 * OVERVIEW_TOP_GAP - top) / 2 };
+  return { scale, shiftY: (bandTop - top) / 2 };
 }
 
 /**
@@ -135,7 +132,7 @@ export const EXPLORE_VIEW: CameraPreset = {
 };
 
 /** How much of the screen the room fills in explore mode, across or down, whichever is tighter. */
-const EXPLORE_COVER = 0.75;
+const EXPLORE_COVER = 0.93;
 /** How far right of centre the room sits in explore mode, as a fraction of the viewport width. */
 const EXPLORE_NUDGE_RIGHT = 0.04;
 
@@ -151,17 +148,18 @@ const ROOM_BOX: Vec3[] = (() => {
 /**
  * Explore mode's framing: how far along EXPLORE_VIEW's ray the camera sits (as for scalePreset)
  * so the room fills EXPLORE_COVER of the screen, and the view shift (fractions of the viewport,
- * for setViewOffset) that centres it across, nudged EXPLORE_NUDGE_RIGHT right, with its cornice just
- * under the tabs as in the overview.
+ * for setViewOffset) that centres it across, nudged EXPLORE_NUDGE_RIGHT right, with its cornice
+ * TOP_CLEARANCE from the top of the screen.
  */
-export function exploreFit(width: number, height: number, clearTop: number) {
+export function exploreFit(width: number, height: number) {
   const camera = new PerspectiveCamera(CAMERA.fov, width / height, CAMERA.near, CAMERA.far);
   const measure = (scale: number) => {
     const { position, target } = scalePreset(EXPLORE_VIEW, scale);
     camera.position.set(...position);
     camera.lookAt(...target);
     camera.updateMatrixWorld();
-    const points = ROOM_BOX.map((p) => new Vector3(...p).project(camera));
+    // The room, and the front corner of the lawn below it, so the garden's tip stays in view.
+    const points = [...ROOM_BOX, ...FRAME_BOTTOM].map((p) => new Vector3(...p).project(camera));
     const xs = points.map((p) => p.x);
     const ys = points.map((p) => p.y);
     return { left: Math.min(...xs), right: Math.max(...xs), top: Math.max(...ys), bottom: Math.min(...ys) };
@@ -173,17 +171,17 @@ export function exploreFit(width: number, height: number, clearTop: number) {
     scale *= Math.max((right - left) / 2, (top - bottom) / 2) / EXPLORE_COVER;
   }
   const { left, right, top } = measure(scale);
-  const bandTop = 1 - (2 * clearTop) / height;
+  const want = 1 - (2 * TOP_CLEARANCE) / height;
   return {
     scale,
-    shift: { x: (left + right) / 4 - EXPLORE_NUDGE_RIGHT, y: (bandTop - 2 * OVERVIEW_TOP_GAP - top) / 2 },
+    shift: { x: (left + right) / 4 - EXPLORE_NUDGE_RIGHT, y: (want - top) / 2 },
   };
 }
 
 /**
  * How far back (on top of `overviewDistanceScale`) the camera must sit for the diorama to fill the
- * band from the tabs' bottom edge to the screen's, less `margin` above and below; never closer than
- * narrow screens need to fit it across. Also returns the projection used to measure it.
+ * band from `clearTop` px below the screen's top edge to its foot, less `margin` above and below;
+ * never closer than narrow screens need to fit it across. Also returns the projection used to measure it.
  */
 function fitDiorama(width: number, height: number, clearTop: number, margin: number) {
   const aspect = width / height;

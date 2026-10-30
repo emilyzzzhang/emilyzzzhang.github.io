@@ -71,10 +71,6 @@
   --hero-ink: #7d1f4a;
   --hero-ink-soft: #9c2c5c;
   --hero-accent: #c04a78;
-  /* The tabs: their text the darkest pink of all, the current one underlined in the welcome line's pink. */
-  --nav-ink: #5c1538;
-  --nav-current: var(--hero-accent);
-  --nav-glow: rgba(255, 247, 242, 0.75);
   /* Text on the ivory buttons (Explore, Back) and the journal panel's controls, the same in both modes. */
   --button-ink: #5c1538;
   /* Soft neutral vignette that suits both ends of the backdrop. */
@@ -126,9 +122,6 @@
   /* By night the chrome keeps its deeper plums; the brighter ones above are for the day. */
   --plum-ink: var(--plum-deep);
   --plum-soft: #7c2d55;
-  --nav-ink: #fbf3f6;
-  --nav-current: #f7c7d7;
-  --nav-glow: rgba(20, 14, 35, 0.55);
   --hero-ink: #fbf3f6;
   --hero-ink-soft: #e2d8ea;
   --hero-accent: #f7c7d7;

@@ -1,5 +1,5 @@
-import { MathUtils, MeshPhysicalMaterial, MeshStandardMaterial, type Mesh, type Object3D } from 'three';
-import { sceneColors as c } from '../../config/theme';
+import { Color, MathUtils, MeshPhysicalMaterial, MeshStandardMaterial, type Mesh, type Object3D } from 'three';
+import { sceneColors as c, WALLS_BY_DAY } from '../../config/theme';
 import { reflection, surfaces, tiled, type Surface } from './surfaces';
 
 /**
@@ -126,8 +126,8 @@ export const materials = {
     polygonOffsetFactor: -1,
     polygonOffsetUnits: -2,
   }),
-  wallUpper: plaster(c.wallUpper),
-  wallLower: plaster(c.blush),
+  wallUpper: byDay(plaster(c.wallUpper), WALLS_BY_DAY.upper),
+  wallLower: byDay(plaster(c.blush), WALLS_BY_DAY.wainscot),
   cream: matte(c.cream, 0.7),
   white: matte(c.warmWhite, 0.5),
   beige: matte(c.beige, 0.8),
@@ -152,7 +152,7 @@ export const materials = {
   /** Pale wooden slab under the floor, framing the room's edge; a shade deeper than the boards so the two read apart. */
   slab: wood('#E0C29A', 0.65),
   /** The wall's cream European molding (border, columns, panel frames, chair rail): smooth and softly glossy. */
-  molding: matte(c.molding, 0.45),
+  molding: byDay(matte(c.molding, 0.45), WALLS_BY_DAY.molding),
   /** Thin gilded lines on the molding: a soft, satin gold, never shiny. */
   gold: matte(c.gold, 0.4, 0.35),
   /** Guitar woods: honey maple body, dark walnut neck, fretboard and stand. */
@@ -178,15 +178,23 @@ export const materials = {
   ceramicCream: ceramic('#F3E7D6'),
 };
 
+/** Gives a material a lighter colour by day; at night it eases back to the colour it was made with. */
+function byDay<M extends MeshStandardMaterial>(material: M, day: string): M {
+  material.userData.dayNightColor = [new Color(day), material.color.clone()];
+  return material;
+}
+
 /**
- * Eases ceramic reflections between day and night strengths. Walks the scene because
- * InteractiveObject's hover clones carry their own envMapIntensity (userData is copied with them).
+ * Eases materials between their day and night settings: ceramic reflections, and the walls' colours
+ * (see byDay). Walks the scene because materials can be cloned, and userData is copied with them.
  */
-export function blendReflections(root: Object3D, t: number) {
+export function blendDayNightMaterials(root: Object3D, t: number) {
   root.traverse((obj) => {
     const material = (obj as Mesh).material;
     if (!(material instanceof MeshStandardMaterial)) return;
     const strength = material.userData.reflection as [number, number] | undefined;
     if (strength) material.envMapIntensity = MathUtils.lerp(strength[0], strength[1], t);
+    const colors = material.userData.dayNightColor as [Color, Color] | undefined;
+    if (colors) material.color.lerpColors(colors[0], colors[1], t);
   });
 }

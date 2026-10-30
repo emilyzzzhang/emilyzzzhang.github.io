@@ -466,8 +466,9 @@ a {
   z-index: var(--z-navbar);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
+  /* The section menu on the left, the day/night switch on the right. */
+  justify-content: space-between;
+  gap: 10px;
   padding: 12px var(--gutter);
   pointer-events: none;
 }
@@ -476,74 +477,114 @@ a {
   pointer-events: auto;
 }
 
-.navbar nav {
-  /* The tabs sit in the middle of the screen; the day/night switch keeps to the right. */
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+/*
+ * The section menu: a small Menu button (three dark bars and the word), a paper label like Explore My
+ * Studio (grainy ivory, a thin pink edge, corners cut not quite evenly, a slight tilt), that opens a
+ * little paper card listing the sections, the open one shaded blush.
+ */
+.section-menu {
+  position: relative;
 }
 
-.navbar__links {
-  display: flex;
-  gap: 10px;
+.section-menu__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 15px 0 13px;
+  border: 1px solid rgba(239, 184, 200, 0.85);
+  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
+  background: var(--paper-grain), #fffaf2;
+  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.3);
+  color: var(--button-ink);
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  rotate: -1deg;
+  cursor: pointer;
+  transition:
+    box-shadow var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.section-menu__button:hover,
+.section-menu__button--open {
+  box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
+}
+
+.section-menu__button--open {
+  background: var(--paper-grain), #fbe3ea;
+}
+
+.section-menu__button:focus-visible {
+  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
+}
+
+.section-menu__list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 190px;
+  padding: 6px;
+  border: 1px solid rgba(239, 184, 200, 0.85);
+  border-radius: 8px;
+  background: var(--paper-grain), #fffaf2;
+  box-shadow: 0 10px 24px -10px rgba(120, 70, 85, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition:
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out),
+    visibility 0s linear var(--duration-fast);
+}
+
+.section-menu__list--open {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.section-menu__list ul {
+  display: grid;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.navbar__link {
-  position: relative;
-  padding: 6px 14px;
+.section-menu__item {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
   border: 0;
-  border-radius: 11px;
+  border-radius: 5px;
   background: transparent;
-  color: var(--nav-ink);
-  /* No tray behind the tabs: a soft glow keeps them clear of the sky. */
-  text-shadow: 0 1px 10px var(--nav-glow);
-  font-size: 1rem;
-  font-weight: 600;
-  white-space: nowrap;
+  color: var(--button-ink);
+  font-size: 0.95rem;
+  text-align: left;
   cursor: pointer;
-  transition:
-    background var(--duration-fast) ease,
-    color var(--duration-fast) ease;
+  transition: background var(--duration-fast) ease;
 }
 
-/* A short pink underline: a hint of it on hover, drawn in full under the current tab. */
-.navbar__link::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 3px;
-  width: 16px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--nav-current);
-  opacity: 0;
-  transform: translateX(-50%) scaleX(0.4);
-  transition:
-    opacity var(--duration-fast) ease,
-    transform var(--duration-fast) var(--ease-out);
+.section-menu__item:hover {
+  background: rgba(247, 199, 215, 0.35);
 }
 
-.navbar__link:hover::after {
-  opacity: 0.55;
+.section-menu__item[aria-current='true'] {
+  background: #fbe3ea;
 }
 
-.navbar__link[aria-current='true']::after {
-  opacity: 1;
-  transform: translateX(-50%) scaleX(1);
-}
-
-.navbar__link:focus-visible {
-  border-radius: 11px;
+.section-menu__item:focus-visible {
+  border-radius: 5px;
 }
 
 /* ---------- Hero ---------- */
 
 .hero {
   position: absolute;
-  top: calc(var(--navbar-height) + 24px);
+  /* A little above the middle of the screen, never closer to the top bar than before. */
+  top: max(calc(var(--navbar-height) + 24px), 30vh);
   left: calc(var(--gutter) + 16px);
   z-index: var(--z-hero);
   /* Narrow enough that the welcome and intro wrap clear of the room's top-left corner. */
@@ -581,8 +622,7 @@ a {
 
 /*
  * Explore My Studio as a little paper label on the page: grainy ivory, a thin pink edge, corners cut
- * not quite evenly, set on at a slight tilt. Pointing at it straightens it and lifts it a touch, like
- * a note being touched.
+ * not quite evenly, set on at a slight tilt. Pointing at it only softens a pink shadow under it.
  */
 .hero__explore {
   position: relative;
@@ -603,33 +643,16 @@ a {
   /* The hero itself lets clicks through to the room. */
   pointer-events: auto;
   transition:
-    rotate var(--duration-fast) var(--ease-out),
-    translate var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) ease;
 }
 
-
 .hero__explore:hover {
-  rotate: 0deg;
-  translate: 0 -1px;
   box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
-}
-
-.hero__explore:active {
-  translate: 0 0;
 }
 
 .hero__explore:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
-}
-
-.hero__explore-arrow {
-  transition: transform var(--duration-fast) var(--ease-out);
-}
-
-.hero__explore:hover .hero__explore-arrow {
-  transform: translateX(3px);
 }
 
 /* Explore mode's way back, a paper label like the Explore button: bottom left, in once the welcome text has gone. */
@@ -654,24 +677,12 @@ a {
   transition:
     opacity var(--duration-base) var(--ease-out) 200ms,
     transform var(--duration-base) var(--ease-out) 200ms,
-    rotate var(--duration-fast) var(--ease-out),
-    translate var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) ease;
 }
 
-/* Like the Explore button's hover. It uses `rotate`/`translate`, apart from the delayed `transform` it appears with. */
+/* Like the Explore button's hover: just a soft pink shadow. */
 .explore-back:hover {
-  rotate: 0deg;
-  translate: 0 -1px;
   box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
-}
-
-.explore-back svg {
-  transition: transform var(--duration-fast) var(--ease-out);
-}
-
-.explore-back:hover svg {
-  transform: translateX(-2px);
 }
 
 .explore-back:focus-visible {
@@ -846,22 +857,34 @@ a {
 
 /* ---------- Day / night toggle ---------- */
 
+/*
+ * Still a round switch, but in the paper of the other buttons: a grainy blush track by day (soft
+ * lavender by night), a thin pink edge and an ivory paper knob, set on at a slight tilt.
+ */
 .mode-toggle {
   position: relative;
   flex-shrink: 0;
   width: 68px;
   height: 40px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(239, 184, 200, 0.85);
   border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #fde9d9, var(--pink));
-  box-shadow: var(--shadow-sm), inset 0 1px 3px rgba(120, 70, 85, 0.12);
+  background-color: #fbe3ea;
+  background-image: var(--paper-grain);
+  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.3);
+  rotate: 1deg;
   cursor: pointer;
-  transition: background var(--duration-mode) ease;
+  transition:
+    background-color var(--duration-mode) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+.mode-toggle:hover {
+  box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
 }
 
 .mode-toggle--night {
-  background: linear-gradient(135deg, #4b4171, #7a68a8);
+  background-color: #d8cdee;
 }
 
 .mode-toggle:focus-visible {
@@ -876,15 +899,16 @@ a {
   place-items: center;
   width: 32px;
   height: 32px;
+  border: 1px solid rgba(239, 184, 200, 0.7);
   border-radius: 50%;
-  background: var(--warm-white);
-  box-shadow: 0 2px 6px rgba(120, 70, 85, 0.25);
+  background: var(--paper-grain), #fffaf2;
+  box-shadow: 0 1px 4px rgba(120, 70, 85, 0.2);
   transition: transform var(--duration-base) var(--ease-out);
 }
 
 .mode-toggle--night .mode-toggle__thumb {
   transform: translateX(28px);
-  background: #f3effb;
+  background: var(--paper-grain), #f6f2fc;
 }
 
 .mode-toggle__thumb svg {
@@ -920,31 +944,6 @@ a {
   .navbar {
     gap: 8px;
     padding-top: 12px;
-  }
-
-  .navbar nav {
-    position: static;
-    transform: none;
-    flex: 1;
-    min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin: 0 0 0 calc(var(--gutter) * -1);
-    padding: 2px 0 4px var(--gutter);
-  }
-
-  .navbar nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .navbar__links {
-    width: max-content;
-  }
-
-  .navbar__link {
-    min-height: 40px;
-    padding: 8px 14px;
-    font-size: 1rem;
   }
 
   .hero {

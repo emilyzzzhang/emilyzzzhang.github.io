@@ -93,8 +93,11 @@ export function InfoPanel({ section, expanded, onToggleExpanded, onClose, render
       </header>
       <div className="panel__body">{renderContent(shown)}</div>
       <footer className="panel__footer">
-        <button type="button" className="button button--ghost" onClick={onClose}>
-          ← Back to the room
+        <button type="button" className="panel__back" onClick={onClose}>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path d="M13.5 8.4c-3-.6-6.4-.2-9.7-.8M7.3 4.6C6 5.9 4.7 6.9 3.7 7.9c1.2 1 2.4 2.3 3.5 3.6" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back to the room
         </button>
       </footer>
     </aside>

@@ -137,8 +137,10 @@ const FLOWER_CUSHION = (() => {
   return weldNormals(geometry);
 })();
 
+/** A soft, pale sakura pink. */
+const BAG_COLOR = '#FCEBEF';
 /** Sphere UVs: once around the bag's equator, and pole to pole over its height. */
-const bagFabric = boucle(sceneColors.peach, [Math.PI * 2 * BAG.radius, 1.6], true);
+const bagFabric = boucle(BAG_COLOR, [Math.PI * 2 * BAG.radius, 1.6], true);
 bagFabric.vertexColors = true;
 const piping = new MeshStandardMaterial({ color: '#E8A9C1', roughness: 0.6 });
 const cushionFabric = boucle('#E8A9C1', [Math.PI * 2 * 0.25, 0.4], true);

@@ -4,7 +4,7 @@ import { MathUtils, type AmbientLight, type DirectionalLight, type HemisphereLig
 import { ANCHORS } from '../../config/sceneLayout';
 import { LIGHTING, sceneColors } from '../../config/theme';
 import { blendColor, colorPair, useDayNight } from './dayNight';
-import { blendReflections } from './materials';
+import { blendDayNightMaterials } from './materials';
 import { Sunlight } from './Sunlight';
 
 const { day: D, night: N } = LIGHTING;
@@ -58,7 +58,7 @@ export function Lighting({ lowPower }: { lowPower: boolean }) {
       fill.current.intensity = mix(D.fillIntensity, N.fillIntensity);
     }
     if (fairyWash.current) fairyWash.current.intensity = mix(D.fairyGlow, N.fairyGlow) * 1.8;
-    blendReflections(scene, t);
+    blendDayNightMaterials(scene, t);
   });
 
   const shadowSize = lowPower ? 1024 : 2560;

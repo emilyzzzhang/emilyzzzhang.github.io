@@ -1,18 +1,24 @@
 /* ---------- Tooltip (rendered inside the 3D scene via drei <Html>) ---------- */
 
+/*
+ * Hover labels and Mochi's lines as little paper labels, like the buttons: grainy ivory, a thin pink
+ * edge, corners cut not quite evenly, a slight tilt and a soft shadow, with a paper tail below.
+ */
 .tooltip {
   position: relative;
   display: grid;
   justify-items: center;
   padding: 8px 14px;
-  border-radius: 12px;
-  background: var(--plum-deep);
-  color: var(--cream);
+  border: 1px solid rgba(239, 184, 200, 0.85);
+  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
+  background: var(--paper-grain), #fffaf2;
+  color: var(--button-ink);
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: 0.9rem;
   white-space: nowrap;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 6px 14px -8px rgba(120, 70, 85, 0.4);
+  rotate: -1deg;
   transform: translateY(-14px);
   animation: tooltip-in var(--duration-base) var(--ease-out);
 }
@@ -20,13 +26,15 @@
 .tooltip::after {
   content: '';
   position: absolute;
-  bottom: -5px;
+  bottom: -6px;
   left: 50%;
   width: 10px;
   height: 10px;
+  border-right: 1px solid rgba(239, 184, 200, 0.85);
+  border-bottom: 1px solid rgba(239, 184, 200, 0.85);
   background: inherit;
   transform: translateX(-50%) rotate(45deg);
-  border-radius: 2px;
+  border-radius: 0 0 2px;
 }
 
 .tooltip__hint {
@@ -36,33 +44,22 @@
   opacity: 0.7;
 }
 
-/* Mochi's lines: a light speech bubble in the panel palette instead of the dark label */
+/* Mochi's lines: the same paper, a little roomier. */
 .tooltip--speech {
   gap: 2px;
   padding: 10px 18px 11px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--ink);
-  font-weight: 600;
   font-size: 0.95rem;
-  box-shadow: var(--shadow-lg);
-}
-
-.tooltip--speech::after {
-  border-right: 1px solid rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .tooltip--large {
   padding: 14px 28px 15px;
-  border-radius: var(--radius-lg);
+  border-radius: 6px 14px 8px 15px / 14px 6px 15px 8px;
   font-size: 1.9rem;
   letter-spacing: 0.01em;
 }
 
 .tooltip--large::after {
-  bottom: -8px;
+  bottom: -9px;
   width: 16px;
   height: 16px;
 }
@@ -184,10 +181,12 @@
   text-transform: uppercase;
 }
 
+/* The deep plum it has at night, by day too, so the title reads the same in both. */
 .panel__title {
   display: inline-block;
   padding-bottom: 8px;
   background: var(--pen-squiggle) left bottom / 100% 7px no-repeat;
+  color: var(--plum-deep);
   font-size: 1.85rem;
   font-weight: 700;
 }
@@ -198,30 +197,30 @@
   gap: 8px;
 }
 
-/* Dressed like the tags: soft pink marker, no border, rose ink, square. */
+/* A small paper label like the Explore My Studio button (and Back to the room below). */
 .panel__expand {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 4px;
-  background: rgba(247, 199, 215, 0.45);
-  color: var(--text-rose);
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(239, 184, 200, 0.85);
+  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
+  background: var(--paper-grain), #fffaf2;
+  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.3);
+  color: var(--button-ink);
+  rotate: 1deg;
   cursor: pointer;
-  transition:
-    transform var(--duration-fast) var(--ease-out),
-    background var(--duration-fast);
+  transition: box-shadow var(--duration-fast) ease;
 }
 
 .panel__expand:hover {
-  background: rgba(247, 199, 215, 0.75);
-  transform: scale(1.06);
+  box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
 }
 
 .panel__expand:focus-visible {
-  border-radius: 4px;
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .panel__body {
@@ -243,26 +242,31 @@
   border-top: 1.5px dashed rgba(162, 63, 102, 0.22);
 }
 
-/* "Back to the room": a pink label taped on at a slight angle; it lifts a touch as you point at it. */
-.panel__footer .button--ghost {
-  padding: 9px 18px;
-  border: 0;
-  border-radius: 3px;
-  background: rgba(247, 199, 215, 0.8);
-  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.35);
+/* "Back to the room": a paper label like the Explore My Studio button, with the same doodled arrow. */
+.panel__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 8px 13px;
+  border: 1px solid rgba(239, 184, 200, 0.85);
+  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
+  background: var(--paper-grain), #fffaf2;
+  box-shadow: 0 2px 6px -3px rgba(120, 70, 85, 0.3);
   color: var(--button-ink);
   font-family: var(--font-heading);
-  font-weight: 400;
-  transform: rotate(-1.5deg);
-  transition:
-    transform var(--duration-fast) var(--ease-out),
-    background var(--duration-fast) ease;
+  font-size: 0.95rem;
+  rotate: -1deg;
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) ease;
 }
 
-.panel__footer .button--ghost:hover {
-  background: rgb(247, 199, 215);
-  box-shadow: 0 4px 10px -4px rgba(120, 70, 85, 0.4);
-  transform: rotate(-1.5deg) translateY(-1px);
+.panel__back:hover {
+  box-shadow: 0 6px 14px -6px rgba(214, 112, 150, 0.45);
+}
+
+.panel__back:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* ---------- Section content ---------- */

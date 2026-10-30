@@ -121,5 +121,15 @@ export const SUNLIGHT = {
   platformShadowColor: '#34503f',
 };
 
+/**
+ * The room's walls by day, lighter and whiter than their own colours (sceneColors.wallUpper, blush,
+ * molding), which they ease back to at night. Only the walls: night is unchanged.
+ */
+export const WALLS_BY_DAY = {
+  upper: '#FFFFFF',
+  wainscot: '#FDFAF6',
+  molding: '#FCF8F3',
+};
+
 /** Time constant for the day/night blend (higher = faster; ~2.4 settles in about 1.5 s). */
 export const DAY_NIGHT_SPEED = 2.4;

@@ -54,11 +54,11 @@ export function CameraController({ focus, panelExpanded, exploring, reducedMotio
 
   const isMobile = size.width < MOBILE_BREAKPOINT;
   const overviewScale = overviewDistanceScale(size.width / size.height);
-  // On desktop the overview is fitted into the space under the tabs, with equal gaps above and below.
-  const fit = useMemo(() => (isMobile ? null : overviewFit(size.width, size.height, navbarHeight())), [isMobile, size.width, size.height]);
+  // On desktop the overview is fitted from just under the top edge down to the foot of the screen.
+  const fit = useMemo(() => (isMobile ? null : overviewFit(size.width, size.height)), [isMobile, size.width, size.height]);
   const home = scalePreset(HOME_VIEW, overviewScale * (fit?.scale ?? 1));
   const homeDistance = new Vector3(...home.position).distanceTo(new Vector3(...home.target));
-  const explore = useMemo(() => exploreFit(size.width, size.height, navbarHeight()), [size.width, size.height]);
+  const explore = useMemo(() => exploreFit(size.width, size.height), [size.width, size.height]);
   const exploreView = scalePreset(EXPLORE_VIEW, explore.scale);
 
   // Latest values for callbacks that must not re-run effects on every resize.
@@ -180,11 +180,6 @@ export function CameraController({ focus, panelExpanded, exploring, reducedMotio
  */
 function overviewShift(mobile: boolean, fitY = 0): ViewShift {
   return mobile ? { x: 0, y: -CAMERA_ANIMATION.heroShift.mobile } : { x: -CAMERA_ANIMATION.heroShift.desktop, y: fitY };
-}
-
-/** The navigation bar's height in pixels, from the stylesheet (--navbar-height). */
-function navbarHeight() {
-  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height')) || 72;
 }
 
 function panelShift(viewportWidth: number, mobile: boolean, expanded: boolean): ViewShift {
