@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 
 export type TimeOfDay = 'day' | 'night';
 
-const STORAGE_KEY = 'mochi-studio:time-of-day';
+// A new key since night became the default: the old one saved 'day' for everyone who ever visited.
+const STORAGE_KEY = 'mochi-studio:time-of-day-v2';
 
 function readStored(): TimeOfDay {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'night' ? 'night' : 'day';
+    return localStorage.getItem(STORAGE_KEY) === 'day' ? 'day' : 'night';
   } catch {
-    return 'day';
+    return 'night';
   }
 }
 
