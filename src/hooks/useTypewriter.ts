@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 /** Pacing in ms: a steady hand, a beat at commas, a breath at the end of a sentence and between paragraphs. */
-const PACE = { start: 450, char: 9, comma: 57, stop: 140, paragraph: 217 };
+const PACE = { start: 225, char: 4.5, comma: 28.5, stop: 70, paragraph: 108.5 };
 
 /** Letters over which a paragraph eases up to speed, and eases off again before its last word. */
 const EASE_IN = 12;
