@@ -3,9 +3,9 @@
 Welcome to my little studio! Come visit at **[emilyzzzhang.github.io](https://emilyzzzhang.github.io)**.
 
 <p>
-  <img src=".github/screenshots/day.jpg" alt="The studio by day: a pink-and-white room on a garden lawn, floating in pink clouds" width="49%">
-  <img src=".github/screenshots/night.jpg" alt="The studio at night, lit by fairy lights under a starry sky" width="49%">
+  <img width="1437" height="638" alt="Screenshot 2026-11-06 at 1 29 19 PM" src="https://github.com/user-attachments/assets/ee3b2de4-5048-4492-a429-bfeab3f779a8" />
 </p>
+
 
 ## Look around
 
